@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS `problem`;
 DROP TABLE IF EXISTS `user`;
 DROP TABLE IF EXISTS `test_sample`;
 DROP TABLE IF EXISTS `submission`;
-
+ 
 
 CREATE TABLE `problem` (
 	`problemKey`		INT				NOT NULL AUTO_INCREMENT COMMENT '题目编号',
