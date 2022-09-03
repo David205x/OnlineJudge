@@ -1,7 +1,9 @@
 package com.oj.onlinejudge.service.impl.user.account;
 
 import com.oj.onlinejudge.pojo.User;
+import com.oj.onlinejudge.service.impl.utils.UserDetailsImpl;
 import com.oj.onlinejudge.service.user.account.LoginService;
+import com.oj.onlinejudge.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,7 +24,7 @@ public class LoginServiceImpl implements LoginService {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(username, password);
         Authentication authenticate = authenticationManager.authenticate(authenticationToken);
-        UserDetailImpl loginUser = (UserDetailImpl) authenticate.getPrincipal();
+        UserDetailsImpl loginUser = (UserDetailsImpl) authenticate.getPrincipal();
         User user = loginUser.getUser();
         String jwt = JwtUtil.createJWT(user.getId().toString());
 

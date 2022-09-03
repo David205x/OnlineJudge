@@ -1,4 +1,4 @@
-package com.oj.onlinejudge.controller.user.accout;
+package com.oj.onlinejudge.controller.user.account;
 
 import com.oj.onlinejudge.service.user.account.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
