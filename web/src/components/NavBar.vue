@@ -54,6 +54,7 @@
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 import { useStore } from 'vuex';
+import router from '@/router';
 export default {
     setup() {
         const route = useRoute();
@@ -63,6 +64,7 @@ export default {
         const logout = () => {
             store.dispatch("logout");
             store.commit("updatePullingInfo", false);
+            router.push({name: "user_account_login"});
         }
         return {
             route_name,
