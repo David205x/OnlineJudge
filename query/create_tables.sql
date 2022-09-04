@@ -75,3 +75,4 @@ CREATE TABLE `solution` (
 
 	PRIMARY KEY (`problemKey`),
 	CONSTRAINT `suolution_fk_1` FOREIGN KEY (`problemKey`) 	REFERENCES `problem`(`problemKey`)
+)
