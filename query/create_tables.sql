@@ -1,3 +1,6 @@
+CREATE DATABASE online_judge;
+USE online_judge;
+
 DROP TABLE IF EXISTS `problem`;
 DROP TABLE IF EXISTS `user`;
 DROP TABLE IF EXISTS `test_sample`;
