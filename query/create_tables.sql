@@ -1,7 +1,11 @@
+CREATE DATABASE online_judge;
+USE online_judge;
+
 DROP TABLE IF EXISTS `problem`;
 DROP TABLE IF EXISTS `user`;
 DROP TABLE IF EXISTS `test_sample`;
 DROP TABLE IF EXISTS `submission`;
+DROP TABLE IF EXISTS `solution`
  
 
 CREATE TABLE `problem` (
@@ -58,3 +62,17 @@ CREATE TABLE `submission` (
 	PRIMARY KEY (`submissionKey`),
 	CONSTRAINT `submission_fk_1` FOREIGN KEY (`userKey`) 	REFERENCES `user`(`userKey`)
 );
+
+CREATE TABLE `solution` (
+	`solutionKey`		INT				NOT NULL 				COMMENT '题解编号',
+	`problemKey`		INT				NOT NULL				COMMENT '题解编号',
+
+	`contributor`		VARCHAR(64)		NOT NULL				COMMENT '题解贡献者',
+	`time`				TIMESTAMP		NOT NULL				COMMENT '题解提交时间',
+	`detail`			VARCHAR(2048)	NOT NULL				COMMENT '题解详情',
+
+	PRIMARY KEY (`solutionKey`),
+
+	PRIMARY KEY (`problemKey`),
+	CONSTRAINT `suolution_fk_1` FOREIGN KEY (`problemKey`) 	REFERENCES `problem`(`problemKey`)
+)

@@ -108,6 +108,7 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+<<<<<<< HEAD
         <!-- https://mvnrepository.com/artifact/org.python/jython -->
         <dependency>
             <groupId>org.python</groupId>
@@ -115,6 +116,8 @@
             <version>2.7.2</version>
         </dependency>
 
+=======
+>>>>>>> 9e1e86f49a9d3d5fc208715c8b556888f8723371
     </dependencies>
 
     <build>
