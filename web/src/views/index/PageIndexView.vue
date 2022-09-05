@@ -1,6 +1,9 @@
 <template>
     <ContentField>
          这是主界面 登录状态：{{ logged == true ? "登录" : "未登录" }}
+         <div >
+            {{ $store.state.problem.problemDescription }}
+         </div>
      </ContentField>
  </template>
    
@@ -13,6 +16,14 @@ import { useStore } from "vuex";
        
         const store = useStore();
         const logged = store.state.user.is_login;
+        store.dispatch("showProblem",{
+                success(){
+                    store.commit("updatePullingInfo", false);
+                },
+                error() {
+                    store.commit("updatePullingInfo", false);
+                }
+            })
         store.commit("updatePullingInfo", false);
         if(store.state.user.is_login){
             store.dispatch("getinfoInMainPage", {
@@ -20,6 +31,7 @@ import { useStore } from "vuex";
                     console.log(store.state.user);
                 }
             })
+
         }
         return {
             logged,
