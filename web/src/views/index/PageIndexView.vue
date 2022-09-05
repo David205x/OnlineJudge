@@ -6,6 +6,9 @@
             <highlightjs language="c++" :code="md.context" />
         </div>
         
+         <div >
+            {{ $store.state.problem.problemDescription }}
+         </div>
      </ContentField>
  </template>
    
@@ -27,6 +30,14 @@ export default{
             context:
                 "\nint public main(){\n    int t;\n    t = 1;\n    int cnt = 1;\n    while(t--){\n        solve(cnt++);\n    }\n    return 0;\n}\n"
         }
+        store.dispatch("showProblem",{
+                success(){
+                    store.commit("updatePullingInfo", false);
+                },
+                error() {
+                    store.commit("updatePullingInfo", false);
+                }
+            })
         store.commit("updatePullingInfo", false);
         if(store.state.user.is_login){
             store.dispatch("getinfoInMainPage", {
@@ -34,6 +45,7 @@ export default{
                     console.log(store.state.user);
                 }
             })
+
         }
         return {
             logged,
