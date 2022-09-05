@@ -17,7 +17,7 @@ CREATE TABLE `problem` (
 
 
 CREATE TABLE `user` (
-	`userKey`			INT				NOT NULL AUTO_INCREMENT COMMENT '用户编号',
+	`id`				INT				NOT NULL AUTO_INCREMENT COMMENT '用户编号',
 	`userName`			VARCHAR(32)		NOT NULL				COMMENT '用户名/账号',
 	`password`			VARCHAR(32)		NOT NULL				COMMENT '用户密码',
 	`avatarURI`			VARCHAR(64)								COMMENT '头像路径(预留)',
