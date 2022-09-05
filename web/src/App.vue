@@ -13,6 +13,7 @@
           NavBar
       },
       setup() {
+        
       }
   }
 </script>
