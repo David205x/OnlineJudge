@@ -1,5 +1,6 @@
 import $ from 'jquery'
 
+
 export default{
     state:{
         id: "",
@@ -25,10 +26,10 @@ export default{
         },
         logout(state) {
             state.id = "",
-                state.username = "",
-                state.photo = "",
-                state.token = "",
-                state.is_login = false
+            state.username = "",
+            state.photo = "",
+            state.token = "",
+            state.is_login = false
         },
     },
     actions:{
@@ -75,6 +76,23 @@ export default{
                 },
                 error(resp) {
                     data.error(resp);
+                }
+            });
+        },
+        getinfoInMainPage(context, data) {
+            console.log(context.state.token);
+            console.log(data);
+            $.ajax({
+                url: "http://127.0.0.1:3000/index/info/",
+                type: 'post',
+                headers: {
+                    Authorization: "Bearer " + context.state.token,
+                },
+                success(resp) {
+                    console.log(resp);
+                },
+                error(resp) {
+                    console.log(resp);
                 }
             });
         },

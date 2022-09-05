@@ -1,8 +1,8 @@
 <template>
-   <ContentField>
+   <ContentField v-if="!$store.state.user.pulling_info">
         <div class="row justify-content-md-center">
             <div class="col-3">
-                <form>
+                <form @submit.prevent="login">
                     <div class="mb-3">
                         <label for="username" class="form-label">用户名</label>
                         <input v-model="username" type="text" class="form-control" id="username" placeholder="请输入用户名">
@@ -12,13 +12,8 @@
                         <input v-model="password" type="password" class="form-control" id="password"
                                placeholder="请输入密码">
                     </div>
-                    <div class="mb-3">
-                        <label for="confirmedPassword" class="form-label">确认密码</label>
-                        <input v-model="confirmedPassword" type="password" class="form-control" id="confirmedPassword"
-                               placeholder="请再次输入密码">
-                    </div>
-                    <div class="error_message">{{}}</div>
-                    <button type="submit" class="btn btn-primary">注册</button>
+                    <div class="error_message">{{ error_message }}</div>
+                    <button type="submit" class="btn btn-primary">登录</button>
                 </form>
             </div>
         </div>
@@ -27,8 +22,59 @@
   
 <script>
 import ContentField from "@/components/ContentField.vue";
+import { useStore } from 'vuex'
+import { ref } from 'vue'
+import router from '@/router/index'
 export default{
    components: { ContentField },
+   setup(){
+
+        const store = useStore();
+        let username = ref('');
+        let password = ref('');
+        let error_message = ref('');
+        const jwt_token = localStorage.getItem("jwt_token");
+        if(jwt_token){
+            store.commit("updateToken", jwt_token);
+            store.dispatch("getinfo", {
+                success(){
+                    store.commit("updatePullingInfo", false);
+                    
+                    router.push({ name:"home" });
+                },
+                error() {
+                    store.commit("updatePullingInfo", false);
+                }
+            })
+        }else {
+            store.commit("updatePullingInfo", false);
+        }
+
+        const login = () => {
+            error_message.value = "";
+            store.dispatch("login", {
+                username: username.value,
+                password: password.value,
+                success() {
+                    store.dispatch("getinfo", {
+                        success(){
+                            console.log(store.state.user);
+                            router.push({ name: "home" });
+                        }
+                    })
+                },
+                error() {
+                    error_message.value = "用户名或密码错误";
+                }
+            })
+        }
+        return {
+            username,
+            password,
+            error_message,
+            login,
+        }
+   }
 }
 
 </script> 
