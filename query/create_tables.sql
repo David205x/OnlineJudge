@@ -56,5 +56,5 @@ CREATE TABLE `submission` (
 						 'C++')			NOT NULL				COMMENT '提交使用语言',
 	
 	PRIMARY KEY (`submissionKey`),
-	CONSTRAINT `submission_fk_1` FOREIGN KEY (`userKey`) 	REFERENCES `user`(`userKey`)
+	CONSTRAINT `submission_fk_1` FOREIGN KEY (`userKey`) 	REFERENCES `user`(`id`)
 );
