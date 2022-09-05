@@ -1,9 +1,10 @@
+CREATE DATABASE online_judge
+USE online_judge
 DROP TABLE IF EXISTS `problem`;
 DROP TABLE IF EXISTS `user`;
 DROP TABLE IF EXISTS `test_sample`;
 DROP TABLE IF EXISTS `submission`;
-DROP TABLE IF EXISTS `solution`
- 
+
 
 CREATE TABLE `problem` (
 	`problemKey`		INT				NOT NULL AUTO_INCREMENT COMMENT '题目编号',
@@ -18,19 +19,19 @@ CREATE TABLE `problem` (
 
 
 CREATE TABLE `user` (
-	`userKey`			INT				NOT NULL AUTO_INCREMENT COMMENT '用户编号',
-	`userName`			VARCHAR(32)		NOT NULL				COMMENT '用户名/账号',
-	`password`			VARCHAR(32)		NOT NULL				COMMENT '用户密码',
-	`avatarURI`			VARCHAR(64)								COMMENT '头像路径(预留)',
+	`id`				INT				NOT NULL AUTO_INCREMENT COMMENT '用户编号',
+	`userName`			VARCHAR(128)		NOT NULL				COMMENT '用户名/账号',
+	`password`			VARCHAR(128)		NOT NULL				COMMENT '用户密码',
+	`avatarURI`			VARCHAR(128)								COMMENT '头像路径(预留)',
 	
-	PRIMARY KEY (`userKey`)
+	PRIMARY KEY (`id`)
 );
 
 
 CREATE TABLE `test_sample` (
 	`sampleKey`			INT				NOT NULL AUTO_INCREMENT COMMENT '测试用例编号',
 	`problemKey`		INT				NOT NULL 				COMMENT '所属题目',
-	`IOpair`			VARCHAR(256)	NOT NULL 				COMMENT '输入输出用例对json',
+	`IOpair`			VARCHAR(512)	NOT NULL 				COMMENT '输入输出用例对json',
 	
 	PRIMARY KEY (`sampleKey`),
 	CONSTRAINT `sample_fk_1` FOREIGN KEY (`problemKey`) 	REFERENCES `problem`(`problemKey`)
@@ -57,18 +58,5 @@ CREATE TABLE `submission` (
 						 'C++')			NOT NULL				COMMENT '提交使用语言',
 	
 	PRIMARY KEY (`submissionKey`),
-	CONSTRAINT `submission_fk_1` FOREIGN KEY (`userKey`) 	REFERENCES `user`(`userKey`)
+	CONSTRAINT `submission_fk_1` FOREIGN KEY (`userKey`) 	REFERENCES `user`(`id`)
 );
-
-CREATE TABLE `solution` (
-	`solutionKey`		INT				NOT NULL 				COMMENT '题解编号',
-	`problemKey`		INT				NOT NULL				COMMENT '题解编号',
-
-	`contributor`		VARCHAR(64)		NOT NULL				COMMENT '题解贡献者',
-	`time`				TIMESTAMP		NOT NULL				COMMENT '题解提交时间',
-	`detail`			VARCHAR(2048)	NOT NULL				COMMENT '题解详情',
-
-	PRIMARY KEY (`solutionKey`),
-
-	PRIMARY KEY (`problemKey`),
-	CONSTRAINT `suolution_fk_1` FOREIGN KEY (`problemKey`) 	REFERENCES `problem`(`problemKey`)
