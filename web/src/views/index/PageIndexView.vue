@@ -23,7 +23,6 @@
                 v-model = md3>
             </md-editor>
         </div>
-
      </ContentField>
  </template>
    
@@ -61,6 +60,14 @@ export default{
         const md2 = {
             context: "$x_i \\leq y_i$ 并且 $e = {x_i}^{10}$"
         }
+        store.dispatch("showProblem",{
+                success(){
+                    store.commit("updatePullingInfo", false);
+                },
+                error() {
+                    store.commit("updatePullingInfo", false);
+                }
+            })
         store.commit("updatePullingInfo", false);
         if(store.state.user.is_login){
             store.dispatch("getinfoInMainPage", {
@@ -68,6 +75,7 @@ export default{
                     console.log(store.state.user);
                 }
             })
+
         }
         return {
             logged,
