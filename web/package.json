@@ -16,6 +16,7 @@
     "jquery": "^3.6.1",
     "marked": "^4.1.0",
     "mathjax": "^3.2.2",
+    "md-editor-v3": "^2.2.1",
     "vue": "^3.2.37",
     "vue-router": "^4.0.3",
     "vue3-ace-editor": "^2.2.2",
