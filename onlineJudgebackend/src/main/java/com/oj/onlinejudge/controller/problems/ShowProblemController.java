@@ -21,7 +21,4 @@ public class ShowProblemController {
     public Map<String, String> showProblem() {
         return showProblemService.getProblem("1", "test");
     }
-
-
-
 }

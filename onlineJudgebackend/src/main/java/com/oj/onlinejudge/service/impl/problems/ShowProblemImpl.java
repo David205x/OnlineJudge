@@ -28,7 +28,7 @@ public class ShowProblemImpl implements ShowProblemService {
         List<Problem> problemEntries = problemMapper.selectList(queryWrapper);
 
         if (problemEntries.size() != 1) {
-            throw new RuntimeException("problemKey conflict!");
+            throw new RuntimeException("problemKey conflict(s)!");
         }
         if (!extraInfo.isEmpty()) {
             extraInfo = "success";
