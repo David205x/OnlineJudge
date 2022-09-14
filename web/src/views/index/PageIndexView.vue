@@ -11,7 +11,12 @@
                 @init="editorInit"
                 lang="c_cpp"
                 theme="textmate"
-                style="height: 300px" />
+                style="height: 300px" 
+                :options="{           
+                    enableBasicAutocompletion: true,
+                    fontSize:14,
+                    showPrintMargin:false
+                }"/>
         </div>
         <div>
             <span>这是一段markdown</span>
