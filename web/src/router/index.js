@@ -4,6 +4,7 @@ import UserRegisterView from '@/views/user/account/UserRegisterView'
 import PageIndexView from '@/views/index/PageIndexView'
 import ProblemDetailView from '@/views/problem/ProblemDetailView'
 import ProblemEditorialEditor from "@/components/problem/ProblemEditorialEditor.vue";
+import Page_twoView from "@/views/Page_two/Page_twoView"
 import store from '@/store/index'
 const routes = [
   {
@@ -50,6 +51,14 @@ const routes = [
     path: "/problem/editorial/editor/",
     name: "problem_editorial_editor",
     component: ProblemEditorialEditor,
+    meta: {
+        requestAuth: false
+    }
+  },
+  {
+    path: "/problem/page2",
+    name: "problem_twoView",
+    component: Page_twoView,
     meta: {
         requestAuth: false
     }
