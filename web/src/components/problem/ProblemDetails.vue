@@ -37,20 +37,28 @@
                     </div>
                 </div>
             </div>
-            
-            <span>这是IDE</span>
             <VAceEditor
                 @init="editorInit"
                 lang="c_cpp"
                 theme="textmate"
-                style="height: 300px" 
+                style="height: 600px" 
+                v-model:value="code.content"
                 :options="{
-                    enableBasicAutocompletion: true,
+                    enableBasicAutocompletion: true, 
                     fontSize:14,
                     showPrintMargin:false,
                 }">
                 
             </VAceEditor>
+                
+            <div :class="submission_status == 'Accepted' ? 'accepted' : 'wrong' " >
+                <span style="color:black; font-weight: normal" v-if="submission_status !== '?'">代码运行状态:  </span>
+                &nbsp;
+                <span v-if="submission_status !== '?'">{{ submission_status }}</span>
+                <button @click="submitcode" class="btn btn-primary" style="float: right; margin-top: -10px">提交</button>
+            </div>
+            
+            
         </div>
      </ContentField>
  </template>
@@ -58,7 +66,7 @@
  <script>
 import ContentField from "@/components/ContentField.vue";
 import { useStore } from "vuex";
-import { ref } from 'vue'
+import { ref, reactive } from "vue"
 import { marked } from "marked";
 import { VAceEditor } from 'vue3-ace-editor';
 import ace from 'ace-builds';
@@ -76,8 +84,13 @@ export default{
         mathJax,
     },
     setup(){  
+
         let spinner_cog = ref(0);
         const store = useStore();
+        let submission_status = ref('?');
+        const code = reactive({
+            content: "",
+        });
         const md = {
             context:
                 "int main(){\n    int t;\n    t = 1;\n    int cnt = 1;\n    while(t--){\n        solve(cnt++);\n    }\n    return 0;\n}\n",
@@ -97,12 +110,32 @@ export default{
         const compiledMarkdown = () => {
             return marked.parse(store.state.problem.problemDescription);
         }
+        const submitcode = () =>{
+            console.log(code.content)
+
+            store.dispatch("sendSubmission", {
+                userKey: "1",
+                content: code.content,
+                language: "cpp",
+                timestamp: "1",
+                success(resp) {
+                    console.log(resp);
+                    submission_status.value = resp.SubmissionStatus;
+                },
+                error() {
+                    console.log("?");
+                }
+            });
+        }
         return {
             md,
             flag,
             spinner_cog,
             compiledMarkdown,
-            spinnerChangeCog
+            spinnerChangeCog,
+            code,
+            submitcode,
+            submission_status
         }
     },
     computed:{
@@ -132,6 +165,20 @@ i.fa {
               0 0 2px #64867a,
               0 0 2px #64867a,
               0 0 10px #64867a;
+}
+div.accepted{
+    color: lightgreen;
+    font-weight: bold;
+    font-size:large;
+    margin-left: 10px;
+    margin-top: 25px;
+}
+div.wrong{
+    color: red;
+    font-weight: bold;
+    margin-left: 10px;
+    font-size:large;
+    margin-top: 25px;
 }
  
 </style>

@@ -139,6 +139,7 @@ public class CppChecker implements GenericChecker {
 
             final int memoryLimit = 100;
 
+
             try {
                 String runCmd = dstDir + "\\_main_.exe";
                 final Process runProcess = Runtime.getRuntime().exec(runCmd, null, new File(dstDir + "\\"));
@@ -225,9 +226,9 @@ public class CppChecker implements GenericChecker {
         return Integer.parseInt(memUsed);
     }
 
-    public ArrayList<String> answerSplitter(String answerString, String seperator) { // I/O string slicer
+    public ArrayList<String> answerSplitter(String answerString) { // I/O string slicer
         if (answerString.isEmpty()) {
-            return new ArrayList<>();
+            return null;
         } else {
             String[] container = answerString.split("\\r?\\n");
             return new ArrayList<>(Arrays.asList(container));
@@ -245,42 +246,42 @@ public class CppChecker implements GenericChecker {
         String sampleAnswer = sampleHelper.getAll();
 
         try {
-            ArrayList<String> submitted = answerSplitter(submittedAnswer, "\n");
-            ArrayList<String> sample = answerSplitter(sampleAnswer, "\n");
+            ArrayList<String> submitted = answerSplitter(submittedAnswer);
+            ArrayList<String> sample = answerSplitter(sampleAnswer);
             if (sample != null && submitted != null) {
                 for (int i = 0; i < sample.size(); i++) {
                     if (!(sample.get(i).equals(submitted.get(i)))) {
-                        postPacket.put("JugderStatus", "WrongAnswer");
+                        postPacket.put("JudgerStatus", "WrongAnswer");
                         postPacket.put("failedAt", Integer.toString(i + 1));
                         return postPacket;
                     }
                 }
             } else {
-                postPacket.put("JugderStatus", "InternalError");
+                postPacket.put("JudgerStatus", "InternalError");
                 return postPacket;
             }
         } catch (Exception e) {
-            postPacket.put("JugderStatus", "InternalError");
+            postPacket.put("JudgerStatus", "InternalError");
             e.printStackTrace();
             return postPacket;
         }
-        postPacket.put("JugderStatus", "Accepted");
+        postPacket.put("JudgerStatus", "Accepted");
         return postPacket;
     }
 
     public boolean clearUps() {
 
-        for (String fileItem : this.relatedFiles) {
-            try {
-                File file = new File(fileItem);
-                if (file.exists()) {
-                    file.delete();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                return false;
-            }
-        }
-        return true;
+//        for (String fileItem : this.relatedFiles) {
+//            try {
+//                File file = new File(fileItem);
+//                if (file.exists()) {
+//                    file.delete();
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                return false;
+//            }
+//        }
+       return true;
     }
 }

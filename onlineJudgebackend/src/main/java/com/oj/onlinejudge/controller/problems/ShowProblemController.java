@@ -1,7 +1,6 @@
 package com.oj.onlinejudge.controller.problems;
 
 import com.oj.onlinejudge.service.problems.ShowProblemService;
-import com.sun.javafx.collections.MappingChange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -42,6 +42,7 @@ export default{
                     password: data.password,
                 },
                 success(resp) {
+                    console.log(data)
                     if (resp.error_message === "success") {
                         localStorage.setItem("jwt_token", resp.token);
                         context.commit("updateToken", resp.token);
@@ -100,6 +101,29 @@ export default{
             localStorage.removeItem("jwt_token");
             context.commit("logout");
         },
+        sendSubmission(context, data){
+            console.log(context);
+            $.ajax({
+                url: "http://127.0.0.1:3000/user/submission/getinfo/",
+                type: 'POST',
+                data: {
+                    userKey: data.userKey,
+                    code: data.content,
+                    language: data.language,
+                    timestamp: data.timestamp,
+                },
+                // headers: {
+                //     Authorization: "Bearer " + context.state.token,
+                // },
+                success(resp) {
+                    console.log(this.data)
+                    data.success(resp)
+                },
+                error() {
+                    console.log(this.data)
+                }
+            });
+        }
     },
     modules:{}
 }
