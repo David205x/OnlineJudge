@@ -6,9 +6,19 @@ import java.util.Map;
 
 public class CppCheckerCore {
 
-    private final String root = "E:\\vue\\OnlineJudge\\files"; // CHANGE THIS!!!!
+    String root = System.getenv("BJUT_OJ_HOME");
     private final String fname = "main.cpp"; // TODO: Redirect the input to json packet sent back fron frontend.
-    CppChecker c = new CppChecker(fname, root, root);
+    CppChecker c;
+
+    public CppCheckerCore() {
+        if (root != null) {
+            root += "\\files";
+        }
+        else {
+            throw new RuntimeException("Cannot locate file storage");
+        }
+        c = new CppChecker(fname, root, root);
+    }
 
     public Map<String, String> checkSubmission() throws IOException, InterruptedException {
         Map<String, String> compileResult = c.complieAndRunFile(root);
