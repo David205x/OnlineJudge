@@ -21,18 +21,29 @@ public class CppCheckerCore {
     }
 
     public Map<String, String> checkSubmission() throws IOException, InterruptedException {
+
+        String root = System.getenv("BJUT_OJ_HOME");
+        if (root == null) {
+            throw new RuntimeException("Cannot locate file storage");
+        }
+        root += "\\files";
+        // TODO: Redirect the input to json packet sent back fron frontend.
+        String fname = "main.cpp";
+
+        CppChecker c = new CppChecker(fname, root, root);
         Map<String, String> compileResult = c.complieAndRunFile(root);
-        if (!(compileResult.get("PreProcessStatus").equals("Accepted"))) {
-            System.out.println(compileResult.get("PreProcessStatus")); // If not compiled successfully
+        Map<String,String> runResult = c.checker();
+
+        Map<String, String> resultPacket = new HashMap<>();
+
+        if (("Accepted").equals(compileResult.get("RuntimeStatus"))) { // No compile error.
+            resultPacket.put("SubmissionStatus", runResult.get("JudgerStatus"));
         }
         else {
-            Map<String,String> runResult = c.checker();
-            String status = runResult.get("RunProcessStatus");
-            System.out.println(status + " " + ((status.equals("WrongAnswer")) ? runResult.get("failedAt") : "" + "\n"));
+            resultPacket.put("SubmissionStatus", compileResult.get("RuntimeStatus"));
         }
         c.clearUps();
 
-        // TODO: Wrap the judge result in a json packet.
-        return new HashMap<String, String>();
+        return resultPacket;
     }
 }
