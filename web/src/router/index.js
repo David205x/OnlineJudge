@@ -2,6 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router'
 import UserLoginView from '@/views/user/account/UserLoginView'
 import UserRegisterView from '@/views/user/account/UserRegisterView'
 import PageIndexView from '@/views/index/PageIndexView'
+import ProblemDetailView from '@/views/problem/ProblemDetailView'
+import ProblemEditorialEditor from "@/components/problem/ProblemEditorialEditor.vue";
+import Page_twoView from "@/views/Page_two/Page_twoView"
 import store from '@/store/index'
 const routes = [
   {
@@ -32,6 +35,30 @@ const routes = [
     path: "/user/account/register/",
     name: "user_account_register",
     component: UserRegisterView,
+    meta: {
+        requestAuth: false
+    }
+  },
+  {
+    path: "/problem/details/",
+    name: "problem_details",
+    component: ProblemDetailView,
+    meta: {
+        requestAuth: false
+    }
+  },
+  {
+    path: "/problem/editorial/editor/",
+    name: "problem_editorial_editor",
+    component: ProblemEditorialEditor,
+    meta: {
+        requestAuth: false
+    }
+  },
+  {
+    path: "/problem/page2",
+    name: "problem_twoView",
+    component: Page_twoView,
     meta: {
         requestAuth: false
     }

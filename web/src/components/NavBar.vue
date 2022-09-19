@@ -13,10 +13,12 @@
                         </router-link>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">界面2</a>
+                        <router-link :class="route_name == 'problem_twoView' ? 'nav-link active' : 'nav-link'"
+                                     :to="{name: 'problem_twoView'}">界面2</router-link>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">界面3</a>
+                        <router-link :class="route_name == 'problem_details' ? 'nav-link active' : 'nav-link'"
+                                     :to="{name: 'problem_details'}">界面3</router-link>
                     </li>
                     
                 </ul>

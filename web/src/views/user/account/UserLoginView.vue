@@ -80,4 +80,10 @@ export default{
 </script> 
 
 <style scoped> 
+div.error_message{
+    color: red
+}
+button {
+    width: 100%;
+}
 </style>

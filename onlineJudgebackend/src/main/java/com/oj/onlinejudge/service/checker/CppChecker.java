@@ -137,7 +137,8 @@ public class CppChecker implements GenericChecker {
             final long[] timeLimitExceededFlag = {-1}; // if greater than 0 it means TLE happens.
             final int[] peakMemUsed = {-1};
 
-            final int memoryLimit = 4096;
+            final int memoryLimit = 100;
+
 
             try {
                 String runCmd = dstDir + "\\_main_.exe";
@@ -270,17 +271,17 @@ public class CppChecker implements GenericChecker {
 
     public boolean clearUps() {
 
-        for (String fileItem : this.relatedFiles) {
-            try {
-                File file = new File(fileItem);
-                if (file.exists()) {
-                    file.delete();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                return false;
-            }
-        }
-        return true;
+//        for (String fileItem : this.relatedFiles) {
+//            try {
+//                File file = new File(fileItem);
+//                if (file.exists()) {
+//                    file.delete();
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                return false;
+//            }
+//        }
+       return true;
     }
 }

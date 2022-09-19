@@ -16,7 +16,7 @@ export default{
         }
     },
     actions:{
-        showProblem(context) {
+        showProblem(context, data) {
             console.log( context)
             $.ajax({
                 url: "http://127.0.0.1:3000/problems/test/",
@@ -28,6 +28,8 @@ export default{
                             problemDescription : resp.problemBody,
                             problemKey : resp.problemKey
                         })
+                        data.success(resp)
+
                     }
                 },
                 error(resp) {

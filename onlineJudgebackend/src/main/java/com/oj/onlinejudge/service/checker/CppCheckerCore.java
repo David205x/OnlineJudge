@@ -7,12 +7,13 @@ import java.util.Map;
 public class CppCheckerCore {
 
     String root = System.getenv("BJUT_OJ_HOME");
+
     private final String fname = "main.cpp"; // TODO: Redirect the input to json packet sent back fron frontend.
     CppChecker c;
 
     public CppCheckerCore() {
         if (root != null) {
-            root += "\\files";
+            root += "\\files\\sample";
         }
         else {
             throw new RuntimeException("Cannot locate file storage");
@@ -26,7 +27,7 @@ public class CppCheckerCore {
         if (root == null) {
             throw new RuntimeException("Cannot locate file storage");
         }
-        root += "\\files";
+        root += "\\files\\sample";
         // TODO: Redirect the input to json packet sent back fron frontend.
         String fname = "main.cpp";
 
