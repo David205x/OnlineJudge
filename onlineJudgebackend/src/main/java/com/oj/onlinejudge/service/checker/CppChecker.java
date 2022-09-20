@@ -22,6 +22,8 @@ public class CppChecker implements GenericChecker {
     private String sampleOutputFile;
     private String submissionUUID;
 
+    SampleWrapper sw;
+
     List<String> relatedFiles = new ArrayList<>();
 
     public CppChecker(String fileName, String srcDir, String dstDir, String submissionUUID) {
@@ -29,22 +31,34 @@ public class CppChecker implements GenericChecker {
         if (this.MinGWPath == null) {
             throw new RuntimeException("Cannot locate local MinGW");
         }
+        this.submissionUUID = submissionUUID;
+
+        sw = new SampleWrapper(dstDir, submissionUUID);
 
         this.fileName = fileName;
         this.srcDir = srcDir;
         this.filePath = srcDir + "\\" + fileName;
 
         this.dstDir = dstDir;
-        this.inputFile = srcDir + "\\i";
-        this.outputFile = dstDir + "\\o.txt";
-        this.sampleOutputFile = dstDir + "\\o";
-        this.submissionUUID = submissionUUID;
+
+        this.inputFile = srcDir + "\\" + sw.getInputName();
+        this.sampleOutputFile = dstDir + "\\" + sw.getOutputName();
+        this.outputFile = dstDir + "\\" + submissionUUID + "_o.txt";
+
     }
 
     public Map<String, String> complieAndRunFile(String dstDir) throws IOException, InterruptedException {
 
         final String extraHeaders = "#include<cstdlib>\n#include<cmath>\n#include<Windows.h>\n";
-        final String streamRedirector = "\n\tfreopen(\"i\",\"r\", stdin);\n\tfreopen(\"o.txt\",\"w\", stdout);\n";
+
+        sw.getSamplesFromDB();
+        sw.wrapSamples();
+
+        relatedFiles.add(inputFile);
+        relatedFiles.add(sampleOutputFile);
+
+        final String streamRedirector = "\n\tfreopen(\"" + sw.getInputName() + "\",\"r\", stdin);" +
+                                        "\n\tfreopen(\"" + sw.getOutputName() +".txt\",\"w\", stdout);\n";
 
         final String finalFileName = submissionUUID + "_main.cpp";
 
@@ -85,9 +99,6 @@ public class CppChecker implements GenericChecker {
                 return prePacket;
             }
         }
-
-        // relatedFiles.add(inputFile);
-        // relatedFiles.add(sampleOutputFile);
 
         relatedFiles.add(outputFile);
         relatedFiles.add(finalProduct);
@@ -242,11 +253,11 @@ public class CppChecker implements GenericChecker {
 
     public Map<String, String> checker() {
 
-        FileHelper submissionHelper = new FileHelper("o.txt", outputFile);
+        FileHelper submissionHelper = new FileHelper(outputFile);
         submissionHelper.readAll();
         String submittedAnswer = submissionHelper.getAll();
 
-        FileHelper sampleHelper = new FileHelper("o", sampleOutputFile);
+        FileHelper sampleHelper = new FileHelper(sampleOutputFile);
         sampleHelper.readAll();
         String sampleAnswer = sampleHelper.getAll();
 
