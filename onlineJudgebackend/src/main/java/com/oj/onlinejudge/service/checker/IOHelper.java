@@ -1,9 +1,12 @@
 package com.oj.onlinejudge.service.checker;
 
+import java.util.ArrayList;
+
 public interface IOHelper {
 
-    public int readAll();
+    public boolean readAll();
     public String getAll();
-    public int writeAll();
+    public ArrayList<String> getAllByLines();
+    public boolean writeAll(String fileContent);
 
 }

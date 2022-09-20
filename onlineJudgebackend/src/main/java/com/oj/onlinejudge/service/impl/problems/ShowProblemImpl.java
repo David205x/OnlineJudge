@@ -21,7 +21,7 @@ public class ShowProblemImpl implements ShowProblemService {
     private ProblemMapper problemMapper;
 
     @Override
-    public Map<String, String> getProblem(String problemKey, String extraInfo) {
+    public Map<String, String> getProblem(String problemKey) {
 
         QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("problemkey", problemKey);
@@ -30,14 +30,11 @@ public class ShowProblemImpl implements ShowProblemService {
         if (problemEntries.size() != 1) {
             throw new RuntimeException("problemKey conflict(s)!");
         }
-        if (!extraInfo.isEmpty()) {
-            extraInfo = "success";
-        }
 
         HashMap<String, String> retMap = new HashMap<>();
         retMap.put("problemKey", problemKey);
         retMap.put("problemBody",  problemEntries.get(0).getDescription());
-        System.out.println(retMap);
+
         return retMap;
     }
 }

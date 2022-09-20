@@ -21,18 +21,24 @@ public class FileHelper implements IOHelper {
         this.filePath = filePath;
     }
 
-    public int readAll() {
+    public FileHelper(String filePath) {
+        String[] items = filePath.split("\\\\");
+        this.fileName = items[items.length - 1];
+        this.filePath = filePath;
+    }
+
+    public boolean readAll() {
 
         int lineCnt = 0;
 
-        try(
+        try (
                 FileInputStream fstream = new FileInputStream(this.filePath);
                 InputStreamReader reader = new InputStreamReader(fstream, StandardCharsets.UTF_8);
                 BufferedReader buf = new BufferedReader(reader);
         ) {
             String line;
             StringBuilder stringBuilder = new StringBuilder();
-            while((line = buf.readLine()) != null) {
+            while ((line = buf.readLine()) != null) {
                 stringBuilder.append(line).append("\n");
                 fullContentByLines.add(line);
                 lineCnt++;
@@ -40,11 +46,12 @@ public class FileHelper implements IOHelper {
             buf.close();
             fullContent = stringBuilder.toString();
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
 
-        return lineCnt;
+        return true;
     }
 
     public String getAll() {
@@ -52,11 +59,33 @@ public class FileHelper implements IOHelper {
         return fullContent;
     }
 
-    public int writeAll(){
+    public ArrayList<String> getAllByLines() {
 
-        // TODO: Finish writeAll();
-
-        return this.fileLength;
+        return fullContentByLines;
     }
 
+    public boolean writeAll(String fileContent) {
+
+        File file = new File(filePath);
+        if (file.exists()) {
+            file.delete();
+        }
+        try {
+            file.createNewFile();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        try(FileWriter fileWriter = new FileWriter(filePath);) {
+
+            fileWriter.write(fileContent);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
 }

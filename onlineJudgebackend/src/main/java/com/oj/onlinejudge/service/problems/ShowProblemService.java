@@ -6,5 +6,5 @@ import java.util.Map;
 
 public interface ShowProblemService {
 
-    Map<String, String> getProblem(String problemKey, String extraInfo);
+    Map<String, String> getProblem(String problemKey);
 }
