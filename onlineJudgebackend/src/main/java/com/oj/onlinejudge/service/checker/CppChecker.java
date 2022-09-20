@@ -20,10 +20,11 @@ public class CppChecker implements GenericChecker {
     private String inputFile;
     private String outputFile;
     private String sampleOutputFile;
+    private String submissionUUID;
 
     List<String> relatedFiles = new ArrayList<>();
 
-    public CppChecker(String fileName, String srcDir, String dstDir) {
+    public CppChecker(String fileName, String srcDir, String dstDir, String submissionUUID) {
 
         if (this.MinGWPath == null) {
             throw new RuntimeException("Cannot locate local MinGW");
@@ -37,6 +38,7 @@ public class CppChecker implements GenericChecker {
         this.inputFile = srcDir + "\\i";
         this.outputFile = dstDir + "\\o.txt";
         this.sampleOutputFile = dstDir + "\\o";
+        this.submissionUUID = submissionUUID;
     }
 
     public Map<String, String> complieAndRunFile(String dstDir) throws IOException, InterruptedException {
@@ -44,8 +46,10 @@ public class CppChecker implements GenericChecker {
         final String extraHeaders = "#include<cstdlib>\n#include<cmath>\n#include<Windows.h>\n";
         final String streamRedirector = "\n\tfreopen(\"i\",\"r\", stdin);\n\tfreopen(\"o.txt\",\"w\", stdout);\n";
 
-        FileHelper submittedCode = new FileHelper("main.cpp", srcDir + "\\main.cpp");
-        relatedFiles.add(srcDir + "\\main.cpp");
+        final String finalFileName = submissionUUID + "_main.cpp";
+
+        FileHelper submittedCode = new FileHelper(srcDir + "\\" + finalFileName);
+        relatedFiles.add(dstDir + "\\" + finalFileName);
         submittedCode.readAll();
         // String srcCode = "#include<iostream>\n\nusing namespace std;\n\nint main() { \n\tSleep(200);\n\tstring s;\n\tcin >> s;\n\tcout << s << endl;\n\treturn 0;\n} ";
         String srcCode = submittedCode.getAll();
@@ -58,7 +62,7 @@ public class CppChecker implements GenericChecker {
         codeBuilder.append(extraHeaders).append(injector[0]).append(standardMainFunc).append(streamRedirector).append(injector[1]);
         String finalSrcCode = codeBuilder.toString();
 
-        final String finalProduct = dstDir + "\\_main_.cpp";
+        final String finalProduct = dstDir + "\\_" + finalFileName;
         System.out.println(finalProduct);
 
         File cppFile = new File(finalProduct);
@@ -82,9 +86,10 @@ public class CppChecker implements GenericChecker {
             }
         }
 
-        relatedFiles.add(inputFile);
+        // relatedFiles.add(inputFile);
+        // relatedFiles.add(sampleOutputFile);
+
         relatedFiles.add(outputFile);
-        relatedFiles.add(sampleOutputFile);
         relatedFiles.add(finalProduct);
 
         // TEST RUN
@@ -93,14 +98,14 @@ public class CppChecker implements GenericChecker {
 
         // COMPILE
         Process complieProcess = null;
-        String compileCmd = MinGWPath + "\\g++.exe " + finalProduct + " -o " + dstDir + "\\_main_";
+        String compileCmd = MinGWPath + "\\g++.exe " + finalProduct + " -o " + dstDir + "\\" + submissionUUID;
         complieProcess = Runtime.getRuntime().exec(compileCmd);
 
         final InputStream errStream = complieProcess.getErrorStream();
         final String[] errMsg = {null};
         StringBuffer errInfo = new StringBuffer();
 
-        relatedFiles.add(dstDir + "\\_main_.exe"); // .exe
+        relatedFiles.add(dstDir + "\\" + submissionUUID + ".exe");
 
         new Thread() { // Compiler output thread
             public void run() {
@@ -137,11 +142,11 @@ public class CppChecker implements GenericChecker {
             final long[] timeLimitExceededFlag = {-1}; // if greater than 0 it means TLE happens.
             final int[] peakMemUsed = {-1};
 
-            final int memoryLimit = 100;
+            final int memoryLimit = 4096;
 
 
             try {
-                String runCmd = dstDir + "\\_main_.exe";
+                String runCmd = dstDir + "\\" + submissionUUID + ".exe";
                 final Process runProcess = Runtime.getRuntime().exec(runCmd, null, new File(dstDir + "\\"));
                 if (runProcess != null) {
                     InputStream is = runProcess.getInputStream();
@@ -156,7 +161,7 @@ public class CppChecker implements GenericChecker {
 //                                            ========================= ======== ================ =========== ============
 //                                    _main_.exe                    1852 Console                    1      2,096 K
 
-                                    String memoryCheckCmd = "tasklist /fi \"imagename eq _main_.exe\"";
+                                    String memoryCheckCmd = "tasklist /fi \"imagename eq " + submissionUUID + ".exe\"";
                                     Process memChecker = Runtime.getRuntime().exec(memoryCheckCmd);
                                     InputStream memCheckerInputStream = memChecker.getInputStream();
                                     BufferedReader br = new BufferedReader(new InputStreamReader(memCheckerInputStream, "GB2312"));
@@ -271,17 +276,17 @@ public class CppChecker implements GenericChecker {
 
     public boolean clearUps() {
 
-//        for (String fileItem : this.relatedFiles) {
-//            try {
-//                File file = new File(fileItem);
-//                if (file.exists()) {
-//                    file.delete();
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                return false;
-//            }
-//        }
+        for (String fileItem : this.relatedFiles) {
+            try {
+                File file = new File(fileItem);
+                if (file.exists()) {
+                    file.delete();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
        return true;
     }
 }

@@ -8,30 +8,27 @@ public class CppCheckerCore {
 
     String root = System.getenv("BJUT_OJ_HOME");
 
+    private final String submissionUUID;
+
     private final String fname = "main.cpp"; // TODO: Redirect the input to json packet sent back fron frontend.
     CppChecker c;
 
-    public CppCheckerCore() {
+    public CppCheckerCore(String submissionUUID) {
+        this.submissionUUID = submissionUUID;
+
         if (root != null) {
-            root += "\\files\\sample";
+            root += "\\files";
         }
         else {
             throw new RuntimeException("Cannot locate file storage");
         }
-        c = new CppChecker(fname, root, root);
     }
 
     public Map<String, String> checkSubmission() throws IOException, InterruptedException {
 
-        String root = System.getenv("BJUT_OJ_HOME");
-        if (root == null) {
-            throw new RuntimeException("Cannot locate file storage");
-        }
-        root += "\\files\\sample";
-        // TODO: Redirect the input to json packet sent back fron frontend.
-        String fname = "main.cpp";
+        String fname = submissionUUID + "_main.cpp";
 
-        CppChecker c = new CppChecker(fname, root, root);
+        CppChecker c = new CppChecker(fname, root, root, submissionUUID);
         Map<String, String> compileResult = c.complieAndRunFile(root);
         Map<String,String> runResult = c.checker();
 
