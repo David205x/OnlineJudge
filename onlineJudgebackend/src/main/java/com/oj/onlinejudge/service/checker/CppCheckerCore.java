@@ -30,11 +30,11 @@ public class CppCheckerCore {
 
         CppChecker c = new CppChecker(fname, root, root, submissionUUID);
         Map<String, String> compileResult = c.complieAndRunFile(root);
-        Map<String,String> runResult = c.checker();
 
         Map<String, String> resultPacket = new HashMap<>();
 
         if (("Accepted").equals(compileResult.get("RuntimeStatus"))) { // No compile error.
+            Map<String,String> runResult = c.checker();
             resultPacket.put("SubmissionStatus", runResult.get("JudgerStatus"));
         }
         else {
