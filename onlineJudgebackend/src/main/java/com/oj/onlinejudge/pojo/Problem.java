@@ -6,8 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// TODO: THIS IS A TEST FUNCTION, MAY GET REMOVED LATER
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

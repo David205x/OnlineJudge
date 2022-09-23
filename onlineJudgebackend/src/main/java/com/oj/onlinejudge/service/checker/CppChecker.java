@@ -69,7 +69,9 @@ public class CppChecker implements GenericChecker {
         final String standardMainFunc = "int main() {\n";
 
         StringBuilder codeBuilder = new StringBuilder();
-        String[] injector = srcCode.split(".*int main\\(.*\\).*\\{.*");
+
+        String[] injector = srcCode.split(".*int main\\(.*\\)\\s*\\{.*");
+
         if (injector.length != 2) {
             prePacket.put("RuntimeStatus", "CompileError");
             return prePacket;
@@ -90,7 +92,8 @@ public class CppChecker implements GenericChecker {
 
         // TEST RUN
         int testrunMemUsage = 0;
-        // TODO: RUN AN EMPTY COMMAND SHELL.
+        String[] testrunCmd = {"cmd.exe", "title testrun", "tasklist /fi \"imagename eq \"cmd.exe\""};
+        // Process testrunner = Runtime.getRuntime().exec(testrunCmd);
 
         // COMPILE
         Process complieProcess = null;
@@ -103,7 +106,7 @@ public class CppChecker implements GenericChecker {
 
         relatedFiles.add(dstDir + "\\" + submissionUUID + ".exe");
 
-        new Thread() { // Compiler output thread
+        new Thread() {
             public void run() {
                 try {
                     BufferedReader br = new BufferedReader(new InputStreamReader(errStream, StandardCharsets.UTF_8));
@@ -159,7 +162,7 @@ public class CppChecker implements GenericChecker {
                                     BufferedReader br = new BufferedReader(new InputStreamReader(memCheckerInputStream, "GB2312"));
 
                                     String line = null;
-                                    StringBuffer usedMem = new StringBuffer();
+                                    StringBuilder usedMem = new StringBuilder();
 
                                     while ((line = br.readLine()) != null) {
                                         usedMem.append(line).append("\n");
