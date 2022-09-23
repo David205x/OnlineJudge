@@ -110,7 +110,6 @@ export default{
                     userKey: data.userKey,
                     code: data.content,
                     language: data.language,
-                    timestamp: data.timestamp,
                 },
                 // headers: {
                 //     Authorization: "Bearer " + context.state.token,

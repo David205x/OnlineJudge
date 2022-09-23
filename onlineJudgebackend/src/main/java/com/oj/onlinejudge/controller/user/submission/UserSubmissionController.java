@@ -16,7 +16,7 @@ public class UserSubmissionController {
 
     @PostMapping("/user/submission/getinfo/")
     public Map<String, String> submission(@RequestParam String userKey, @RequestParam String code,
-                                          @RequestParam String language, @RequestParam String timestamp) throws IOException {
+                                          @RequestParam String language) throws IOException {
 
         return getSubmissionService.GetSubmission(userKey, code, language);
     }

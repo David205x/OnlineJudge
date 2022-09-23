@@ -30,7 +30,7 @@
                         </select>
                     </div>
                     <div class="col-1">
-                        <i v-on:mouseover="spinnerChangeCog(1)" v-on:mouseout="spinnerChangeCog(0)" :class="spinner_cog == 1 ? 'fa fa-refresh fa-spin fa-2x' : 'fa fa-refresh fa-2x'" ></i>
+                        <i @click="refresh" v-on:mouseover="spinnerChangeCog(1)" v-on:mouseout="spinnerChangeCog(0)" :class="spinner_cog == 1 ? 'fa fa-refresh fa-spin fa-2x' : 'fa fa-refresh fa-2x'" ></i>
                     </div>
                     <div class="col-1">
                         <i class="fa fa-cog fa-2x active"></i>
@@ -54,7 +54,11 @@
             <div :class="submission_status == 'Accepted' ? 'accepted' : 'wrong' " >
                 <span style="color:black; font-weight: normal" v-if="submission_status !== '?'">代码运行状态:  </span>
                 &nbsp;
-                <span v-if="submission_status !== '?'">{{ submission_status }}</span>
+                <span v-if="submission_status !== '?' && submission_status !== 'Waiting'">{{ submission_status }}</span>
+                <span class="loading">
+                    <span class="fa fa-circle-o-notch fa-spin fa-lg" v-if="submission_status == 'Waiting'"></span>
+                </span>
+                
                 <button @click="submitcode" class="btn btn-primary" style="float: right; margin-top: -10px">提交</button>
             </div>
             
@@ -112,12 +116,11 @@ export default{
         }
         const submitcode = () =>{
             console.log(code.content)
-
+            submission_status.value = "Waiting"
             store.dispatch("sendSubmission", {
                 userKey: "1",
                 content: code.content,
                 language: "cpp",
-                timestamp: "1",
                 success(resp) {
                     console.log(resp);
                     submission_status.value = resp.SubmissionStatus;
@@ -127,6 +130,9 @@ export default{
                 }
             });
         }
+        const refresh = () =>{
+            code.content = ""
+        }
         return {
             md,
             flag,
@@ -135,7 +141,8 @@ export default{
             spinnerChangeCog,
             code,
             submitcode,
-            submission_status
+            submission_status,
+            refresh,
         }
     },
     computed:{
@@ -167,7 +174,7 @@ i.fa {
               0 0 10px #64867a;
 }
 div.accepted{
-    color: lightgreen;
+    color: rgb(28, 193, 28);
     font-weight: bold;
     font-size:large;
     margin-left: 10px;
@@ -180,5 +187,8 @@ div.wrong{
     font-size:large;
     margin-top: 25px;
 }
- 
+span.loading{
+    color: lightgray;
+    margin-bottom: 5px;
+}
 </style>
