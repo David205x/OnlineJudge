@@ -188,7 +188,7 @@ div.wrong{
     margin-top: 25px;
 }
 span.loading{
-    color: lightgray;
+    color: rgb(58, 231, 124);
     margin-bottom: 5px;
 }
 </style>

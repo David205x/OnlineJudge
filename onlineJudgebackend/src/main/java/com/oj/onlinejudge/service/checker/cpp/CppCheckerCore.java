@@ -1,4 +1,4 @@
-package com.oj.onlinejudge.service.checker;
+package com.oj.onlinejudge.service.checker.cpp;
 
 import java.io.IOException;
 import java.util.HashMap;

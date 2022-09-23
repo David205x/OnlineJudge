@@ -1,17 +1,41 @@
 package com.oj.onlinejudge;
 
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
-import java.lang.management.MemoryUsage;
-
 
 @SpringBootTest
 class OnlinejudgeApplicationTests {
     @Test
     void contextLoads()  {
-//        String[] s = new String[1];
+        Logger LOGGER = LoggerFactory.getLogger("OnlinejudgeApplicationTests.class");
+        try {
+            LOGGER.debug("main方法开始执行了~~~");
+            LOGGER.info("我开始记录第二行日志，我要开始做除法~~~");
+            int a = 10;
+            int b = 0;
+            LOGGER.trace("a = "+ a);
+            LOGGER.trace("b = " + b);
+
+            //System.out.println(a / b);
+        } catch (Exception e){
+            LOGGER.error("功能出现异常，"+ e);
+        }
+//        int a[][] = new int[10000][10000];
+//        MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
+//
+//        MemoryUsage memoryUsage = memoryMXBean.getHeapMemoryUsage(); //椎内存使用情况
+//        long totalMemorySize = memoryUsage.getInit(); //初始的总内存
+//
+//        long maxMemorySize = memoryUsage.getMax(); //最大可用内存
+//
+//        long usedMemorySize = memoryUsage.getUsed(); //已使用的内存
+//
+//        System.out.println("初始内存 " + (double)(totalMemorySize) / 1024 / 1024);
+//        System.out.println("最大可用内存 " + (double)maxMemorySize / 1024 / 1024);
+//        System.out.println("已使用内存 " + (double)usedMemorySize / 1024 / 1024);
+        //        String[] s = new String[1];
 //        s[0] = "PYTHONPATH=D:/python";
 //        String runCmd = "D:\\python\\python.exe C:\\Users\\luo'xing'yue\\Desktop\\test.py";
 //        try{
@@ -30,19 +54,6 @@ class OnlinejudgeApplicationTests {
 //        }catch (Exception e){
 //            e.printStackTrace();
 //        }
-        int a[][] = new int[10000][10000];
-        MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
-
-        MemoryUsage memoryUsage = memoryMXBean.getHeapMemoryUsage(); //椎内存使用情况
-        long totalMemorySize = memoryUsage.getInit(); //初始的总内存
-
-        long maxMemorySize = memoryUsage.getMax(); //最大可用内存
-
-        long usedMemorySize = memoryUsage.getUsed(); //已使用的内存
-
-        System.out.println("初始内存 " + (double)(totalMemorySize) / 1024 / 1024);
-        System.out.println("最大可用内存 " + (double)maxMemorySize / 1024 / 1024);
-        System.out.println("已使用内存 " + (double)usedMemorySize / 1024 / 1024);
     }
 
 }

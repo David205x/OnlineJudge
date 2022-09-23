@@ -1,15 +1,19 @@
-package com.oj.onlinejudge.service.checker;
+package com.oj.onlinejudge.service.checker.cpp;
 
-import com.oj.onlinejudge.service.checker.impl.CppParser;
+import com.oj.onlinejudge.service.checker.FileHelper;
+import com.oj.onlinejudge.service.checker.GenericChecker;
+import com.oj.onlinejudge.service.checker.SampleWrapper;
+import com.oj.onlinejudge.service.checker.impl.CodeParserImpl;
+import com.oj.onlinejudge.utils.FilePathUtil;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
 
-public class CppChecker extends CppParser implements GenericChecker{
+public class CppChecker extends CodeParserImpl implements GenericChecker {
 
-    private final String MinGWPath = System.getenv("BJUT_OJ_MINGW");
+    private final String MinGWPath = FilePathUtil.BJUT_OJ_MINGW;
     ; // CHANGE THIS!!!!
     private final Map<String, String> prePacket = new HashMap<>();
     private final Map<String, String> postPacket = new HashMap<>();
@@ -69,17 +73,14 @@ public class CppChecker extends CppParser implements GenericChecker{
 
         final String standardMainFunc = "int main() {\n";
 
-        StringBuilder codeBuilder = new StringBuilder();
-        String[] injector = srcCode.split(".*int main\\(.*\\)\\s*\\{.*");
         String[] insertCode = new String[2];
         insertCode[0] = extraHeaders;
         insertCode[1] = standardMainFunc + streamRedirector;
         Map<String, String> response = Response(srcCode, ".*int main\\(.*\\)\\s*\\{.*", insertCode);
-        if("CompileError".equals(response.get("error_message"))){
+        if("CompileError".equals(response.get("error_message"))) {
             prePacket.put("RuntimeStatus", "CompileError");
             return prePacket;
         }
-        codeBuilder.append(extraHeaders).append(injector[0]).append(standardMainFunc).append(streamRedirector).append(injector[1]);
         String finalSrcCode = response.get("ParsedCodeString");
 
         final String finalProduct = dstDir + "\\_" + finalFileName;
@@ -92,10 +93,6 @@ public class CppChecker extends CppParser implements GenericChecker{
         relatedFiles.add(outputFile);
         relatedFiles.add(finalProduct);
 
-        // TEST RUN
-        int testrunMemUsage = 0;
-        String[] testrunCmd = {"cmd.exe", "title testrun", "tasklist /fi \"imagename eq \"cmd.exe\""};
-        // Process testrunner = Runtime.getRuntime().exec(testrunCmd);
 
         // COMPILE
         Process compileProcess = null;

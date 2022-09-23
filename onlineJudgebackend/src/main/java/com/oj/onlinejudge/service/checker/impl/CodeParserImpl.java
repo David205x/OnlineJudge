@@ -5,7 +5,7 @@ import com.oj.onlinejudge.service.checker.CodeParser;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CppParser implements CodeParser {
+public class CodeParserImpl implements CodeParser {
     @Override
     public String[] ParseCode(String srcCode, String reg) {
         try{
