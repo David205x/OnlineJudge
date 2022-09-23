@@ -1,16 +1,12 @@
 package com.oj.onlinejudge.service.impl.user.submission;
 
-import com.oj.onlinejudge.service.checker.CppCheckerCore;
+import com.oj.onlinejudge.service.checker.cpp.CppCheckerCore;
 import com.oj.onlinejudge.service.checker.FileHelper;
 import com.oj.onlinejudge.service.user.submission.GetSubmissionService;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 @Service
 public class GetSubmissionServiceImpl implements GetSubmissionService {
