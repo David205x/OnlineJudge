@@ -5,7 +5,7 @@ import java.util.Map;
 
 public interface GenericChecker {
 
-    public Map<String, String> complieAndRunFile(String dstDir) throws IOException, InterruptedException;
+    public Map<String, String> compileAndRunFile(String dstDir) throws IOException, InterruptedException;
     public Map<String, String> checker();
 
 }

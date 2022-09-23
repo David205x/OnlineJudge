@@ -1,11 +1,13 @@
 package com.oj.onlinejudge.service.checker;
 
+import com.oj.onlinejudge.service.checker.impl.CppParser;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
 
-public class CppChecker implements GenericChecker {
+public class CppChecker extends CppParser implements GenericChecker{
 
     private final String MinGWPath = System.getenv("BJUT_OJ_MINGW");
     ; // CHANGE THIS!!!!
@@ -46,7 +48,7 @@ public class CppChecker implements GenericChecker {
 
     }
 
-    public Map<String, String> complieAndRunFile(String dstDir) throws IOException, InterruptedException {
+    public Map<String, String> compileAndRunFile(String dstDir) throws IOException, InterruptedException {
 
         final String extraHeaders = "#include<cstdlib>\n#include<cmath>\n#include<Windows.h>\n"; // optional
 
@@ -60,7 +62,6 @@ public class CppChecker implements GenericChecker {
                                         "\n\tfreopen(\"" + sw.getOutputName() +".txt\",\"w\", stdout);\n";
 
         final String finalFileName = submissionUUID + "_main.cpp";
-
         FileHelper submittedCode = new FileHelper(srcDir + "\\" + finalFileName);
         relatedFiles.add(dstDir + "\\" + finalFileName);
         submittedCode.readAll();
@@ -69,16 +70,17 @@ public class CppChecker implements GenericChecker {
         final String standardMainFunc = "int main() {\n";
 
         StringBuilder codeBuilder = new StringBuilder();
-
         String[] injector = srcCode.split(".*int main\\(.*\\)\\s*\\{.*");
-
-        if (injector.length != 2) {
+        String[] insertCode = new String[2];
+        insertCode[0] = extraHeaders;
+        insertCode[1] = standardMainFunc + streamRedirector;
+        Map<String, String> response = Response(srcCode, ".*int main\\(.*\\)\\s*\\{.*", insertCode);
+        if("CompileError".equals(response.get("error_message"))){
             prePacket.put("RuntimeStatus", "CompileError");
             return prePacket;
         }
-
         codeBuilder.append(extraHeaders).append(injector[0]).append(standardMainFunc).append(streamRedirector).append(injector[1]);
-        String finalSrcCode = codeBuilder.toString();
+        String finalSrcCode = response.get("ParsedCodeString");
 
         final String finalProduct = dstDir + "\\_" + finalFileName;
         FileHelper helper = new FileHelper(finalProduct);
@@ -96,11 +98,11 @@ public class CppChecker implements GenericChecker {
         // Process testrunner = Runtime.getRuntime().exec(testrunCmd);
 
         // COMPILE
-        Process complieProcess = null;
-        String compileCmd = MinGWPath + "\\g++.exe " + finalProduct + " -o " + dstDir + "\\" + submissionUUID;
-        complieProcess = Runtime.getRuntime().exec(compileCmd);
+        Process compileProcess = null;
+        String compileCmd = MinGWPath + "\\g++.exe " + finalProduct + " -o " + dstDir + "\\" + submissionUUID + ".exe";
+        compileProcess = Runtime.getRuntime().exec(compileCmd);
 
-        final InputStream errStream = complieProcess.getErrorStream();
+        final InputStream errStream = compileProcess.getErrorStream();
         final String[] errMsg = {null};
         StringBuffer errInfo = new StringBuffer();
 
@@ -130,8 +132,8 @@ public class CppChecker implements GenericChecker {
             }
         }.start();
 
-        complieProcess.waitFor();
-        complieProcess.destroy();
+        compileProcess.waitFor();
+        compileProcess.destroy();
 
         // RUN
         if (errInfo.toString().isEmpty()) { // Timer thread
@@ -141,7 +143,7 @@ public class CppChecker implements GenericChecker {
             final long[] timeLimitExceededFlag = {-1}; // if greater than 0 it means TLE happens.
             final int[] peakMemUsed = {-1};
 
-            final int memoryLimit = 4096;
+            final int memoryLimit = 40960;
 
 
             try {
@@ -288,4 +290,5 @@ public class CppChecker implements GenericChecker {
             }
         }
     }
+
 }
