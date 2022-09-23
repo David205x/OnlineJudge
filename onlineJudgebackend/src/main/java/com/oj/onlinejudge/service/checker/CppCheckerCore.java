@@ -31,8 +31,6 @@ public class CppCheckerCore {
         CppChecker c = new CppChecker(fname, root, root, submissionUUID);
         Map<String, String> compileResult = c.compileAndRunFile(root);
 
-
-
         Map<String, String> resultPacket = new HashMap<>();
 
         if (("Accepted").equals(compileResult.get("RuntimeStatus"))) { // No compile error.

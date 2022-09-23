@@ -6,7 +6,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class CppChecker extends CppParser implements GenericChecker{
 
@@ -24,6 +23,8 @@ public class CppChecker extends CppParser implements GenericChecker{
     private String sampleOutputFile;
     private String submissionUUID;
 
+    SampleWrapper sw;
+
     List<String> relatedFiles = new ArrayList<>();
 
     public CppChecker(String fileName, String srcDir, String dstDir, String submissionUUID) {
@@ -31,28 +32,39 @@ public class CppChecker extends CppParser implements GenericChecker{
         if (this.MinGWPath == null) {
             throw new RuntimeException("Cannot locate local MinGW");
         }
+        this.submissionUUID = submissionUUID;
+
+        sw = new SampleWrapper(dstDir, submissionUUID);
 
         this.fileName = fileName;
         this.srcDir = srcDir;
         this.filePath = srcDir + "\\" + fileName;
 
         this.dstDir = dstDir;
-        this.inputFile = srcDir + "\\i";
-        this.outputFile = dstDir + "\\o.txt";
-        this.sampleOutputFile = dstDir + "\\o";
-        this.submissionUUID = submissionUUID;
+
+        this.inputFile = srcDir + "\\" + sw.getInputName();
+        this.sampleOutputFile = dstDir + "\\" + sw.getOutputName();
+        this.outputFile = dstDir + "\\" + submissionUUID + "_o.txt";
+
     }
 
     public Map<String, String> compileAndRunFile(String dstDir) throws IOException, InterruptedException {
 
-        final String extraHeaders = "#include<cstdlib>\n#include<cmath>\n#include<Windows.h>\n";
-        final String streamRedirector = "\n\tfreopen(\"i\",\"r\", stdin);\n\tfreopen(\"o.txt\",\"w\", stdout);\n";
+        final String extraHeaders = "#include<cstdlib>\n#include<cmath>\n#include<Windows.h>\n"; // optional
+
+        sw.getSamplesFromDB();
+        sw.wrapSamples();
+
+        relatedFiles.add(inputFile);
+        relatedFiles.add(sampleOutputFile);
+
+        final String streamRedirector = "\n\tfreopen(\"" + sw.getInputName() + "\",\"r\", stdin);" +
+                                        "\n\tfreopen(\"" + sw.getOutputName() +".txt\",\"w\", stdout);\n";
 
         final String finalFileName = submissionUUID + "_main.cpp";
         FileHelper submittedCode = new FileHelper(srcDir + "\\" + finalFileName);
         relatedFiles.add(dstDir + "\\" + finalFileName);
         submittedCode.readAll();
-        // String srcCode = "#include<iostream>\n\nusing namespace std;\n\nint main() { \n\tSleep(200);\n\tstring s;\n\tcin >> s;\n\tcout << s << endl;\n\treturn 0;\n} ";
         String srcCode = submittedCode.getAll();
 
         final String standardMainFunc = "int main() {\n";
@@ -71,38 +83,19 @@ public class CppChecker extends CppParser implements GenericChecker{
         String finalSrcCode = response.get("ParsedCodeString");
 
         final String finalProduct = dstDir + "\\_" + finalFileName;
-        System.out.println(finalProduct);
-
-        File cppFile = new File(finalProduct);
-
-        if (cppFile.exists()) {
-            if (!cppFile.delete()) {
-                throw new RuntimeException("Error while overwriting file!");
-            }
+        FileHelper helper = new FileHelper(finalProduct);
+        if (!helper.writeAll(finalSrcCode)) {
+            prePacket.put("RuntimeStatus", "InternalError");
+            return prePacket;
         }
-        if (!cppFile.createNewFile()) {
-            throw new RuntimeException("Error while creating file!");
-        }
-
-        if (cppFile.canWrite()) {
-            try (FileWriter fileWriter = new FileWriter(cppFile);) {
-                fileWriter.write(finalSrcCode);
-            } catch (IOException e) {
-                e.printStackTrace();
-                prePacket.put("RuntimeStatus", "InternalError");
-                return prePacket;
-            }
-        }
-
-        // relatedFiles.add(inputFile);
-        // relatedFiles.add(sampleOutputFile);
 
         relatedFiles.add(outputFile);
         relatedFiles.add(finalProduct);
 
         // TEST RUN
-        int netMemUsage = 0;
-        // TODO: RUN AN EMPTY COMMAND SHELL.
+        int testrunMemUsage = 0;
+        String[] testrunCmd = {"cmd.exe", "title testrun", "tasklist /fi \"imagename eq \"cmd.exe\""};
+        // Process testrunner = Runtime.getRuntime().exec(testrunCmd);
 
         // COMPILE
         Process compileProcess = null;
@@ -115,7 +108,7 @@ public class CppChecker extends CppParser implements GenericChecker{
 
         relatedFiles.add(dstDir + "\\" + submissionUUID + ".exe");
 
-        new Thread() { // Compiler output thread
+        new Thread() {
             public void run() {
                 try {
                     BufferedReader br = new BufferedReader(new InputStreamReader(errStream, StandardCharsets.UTF_8));
@@ -165,24 +158,20 @@ public class CppChecker extends CppParser implements GenericChecker{
                                 try {
                                     sleep(10);
 
-//                                    映像名称                       PID 会话名              会话#       内存使用
-//                                            ========================= ======== ================ =========== ============
-//                                    _main_.exe                    1852 Console                    1      2,096 K
-
                                     String memoryCheckCmd = "tasklist /fi \"imagename eq " + submissionUUID + ".exe\"";
                                     Process memChecker = Runtime.getRuntime().exec(memoryCheckCmd);
                                     InputStream memCheckerInputStream = memChecker.getInputStream();
                                     BufferedReader br = new BufferedReader(new InputStreamReader(memCheckerInputStream, "GB2312"));
 
                                     String line = null;
-                                    StringBuffer usedMem = new StringBuffer();
+                                    StringBuilder usedMem = new StringBuilder();
 
                                     while ((line = br.readLine()) != null) {
                                         usedMem.append(line).append("\n");
                                     }
 
                                     String memInfo = String.valueOf(usedMem);
-                                    if (memInfo.contains("没有")) {
+                                    if (!memInfo.contains("===")) {
                                         memChecker.destroy();
                                     } else {
 
@@ -250,11 +239,16 @@ public class CppChecker extends CppParser implements GenericChecker{
 
     public Map<String, String> checker() {
 
-        FileHelper submissionHelper = new FileHelper("o.txt", outputFile);
+        FileHelper submissionHelper = new FileHelper(outputFile);
         submissionHelper.readAll();
         String submittedAnswer = submissionHelper.getAll();
+        if (submittedAnswer.isEmpty()) {
+            postPacket.put("JudgerStatus", "WrongAnswer");
+            postPacket.put("failedAt", Integer.toString(0));
+            return postPacket;
+        }
 
-        FileHelper sampleHelper = new FileHelper("o", sampleOutputFile);
+        FileHelper sampleHelper = new FileHelper(sampleOutputFile);
         sampleHelper.readAll();
         String sampleAnswer = sampleHelper.getAll();
 
@@ -282,7 +276,7 @@ public class CppChecker extends CppParser implements GenericChecker{
         return postPacket;
     }
 
-    public boolean clearUps() {
+    public void clearUps() {
 
         for (String fileItem : this.relatedFiles) {
             try {
@@ -292,10 +286,9 @@ public class CppChecker extends CppParser implements GenericChecker{
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                return false;
+                return;
             }
         }
-       return true;
     }
 
 }
