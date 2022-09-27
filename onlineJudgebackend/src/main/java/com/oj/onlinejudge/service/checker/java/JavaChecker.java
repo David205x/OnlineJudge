@@ -14,7 +14,7 @@ import java.util.*;
 
 public class JavaChecker extends CodeParserImpl implements GenericChecker {
 
-    private final String JAVA_HOME = FilePathUtil.JAVA_HOME;
+    private final String JAVA_HOME = FilePathUtil.JAVA_HOME;            //获取主机中的 jdk 路径
     private final String BJUT_OJ_HOME = FilePathUtil.BJUT_OJ_HOME;
     ; // CHANGE THIS!!!!
     private final Map<String, String> prePacket = new HashMap<>();      // 编译阶段返回
@@ -51,7 +51,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
 
         this.dstDir = dstDir;
 
-        this.inputFile = srcDir + "\\" + sw.getInputName();//
+        this.inputFile = srcDir + "\\" + sw.getInputName();
 
         this.sampleOutputFile = dstDir + "\\" + sw.getOutputName();
         this.outputFile = dstDir + "\\" + submissionUUID + "_o.txt";
@@ -92,7 +92,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
         srcCode = response.get("ParsedCodeString");
         insertCode[0] = extraHeaders;
         insertCode[1] = standardMainFunc1;
-        response = Response(srcCode, ".*public class Main\\s*\\{.*", insertCode);
+        response = Response(srcCode, ".*public\\s* class\\s* Main\\s*\\{.*", insertCode);
         if("CompileError".equals(response.get("error_message"))) {
             prePacket.put("RuntimeStatus", "CompileError");
             return prePacket;
@@ -161,8 +161,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
             try {
                 final Process runProcess = Runtime.getRuntime().exec(runJavaCmd, null, new File(dstDir + "\\"));
                 if (runProcess != null) {
-                    InputStream inputStream = runProcess.getErrorStream();
-                    BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+
                     new Thread() {
                         public void run() {
                             while (true) {
@@ -171,70 +170,63 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
                                 } catch (Exception e) {
                                     throw new RuntimeException(e);
                                 }
-                                StringBuilder runErrorMessage = new StringBuilder();
-                                String finalMessage = "";
-                                String line = null;
-                                try {
-                                    if(br.ready()){
-                                        while ((line = br.readLine()) != null) {
-                                            runErrorMessage.append(line).append("\n");
-                                        }
-                                        if (!runErrorMessage.toString().isEmpty()) {
-                                            finalMessage = runErrorMessage.toString();
-                                        }
-                                        if(finalMessage.contains("NoSuchElementException")){
-                                            RetCode[0] = 1;
-                                            isOver[0] = true;
-                                            runProcess.destroy();
-                                            br.close();
-                                            inputStream.close();
-                                            return;
-                                        }
-                                    }
-                                }catch (Exception e){
-                                    e.printStackTrace();
-                                }
-
                                 if (System.currentTimeMillis() - clockStart > timeLimit) { // TLE
-                                    timeLimitExceededFlag[0] = System.currentTimeMillis() - clockStart;
+                                    if(!isOver[0]){
+                                        timeLimitExceededFlag[0] = System.currentTimeMillis() - clockStart;
+                                    }
                                     isOver[0] = true;
-
                                     runProcess.destroy();
                                     return;
                                 }
+
                             }
                         }
                     }.start();
                     runProcess.waitFor();
                     runProcess.destroy();
                     isOver[0] = true;
+                    InputStream inputStream = runProcess.getErrorStream();
+                    BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+                    StringBuilder runErrorMessage = new StringBuilder();
+                    String finalMessage = "";
+                    String line = null;
+                    try {
+                        if(br.ready()){
+                            while ((line = br.readLine()) != null) {
+                                runErrorMessage.append(line).append("\n");
+                            }
+                            if (!runErrorMessage.toString().isEmpty()) {
+                                finalMessage = runErrorMessage.toString();
+                                if(finalMessage.contains("NoSuchElementException")){
+                                    RetCode[0] = 1;
+                                    isOver[0] = true;
+                                }
+                            }
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                    if(RetCode[0] == 1){
+                        prePacket.clear();
+                        prePacket.put("RuntimeStatus", "Non Zero Exit Code");
+                    }else if(timeLimitExceededFlag[0] > 0){
+                        prePacket.clear();
+                        prePacket.put("RuntimeStatus", "TimeLimitExceeded");
+                    }else{
+                        prePacket.clear();
+                        prePacket.put("RuntimeStatus", "Accepted");
+                    }
+                    br.close();
+                    inputStream.close();
                 }
+
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;
             }
-            System.out.println(prePacket.get("RuntimeStatus"));
 
-            while(!isOver[0] && RetCode[0] == 1){
-                prePacket.clear();
-                prePacket.put("RuntimeStatus", "Non Zero Exit Code");
-            }
-            while (!isOver[0] && timeLimitExceededFlag[0] < 0) {
-                prePacket.clear();
-                prePacket.put("RuntimeStatus", "Accepted");
-            }
-            if(isOver[0]){
-                if(RetCode[0] == 1){
-                    prePacket.clear();
-                    prePacket.put("RuntimeStatus", "Non Zero Exit Code");
-                }else if(timeLimitExceededFlag[0] > 0){
-                    prePacket.clear();
-                    prePacket.put("RuntimeStatus", "TimeLimitExceeded");
-                }else {
-                    prePacket.clear();
-                    prePacket.put("RuntimeStatus", "Accepted");
-                }
-            }
+
+
 
         }
         else {
