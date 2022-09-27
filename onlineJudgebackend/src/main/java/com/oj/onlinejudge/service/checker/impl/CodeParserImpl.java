@@ -21,6 +21,8 @@ public class CodeParserImpl implements CodeParser {
     @Override
     public Map<String, String> Response(String srcCode, String reg, String[] insertCode) {
         String[] interval = ParseCode(srcCode, reg);
+        if(interval == null)
+            System.out.println(srcCode);
         Map<String, String> res = new HashMap<>();
         if(interval == null){
             res.put("error_message", "CompileError");

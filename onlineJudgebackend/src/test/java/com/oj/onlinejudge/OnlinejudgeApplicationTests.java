@@ -5,23 +5,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.*;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+
+import static java.lang.System.setIn;
+import static java.lang.System.setOut;
+
 @SpringBootTest
 class OnlinejudgeApplicationTests {
     @Test
-    void contextLoads()  {
-        Logger LOGGER = LoggerFactory.getLogger("OnlinejudgeApplicationTests.class");
-        try {
-            LOGGER.debug("main方法开始执行了~~~");
-            LOGGER.info("我开始记录第二行日志，我要开始做除法~~~");
-            int a = 10;
-            int b = 0;
-            LOGGER.trace("a = "+ a);
-            LOGGER.trace("b = " + b);
+    void contextLoads() throws IOException {
 
-            //System.out.println(a / b);
-        } catch (Exception e){
-            LOGGER.error("功能出现异常，"+ e);
-        }
+
+        Runtime.getRuntime().exec("java -classpath D:\\OnlineJudge\\files\\ _Main_1_1664192270756");
+
+//        Logger LOGGER = LoggerFactory.getLogger("OnlinejudgeApplicationTests.class");
+//        try {
+//            LOGGER.debug("main方法开始执行了~~~");
+//            LOGGER.info("我开始记录第二行日志，我要开始做除法~~~");
+//            int a = 10;
+//            int b = 0;
+//            LOGGER.trace("a = "+ a);
+//            LOGGER.trace("b = " + b);
+//
+//            //System.out.println(a / b);
+//        } catch (Exception e){
+//            LOGGER.error("功能出现异常，"+ e);
+//        }
 //        int a[][] = new int[10000][10000];
 //        MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
 //
@@ -55,5 +66,6 @@ class OnlinejudgeApplicationTests {
 //            e.printStackTrace();
 //        }
     }
+
 
 }

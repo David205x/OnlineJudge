@@ -47,6 +47,7 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
         this.dstDir = dstDir;
 
         this.inputFile = srcDir + "\\" + sw.getInputName();
+
         this.sampleOutputFile = dstDir + "\\" + sw.getOutputName();
         this.outputFile = dstDir + "\\" + submissionUUID + "_o.txt";
 
@@ -65,12 +66,11 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
         final String streamRedirector = "\n\tfreopen(\"" + sw.getInputName() + "\",\"r\", stdin);" +
                                         "\n\tfreopen(\"" + sw.getOutputName() +".txt\",\"w\", stdout);\n";
 
-        final String finalFileName = submissionUUID + "_main.cpp";
+        final String finalFileName = submissionUUID + "main.cpp";
         FileHelper submittedCode = new FileHelper(srcDir + "\\" + finalFileName);
         relatedFiles.add(dstDir + "\\" + finalFileName);
         submittedCode.readAll();
         String srcCode = submittedCode.getAll();
-
         final String standardMainFunc = "int main() {\n";
 
         String[] insertCode = new String[2];
@@ -208,9 +208,10 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
                     prePacket.put("RuntimeStatus", "Accepted");
                 }
             }
-            if (!("Accepted").equals(prePacket.get("RuntimeStatus"))) {
+            if(!"Accepted".equals(prePacket.get("RuntimeStatus"))){
                 prePacket.put("RuntimeStatus", "TimeLimitExceeded");
             }
+
         }
         else {
             prePacket.put("RuntimeStatus", "CompileError");
@@ -272,7 +273,7 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
         postPacket.put("JudgerStatus", "Accepted");
         return postPacket;
     }
-
+    @Override
     public void clearUps() {
 
         for (String fileItem : this.relatedFiles) {
