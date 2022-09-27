@@ -60,7 +60,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
     @Override
     public Map<String, String> compileAndRunFile(String dstDir) throws IOException, InterruptedException {
 
-        final String extraHeaders = "import java.io.*;\n";
+        final String extraHeaders = "import java.io.*;\nimport java.util.NoSuchElementException;\n";
 
         sw.getSamplesFromDB();
         sw.wrapSamples();
@@ -78,7 +78,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
         relatedFiles.add(dstDir + "\\" + finalFileName);
         submittedCode.readAll();
         String srcCode = submittedCode.getAll();
-        final String standardMainFunc = "public static void" + " main(String args[]) throws FileNotFoundException" + "{\n";
+        final String standardMainFunc = "public static void" + " main(String args[]) throws FileNotFoundException, NoSuchElementException" + "{\n";
         final String standardMainFunc1 = "public class" + " _Main_" + submissionUUID + "{\n";
         String[] insertCode = new String[2];
         insertCode[0] = "";
@@ -151,7 +151,8 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
         if (errInfo.toString().isEmpty()) { // Timer thread
             final long timeLimit = 1000;
             final long clockStart = System.currentTimeMillis();
-
+            final long[] RetCode = {-1};
+            final boolean[] isOver = {false};
             final long[] timeLimitExceededFlag = {-1}; // if greater than 0 it means TLE happens.
             //final int[] peakMemUsed = {-1};
 
@@ -160,6 +161,8 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
             try {
                 final Process runProcess = Runtime.getRuntime().exec(runJavaCmd, null, new File(dstDir + "\\"));
                 if (runProcess != null) {
+                    InputStream inputStream = runProcess.getErrorStream();
+                    BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
                     new Thread() {
                         public void run() {
                             while (true) {
@@ -168,29 +171,71 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
                                 } catch (Exception e) {
                                     throw new RuntimeException(e);
                                 }
+                                StringBuilder runErrorMessage = new StringBuilder();
+                                String finalMessage = "";
+                                String line = null;
+                                try {
+                                    if(br.ready()){
+                                        while ((line = br.readLine()) != null) {
+                                            runErrorMessage.append(line).append("\n");
+                                        }
+                                        if (!runErrorMessage.toString().isEmpty()) {
+                                            finalMessage = runErrorMessage.toString();
+                                        }
+                                        if(finalMessage.contains("NoSuchElementException")){
+                                            RetCode[0] = 1;
+                                            isOver[0] = true;
+                                            runProcess.destroy();
+                                            br.close();
+                                            inputStream.close();
+                                            return;
+                                        }
+                                    }
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                }
+
                                 if (System.currentTimeMillis() - clockStart > timeLimit) { // TLE
                                     timeLimitExceededFlag[0] = System.currentTimeMillis() - clockStart;
+                                    isOver[0] = true;
+
                                     runProcess.destroy();
                                     return;
                                 }
                             }
                         }
                     }.start();
-
                     runProcess.waitFor();
                     runProcess.destroy();
-
+                    isOver[0] = true;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;
             }
+            System.out.println(prePacket.get("RuntimeStatus"));
 
-            while (timeLimitExceededFlag[0] < 0) {
+            while(!isOver[0] && RetCode[0] == 1){
+                prePacket.clear();
+                prePacket.put("RuntimeStatus", "Non Zero Exit Code");
+            }
+            while (!isOver[0] && timeLimitExceededFlag[0] < 0) {
                 prePacket.clear();
                 prePacket.put("RuntimeStatus", "Accepted");
             }
-            prePacket.put("RuntimeStatus", "TimeLimitExceeded");
+            if(isOver[0]){
+                if(RetCode[0] == 1){
+                    prePacket.clear();
+                    prePacket.put("RuntimeStatus", "Non Zero Exit Code");
+                }else if(timeLimitExceededFlag[0] > 0){
+                    prePacket.clear();
+                    prePacket.put("RuntimeStatus", "TimeLimitExceeded");
+                }else {
+                    prePacket.clear();
+                    prePacket.put("RuntimeStatus", "Accepted");
+                }
+            }
+
         }
         else {
             prePacket.put("RuntimeStatus", "CompileError");
