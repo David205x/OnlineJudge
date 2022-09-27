@@ -1,6 +1,8 @@
 package com.oj.onlinejudge.service.checker.impl;
 
 import com.oj.onlinejudge.service.checker.CodeParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,10 +23,10 @@ public class CodeParserImpl implements CodeParser {
     @Override
     public Map<String, String> Response(String srcCode, String reg, String[] insertCode) {
         String[] interval = ParseCode(srcCode, reg);
-        if(interval == null)
-            System.out.println(srcCode);
         Map<String, String> res = new HashMap<>();
+        Logger logger = LoggerFactory.getLogger("CodeParserImpl.java");
         if(interval == null){
+            logger.error("传入的代码格式不正确");
             res.put("error_message", "CompileError");
             res.put("ParsedCodeString", "CompileError");
             return res;

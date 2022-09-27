@@ -24,10 +24,11 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
         System.out.println(submissionUUID);
 
         switch (language) {
-            case "cpp" -> fileNameBuilder.append(submissionUUID).append("main.cpp");
-            case "java" -> fileNameBuilder.append("Main_").append(submissionUUID).append(".java");
-            case "python" -> fileNameBuilder.append("Main_").append(submissionUUID).append(".py");
-            default -> {
+            case "cpp": fileNameBuilder.append(submissionUUID).append("main.cpp"); break;
+            case "java": fileNameBuilder.append("Main_").append(submissionUUID).append(".java"); break;
+            case "python": fileNameBuilder.append("Main_").append(submissionUUID).append(".py"); break;
+            default: {
+                break;
             }
         }
 
