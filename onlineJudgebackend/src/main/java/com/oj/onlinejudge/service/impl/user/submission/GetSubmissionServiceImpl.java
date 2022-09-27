@@ -19,16 +19,18 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
         String root = System.getenv("BJUT_OJ_HOME");
         StringBuilder fileNameBuilder = new StringBuilder(root + "\\files\\");
 
-        Date date = new Date();
-        String timestamp = Long.toString(date.getTime());
-        String submissionUUID = userKey + "_" + timestamp;
-        
-        switch (language){
-            case "cpp": fileNameBuilder.append(submissionUUID).append("main.cpp"); break;
-            case "java": fileNameBuilder.append("Main_").append(submissionUUID).append(".java"); break;
-            case "python": fileNameBuilder.append("Main_").append(submissionUUID).append(".py"); break;
-            default: break;
+        SubmissionUUIDGen gen = new SubmissionUUIDGen(userKey);
+        final String submissionUUID = gen.uuidGen();
+        System.out.println(submissionUUID);
+
+        switch (language) {
+            case "cpp" -> fileNameBuilder.append(submissionUUID).append("main.cpp");
+            case "java" -> fileNameBuilder.append("Main_").append(submissionUUID).append(".java");
+            case "python" -> fileNameBuilder.append("Main_").append(submissionUUID).append(".py");
+            default -> {
+            }
         }
+
         String fileName = fileNameBuilder.toString();
 
         Map<String, String> ret = null;
