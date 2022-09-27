@@ -31,12 +31,10 @@ public class SampleWrapper {
 
         FileHelper inputHelper = new FileHelper(root + "\\" + submissionUUID + "_i");
         FileHelper outputHelper = new FileHelper(root + "\\" + submissionUUID + "_o");
-
         ifileHelper.readAll();
         inputHelper.writeAll(ifileHelper.getAll());
         ofileHelper.readAll();
         outputHelper.writeAll(ofileHelper.getAll());
-
         return true;
     }
 

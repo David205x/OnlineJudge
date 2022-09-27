@@ -7,5 +7,6 @@ public interface GenericChecker {
 
     public Map<String, String> compileAndRunFile(String dstDir) throws IOException, InterruptedException;
     public Map<String, String> checker();
+    public void clearUps();
 
 }

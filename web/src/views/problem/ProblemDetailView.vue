@@ -21,7 +21,10 @@
             
             </ProblemEditorial>
         </div>
-        
+        <div v-else-if="f == 3">
+            <ProblemDetails>
+            </ProblemDetails>
+        </div>
      </ContentField>
  </template>
    
