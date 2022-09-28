@@ -83,7 +83,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
         String[] insertCode = new String[2];
         insertCode[0] = "";
         insertCode[1] = standardMainFunc + streamRedirector;
-        Map<String, String> response = Response(srcCode, ".*void main\\(.*\\)\\s*\\{.*", insertCode);
+        Map<String, String> response = Response(srcCode, ".*void\\s* main\\s* \\(.*\\)\\s*\\{.*", insertCode);
 
         if("CompileError".equals(response.get("error_message"))) {
             prePacket.put("RuntimeStatus", "CompileError");
@@ -224,10 +224,6 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
                 e.printStackTrace();
                 return null;
             }
-
-
-
-
         }
         else {
             prePacket.put("RuntimeStatus", "CompileError");
@@ -271,9 +267,10 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
             e.printStackTrace();
             return postPacket;
         }
+
         if("Accepted".equals(prePacket.get("RuntimeStatus"))){
             postPacket.put("JudgerStatus", "Accepted");
-        }else {
+        } else {
             postPacket.put("JudgerStatus", prePacket.get("RuntimeStatus"));
         }
 
