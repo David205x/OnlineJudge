@@ -1,25 +1,22 @@
 package com.oj.onlinejudge;
 
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.*;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 
-import static java.lang.System.setIn;
-import static java.lang.System.setOut;
 
 @SpringBootTest
 class OnlinejudgeApplicationTests {
     @Test
     void contextLoads() throws IOException {
 
-
-        Runtime.getRuntime().exec("java -classpath D:\\OnlineJudge\\files\\ _Main_1_1664192270756");
-
+        try {
+            RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+            throw new RuntimeException(String.valueOf(Integer.valueOf(runtimeMXBean.getName().split("@")[0]).intValue()));
+        }catch (Exception ex){}
 //        Logger LOGGER = LoggerFactory.getLogger("OnlinejudgeApplicationTests.class");
 //        try {
 //            LOGGER.debug("main方法开始执行了~~~");

@@ -120,7 +120,7 @@ export default{
             store.dispatch("sendSubmission", {
                 userKey: "1",
                 content: code.content,
-                language: "java",
+                language: "cpp",
                 success(resp) {
                     console.log(resp);
                     submission_status.value = resp.SubmissionStatus;

@@ -5,8 +5,6 @@ import com.oj.onlinejudge.service.checker.GenericChecker;
 import com.oj.onlinejudge.service.checker.SampleWrapper;
 import com.oj.onlinejudge.service.checker.impl.CodeParserImpl;
 import com.oj.onlinejudge.utils.FilePathUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -60,7 +58,8 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
     @Override
     public Map<String, String> compileAndRunFile(String dstDir) throws IOException, InterruptedException {
 
-        final String extraHeaders = "import java.io.*;\nimport java.util.NoSuchElementException;\n";
+        final String extraHeaders = "import java.io.*;\nimport java.util.*;\nimport java.lang.management.ManagementFactory;\n" +
+                "import java.lang.management.RuntimeMXBean;\n";
 
         sw.getSamplesFromDB();
         sw.wrapSamples();
@@ -69,20 +68,23 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
         relatedFiles.add(sampleOutputFile);
         String PrintStreamIn = "\n\t\tSystem.setIn(new FileInputStream(\"" + inputFile + "\"));";
         String PrintStreamOut = "\n\t\tSystem.setOut(new PrintStream(new FileOutputStream(\"" + outputFile + "\")));\n";
+        String PrintPid = "\t\tSystem.out.println(\"#\" + String.valueOf(Integer.valueOf(runtimeMXBean.getName().split(\"@\")[0]).intValue()) + \"^\");\n";
         PrintStreamIn = PrintStreamIn.replaceAll("\\\\", "/");
         PrintStreamOut = PrintStreamOut.replaceAll("\\\\", "/");
-        String streamRedirector = PrintStreamIn + PrintStreamOut;
+        String streamRedirector = PrintStreamIn + PrintStreamOut + PrintPid;
 
         final String finalFileName = "Main_" + submissionUUID + ".java";
         FileHelper submittedCode = new FileHelper(srcDir + "\\" + finalFileName);
         relatedFiles.add(dstDir + "\\" + finalFileName);
         submittedCode.readAll();
         String srcCode = submittedCode.getAll();
-        final String standardMainFunc = "public static void" + " main(String args[]) throws FileNotFoundException, NoSuchElementException" + "{\n";
+        final String standardMainFunc = "\tpublic static void" + " main(String args[]) throws FileNotFoundException, NoSuchElementException" + "{\n"
+                + "\n\t\tRuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();\n\n";
         final String standardMainFunc1 = "public class" + " _Main_" + submissionUUID + "{\n";
         String[] insertCode = new String[2];
         insertCode[0] = "";
         insertCode[1] = standardMainFunc + streamRedirector;
+
         Map<String, String> response = Response(srcCode, ".*void\\s* main\\s* \\(.*\\)\\s*\\{.*", insertCode);
 
         if("CompileError".equals(response.get("error_message"))) {
@@ -98,7 +100,6 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
             return prePacket;
         }
         String finalSrcCode = response.get("ParsedCodeString");
-
         final String finalProduct = dstDir + "\\_" + finalFileName;
         FileHelper helper = new FileHelper(finalProduct);
         if (!helper.writeAll(finalSrcCode)) {
@@ -117,7 +118,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
         final InputStream errStream = compileProcess.getErrorStream();
         final String[] errMsg = {null};
         StringBuffer errInfo = new StringBuffer();
-
+        System.out.println(finalSrcCode);
         relatedFiles.add(dstDir + "\\_Main_" + submissionUUID + ".class");
         relatedFiles.add(dstDir + "\\_Main_" + submissionUUID + ".java");
 
@@ -157,19 +158,37 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
             //final int[] peakMemUsed = {-1};
 
             //final int memoryLimit = 40960;
-
             try {
                 final Process runProcess = Runtime.getRuntime().exec(runJavaCmd, null, new File(dstDir + "\\"));
                 if (runProcess != null) {
-
+                    final String[] pid = {null};
                     new Thread() {
                         public void run() {
+                            String finalMessage = "";
+                            String line = null;
+                            InputStream inputStream = runProcess.getInputStream();
+                            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+                            StringBuilder runPidMessage = new StringBuilder();
                             while (true) {
                                 try {
                                     sleep(10);
+
+                                    if(br.ready() && pid[0] == null) {
+                                        while ((line = br.readLine()) != null) {
+                                            runPidMessage.append(line).append("\n");
+                                        }
+                                        if (!runPidMessage.toString().isEmpty()) {
+                                            finalMessage = runPidMessage.toString();
+                                            pid[0] = finalMessage.substring(finalMessage.indexOf("#") + 1, finalMessage.indexOf("^"));
+                                            System.out.println(pid[0]);
+                                            br.close();
+                                            inputStream.close();
+                                        }
+                                    }
                                 } catch (Exception e) {
                                     throw new RuntimeException(e);
                                 }
+
                                 if (System.currentTimeMillis() - clockStart > timeLimit) { // TLE
                                     if(!isOver[0]){
                                         timeLimitExceededFlag[0] = System.currentTimeMillis() - clockStart;
@@ -178,13 +197,11 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
                                     runProcess.destroy();
                                     return;
                                 }
-
                             }
                         }
                     }.start();
                     runProcess.waitFor();
                     runProcess.destroy();
-                    isOver[0] = true;
                     InputStream inputStream = runProcess.getErrorStream();
                     BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
                     StringBuilder runErrorMessage = new StringBuilder();
@@ -199,7 +216,6 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
                                 finalMessage = runErrorMessage.toString();
                                 if(finalMessage.contains("NoSuchElementException")){
                                     RetCode[0] = 1;
-                                    isOver[0] = true;
                                 }
                             }
                         }

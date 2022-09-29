@@ -64,7 +64,7 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
         relatedFiles.add(sampleOutputFile);
 
         final String streamRedirector = "\n\tfreopen(\"" + sw.getInputName() + "\",\"r\", stdin);" +
-                                        "\n\tfreopen(\"" + sw.getOutputName() +".txt\",\"w\", stdout);\n";
+                "\n\tfreopen(\"" + sw.getOutputName() +".txt\",\"w\", stdout);\n";
 
         final String finalFileName = submissionUUID + "_main.cpp";
         FileHelper submittedCode = new FileHelper(srcDir + "\\" + finalFileName);
@@ -94,7 +94,6 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
         relatedFiles.add(finalProduct);
 
 
-        // COMPILE
         Process compileProcess = null;
         String compileCmd = MinGWPath + "\\g++.exe " + finalProduct + " -o " + dstDir + "\\" + submissionUUID + ".exe";
         compileProcess = Runtime.getRuntime().exec(compileCmd);
@@ -105,6 +104,7 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
 
         relatedFiles.add(dstDir + "\\" + submissionUUID + ".exe");
 
+        // COMPILE
         new Thread() {
             public void run() {
                 try {
@@ -135,25 +135,25 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
         // RUN
         if (errInfo.toString().isEmpty()) { // Timer thread
             final long timeLimit = 1000;
-            final long clockStart = System.currentTimeMillis();
 
             final long[] timeLimitExceededFlag = {-1}; // if greater than 0 it means TLE happens.
-            final int[] peakMemUsed = {-1};
+            final long[] memoryLimitExceededFlag = {-1}; // if greater than 0 it means MLE happens.
             long PID = -1;
-
-            final int memoryLimit = 512;
+            final int memoryLimit = 256 * 1024;
 
             try {
                 String runCmd = dstDir + "\\" + submissionUUID + ".exe";
                 final Process runProcess = Runtime.getRuntime().exec(runCmd, null, new File(dstDir + "\\"));
+
                 PID = runProcess.pid();
-                System.out.println(PID);
+                final long clockStart = System.currentTimeMillis();
 
                 String memDetectCmd = dstDir + "\\mem.exe " + PID + " " + timeLimit;
                 final Process mdProcess = Runtime.getRuntime().exec(memDetectCmd, null, new File(dstDir + "\\"));
                 final InputStream memUsageStream = mdProcess.getInputStream();
                 StringBuilder memInfo = new StringBuilder();
 
+                // MEM DETECTION
                 new Thread(() -> {
                     try {
                         BufferedReader br = new BufferedReader(new InputStreamReader(memUsageStream, StandardCharsets.UTF_8));
@@ -165,73 +165,31 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
                         e.printStackTrace();
                     }
                 }).start();
-
                 mdProcess.waitFor();
                 mdProcess.destroy();
 
-                InputStream is = runProcess.getInputStream();
-                InputStream error = runProcess.getErrorStream();
-                new Thread(() -> {
-                    while (true) {
-                        try {
-                            Thread.sleep(10);
-
-                            /*
-                            String memoryCheckCmd = "tasklist /fi \"imagename eq " + submissionUUID + ".exe\"";
-                            Process memChecker = Runtime.getRuntime().exec(memoryCheckCmd);
-                            InputStream memCheckerInputStream = memChecker.getInputStream();
-                            BufferedReader br = new BufferedReader(new InputStreamReader(memCheckerInputStream, "GB2312"));
-
-                            String line = null;
-                            StringBuilder usedMem = new StringBuilder();
-
-                            while ((line = br.readLine()) != null) {
-                                usedMem.append(line).append("\n");
-                            }
-
-                            String memInfo = String.valueOf(usedMem);
-                            if (!memInfo.contains("===")) {
-                                memChecker.destroy();
-                            } else {
-
-                                int currentUsedMemory = memoryUsageExtractor(memInfo);
-                                if (currentUsedMemory > peakMemUsed[0]) {
-                                    peakMemUsed[0] = currentUsedMemory;
-                                }
-                            }
-                            */ // Deprecated MLE detection method.
-
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                        if (System.currentTimeMillis() - clockStart > timeLimit) { // TLE
-
-                            String memUsage = memInfo.toString();
-                            System.out.println(memUsage);
-                            Scanner sc = new Scanner(memUsage);
-
-                            // TODO: Parse the result of memUsage string here.
-
-                            timeLimitExceededFlag[0] = System.currentTimeMillis() - clockStart;
-                            runProcess.destroy();
-                            mdProcess.destroy();
-                            return;
-                        }
-                    }
-                }).start();
-
-                runProcess.waitFor();
+                if(runProcess.isAlive()){
+                    timeLimitExceededFlag[0] = System.currentTimeMillis() - clockStart;
+                }
+                int memUsage = Integer.parseInt(memInfo.toString().trim());
+                memoryLimitExceededFlag[0] = memUsage - memoryLimit;
+                System.out.println(memUsage);
                 runProcess.destroy();
+
             } catch (Exception e) {
                 e.printStackTrace();
-                return null;
+                prePacket.put("RuntimeStatus", "InternalError");
+                return prePacket;
             }
 
-            while (timeLimitExceededFlag[0] < 0) {
-                prePacket.clear();
+            if (timeLimitExceededFlag[0] < 0) {
                 prePacket.put("RuntimeStatus", "Accepted");
+                if (memoryLimitExceededFlag[0] > 0) {
+                    prePacket.put("RuntimeStatus", "MemoryLimitExceeded");
+                    return prePacket;
+                }
             }
-            if(!"Accepted".equals(prePacket.get("RuntimeStatus"))){
+            else if(!"Accepted".equals(prePacket.get("RuntimeStatus"))){
                 prePacket.put("RuntimeStatus", "TimeLimitExceeded");
             }
 

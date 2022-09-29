@@ -9,7 +9,7 @@ using namespace std;
 
 DWORD str2dword(string val) {
     DWORD dword;
-    sscanf_s(val.c_str(), "%ul", &dword);
+    sscanf_(val.c_str(), "%ul", &dword);
     return dword;
 }
 
@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
             memUsagePeak = memUsageSamplePoint;
         }
 
-        printf("%.0lf ", double(memUsageSamplePoint));
+        printf("%d", memUsageSamplePoint);
         Sleep(20);
     }
     printf("\n");
