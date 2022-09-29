@@ -65,7 +65,6 @@ public class FileHelper implements IOHelper {
     }
 
     public boolean writeAll(String fileContent) {
-
         File file = new File(filePath);
         if (file.exists()) {
             file.delete();

@@ -21,10 +21,10 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
 
         SubmissionUUIDGen gen = new SubmissionUUIDGen(userKey);
         final String submissionUUID = gen.uuidGen();
-        System.out.println(submissionUUID);
+        System.out.println(language);
 
         switch (language) {
-            case "cpp": fileNameBuilder.append(submissionUUID).append("main.cpp"); break;
+            case "cpp": fileNameBuilder.append(submissionUUID).append("_main.cpp"); break;
             case "java": fileNameBuilder.append("Main_").append(submissionUUID).append(".java"); break;
             case "python": fileNameBuilder.append("Main_").append(submissionUUID).append(".py"); break;
             default: {

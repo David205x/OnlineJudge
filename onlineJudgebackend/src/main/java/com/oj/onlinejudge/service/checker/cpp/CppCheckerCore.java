@@ -10,11 +10,9 @@ public class CppCheckerCore extends CheckerCaller {
 
     String root = System.getenv("BJUT_OJ_HOME");
 
-    private final String submissionUUID;
     public CppCheckerCore(String submissionUUID) {
         super();
         String fname = submissionUUID + "_main.cpp";
-        this.submissionUUID = submissionUUID;
         if (root != null) {
             root += "\\files";
         }
