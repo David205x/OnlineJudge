@@ -18,30 +18,28 @@
         <div>
             <div class="container">
                 <div class="row align-items-start">
-                    <div class="col-6">
+                    <div class="col-7">
                     </div>
-                    <div class="col-4">
-                        <select class="form-select" aria-label="Default select example" >
-                            <option selected>C++</option>
-                            <option value="1">C</option>
-                            <option value="2">Python</option>
-                            <option value="3">Java</option>
-                            
+                    <div class="col-3">
+                        <select class="form-select" aria-label="Default select example" v-model=language_selected>
+                            <option value="c_cpp" selected>C++</option>
+                            <option value="c_cpp">C</option>
+                            <option value="python">Python</option>
+                            <option value="java">Java</option>         
                         </select>
                     </div>
-                    <div class="col-1">
+                    <div class="col-2" style="margin-top: 4px; ">
                         <i @click="refresh" v-on:mouseover="spinnerChangeCog(1)" v-on:mouseout="spinnerChangeCog(0)" :class="spinner_cog == 1 ? 'fa fa-refresh fa-spin fa-2x' : 'fa fa-refresh fa-2x'" ></i>
+                        <i class="fa fa-cog fa-2x" style="margin-left: 50px"></i>
                     </div>
-                    <div class="col-1">
-                        <i class="fa fa-cog fa-2x active"></i>
-                    </div>
+                    
                 </div>
             </div>
             <VAceEditor
                 @init="editorInit"
-                lang="c_cpp"
+                :lang="language_selected"
                 theme="textmate"
-                style="height: 600px" 
+                style="height: 600px; margin-top: 8px" 
                 v-model:value="code.content"
                 :options="{
                     enableBasicAutocompletion: true, 
@@ -60,9 +58,18 @@
                 </span>
                 
                 <button @click="submitcode" class="btn btn-primary" style="float: right; margin-top: -10px">提交</button>
+                
             </div>
-            
-            
+        </div>
+        <div style="font-size:10px; ">
+            <calendar-heatmap 
+                    :values="[{ date: '2022-9-11', count: 10 }, { date: '2022-9-10', count: 6 }]" 
+                    end-date="2022-9-20" 
+                    max="12"
+                    round="3"
+                    :range-color="['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39']"
+                    locale="right"
+                    />
         </div>
      </ContentField>
  </template>
@@ -76,7 +83,7 @@ import { VAceEditor } from 'vue3-ace-editor';
 import ace from 'ace-builds';
 import mathJax from '@/components/mathJax/index.vue';
 import 'font-awesome/css/font-awesome.min.css';
-
+import { CalendarHeatmap } from 'vue3-calendar-heatmap'
 import 'md-editor-v3/lib/style.css';
 ace.config.set(
     "basePath", 
@@ -86,12 +93,15 @@ export default{
         ContentField, 
         VAceEditor,
         mathJax,
+        CalendarHeatmap,
     },
+    
     setup(){  
-
+        let language_selected = ref('c_cpp');
         let spinner_cog = ref(0);
         const store = useStore();
         let submission_status = ref('?');
+        
         const code = reactive({
             content: "",
         });
@@ -115,12 +125,11 @@ export default{
             return marked.parse(store.state.problem.problemDescription);
         }
         const submitcode = () =>{
-            console.log(code.content)
             submission_status.value = "Waiting"
             store.dispatch("sendSubmission", {
                 userKey: "1",
                 content: code.content,
-                language: "cpp",
+                language: language_selected.value,
                 success(resp) {
                     console.log(resp);
                     submission_status.value = resp.SubmissionStatus;
@@ -143,6 +152,7 @@ export default{
             submitcode,
             submission_status,
             refresh,
+            language_selected,
         }
     },
     computed:{
@@ -161,17 +171,21 @@ i{
 i{
 	position: relative;
 	display: inline-block;
-	font-size: 2em;
+	font-size: 1.9em;
 	transition: all 0.3s;
+    color: transparent
 }
-i:hover{
-	color: #03e9f4;
+i.fa.fa-refresh.fa-spin:hover{
+	color: #cf4e4e;
+}
+i.fa.fa-cog.fa-2x:hover{
+	color: #535353;
 }
 i.fa {
-    text-shadow : 0 0 0.05px ,
-              0 0 2px #64867a,
-              0 0 2px #64867a,
-              0 0 10px #64867a;
+    text-shadow : 0 0 0px #c2c2c2,
+              0 0 0px #c2c2c2,
+              0 0 0px #c2c2c2,
+              0 0 0px #c2c2c2;
 }
 div.accepted{
     color: rgb(28, 193, 28);

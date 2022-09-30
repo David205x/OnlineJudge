@@ -9,7 +9,7 @@ using namespace std;
 
 DWORD str2dword(string val) {
     DWORD dword;
-    sscanf_(val.c_str(), "%ul", &dword);
+    sscanf(val.c_str(), "%ul", &dword);
     return dword;
 }
 

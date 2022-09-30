@@ -139,7 +139,7 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
             final long[] timeLimitExceededFlag = {-1}; // if greater than 0 it means TLE happens.
             final long[] memoryLimitExceededFlag = {-1}; // if greater than 0 it means MLE happens.
             long PID = -1;
-            final int memoryLimit = 256 * 1024;
+            final int memoryLimit = 64 * 1024;
 
             try {
                 String runCmd = dstDir + "\\" + submissionUUID + ".exe";

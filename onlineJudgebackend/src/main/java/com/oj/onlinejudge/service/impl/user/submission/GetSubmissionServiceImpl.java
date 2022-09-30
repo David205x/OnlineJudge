@@ -24,7 +24,7 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
         System.out.println(language);
 
         switch (language) {
-            case "cpp": fileNameBuilder.append(submissionUUID).append("_main.cpp"); break;
+            case "c_cpp": fileNameBuilder.append(submissionUUID).append("_main.cpp"); break;
             case "java": fileNameBuilder.append("Main_").append(submissionUUID).append(".java"); break;
             case "python": fileNameBuilder.append("Main_").append(submissionUUID).append(".py"); break;
             default: {
@@ -40,7 +40,7 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
         if (!fileHelper.writeAll(code)) {
             return null;
         }
-        if("cpp".equals(language)){
+        if("c_cpp".equals(language)){
             CppCheckerCore c = new CppCheckerCore(submissionUUID);
             try {
                 ret = c.checkSubmission();
