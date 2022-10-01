@@ -1,6 +1,7 @@
 package com.oj.onlinejudge.service.checker;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Map;
 
 public abstract class CheckerCaller {
@@ -20,5 +21,5 @@ public abstract class CheckerCaller {
         Checker = checker;
     }
 
-    public abstract Map<String, String> checkSubmission() throws IOException, InterruptedException;
+    public abstract Map<String, String> checkSubmission() throws IOException, InterruptedException, SQLException;
 }

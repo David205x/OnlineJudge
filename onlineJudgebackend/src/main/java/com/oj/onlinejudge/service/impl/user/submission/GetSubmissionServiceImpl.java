@@ -7,12 +7,13 @@ import com.oj.onlinejudge.service.user.submission.GetSubmissionService;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 @Service
 public class GetSubmissionServiceImpl implements GetSubmissionService {
 
-    //  TODO: Unique file/process name for each submission
+    private final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
     @Override
     public Map<String, String> GetSubmission(String userKey, String code, String language) throws IOException {
 
@@ -21,7 +22,7 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
 
         SubmissionUUIDGen gen = new SubmissionUUIDGen(userKey);
         final String submissionUUID = gen.uuidGen();
-        System.out.println(language);
+        System.out.println(tempLogger("SID: " + submissionUUID + " | Language: " + language));
 
         switch (language) {
             case "c_cpp": fileNameBuilder.append(submissionUUID).append("_main.cpp"); break;
@@ -63,5 +64,9 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
         }
         
         return ret;
+    }
+
+    public String tempLogger(String info) {
+        return "[" + format.format(new Date(System.currentTimeMillis())) + "] " + info;
     }
 }
