@@ -3,6 +3,7 @@ package com.oj.onlinejudge.service.checker.cpp;
 import com.oj.onlinejudge.service.checker.CheckerCaller;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +23,7 @@ public class CppCheckerCore extends CheckerCaller {
         setChecker(new CppChecker(fname, root, root, submissionUUID));
     }
 
-    public Map<String, String> checkSubmission() throws IOException, InterruptedException {
+    public Map<String, String> checkSubmission() throws IOException, InterruptedException, SQLException {
 
         Map<String, String> compileResult = Checker.compileAndRunFile(root);
 
