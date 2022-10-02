@@ -58,7 +58,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
     }
 
     @Override
-    public Map<String, String> compileAndRunFile(String dstDir) throws IOException, InterruptedException, SQLException {
+    public Map<String, String> compileAndRunFile(String debugInfo) throws IOException, InterruptedException, SQLException {
 
         final String extraHeaders = "import java.io.*;\nimport java.util.*;\nimport java.lang.management.ManagementFactory;\n" +
                 "import java.lang.management.RuntimeMXBean;\n";
@@ -245,6 +245,11 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
             prePacket.put("RuntimeStatus", "CompileError");
         }
         return prePacket;
+    }
+
+    @Override
+    public Map<String, String> debugger() {
+        return null;
     }
 
     @Override
