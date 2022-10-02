@@ -26,7 +26,7 @@ public class JavaCheckerCore {
         String fname = "_Main_" + submissionUUID + ".java";
 
         JavaChecker j = new JavaChecker(fname, root, root, submissionUUID);
-        Map<String, String> compileResult = j.compileAndRunFile(root);
+        Map<String, String> compileResult = j.compileAndRunFile(null);
 
         Map<String, String> resultPacket = new HashMap<>();
 

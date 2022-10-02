@@ -24,6 +24,9 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
         final String submissionUUID = gen.uuidGen();
         System.out.println(tempLogger("SID: " + submissionUUID + " | Language: " + language));
 
+        // TODO: Wire it to frontend.
+        String debugInfo = null; // to disable debugger, put null here.
+
         switch (language) {
             case "c_cpp": fileNameBuilder.append(submissionUUID).append("_main.cpp"); break;
             case "java": fileNameBuilder.append("Main_").append(submissionUUID).append(".java"); break;
@@ -42,7 +45,7 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
             return null;
         }
         if("c_cpp".equals(language)){
-            CppCheckerCore c = new CppCheckerCore(submissionUUID);
+            CppCheckerCore c = new CppCheckerCore(submissionUUID, debugInfo);
             try {
                 ret = c.checkSubmission();
             } catch (Exception e) {
@@ -62,7 +65,7 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
         if("python".equals(language)){
             return null;
         }
-        
+
         return ret;
     }
 

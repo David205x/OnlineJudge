@@ -36,6 +36,7 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
         sw = new SampleWrapper();
         sw.initWrapper(1, dstDir, submissionUUID);
 
+        paths.put("rootPath", dstDir + "\\");
         paths.put("submissionMainFile", dstDir + "\\" + submissionUUID + "_main.cpp");
         paths.put("submissionExecutable", dstDir + "\\" + submissionUUID + ".exe");
         paths.put("proceededMainFile", dstDir + "\\_" + submissionUUID + "_main.cpp");
@@ -50,20 +51,27 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
         return "[" + format.format(new Date(System.currentTimeMillis())) + "] " + info;
     }
 
-    public Map<String, String> compileAndRunFile(String dstDir) throws IOException, InterruptedException, SQLException {
+    @Override
+    public Map<String, String> compileAndRunFile(String debugInfo) throws IOException, InterruptedException, SQLException {
 
-        int testpoints = 3; // get this from problem db later
+        boolean enableDebugMode = (debugInfo != null);
+
+        int testpoints = 3; // get this from problem db later.
 
         // Step 1. LOAD SAMPEL IO FROM DB
-        if (!(sw.getSamplesFromDB() && sw.sliceSamples(testpoints))) {
-            prePacket.put("RuntimeStatus", "IOSamplesError");
-            return prePacket;
+        if (!enableDebugMode) {
+            if (!(sw.getSamplesFromDB() && sw.sliceSamples(testpoints))) {
+                prePacket.put("RuntimeStatus", "IOSamplesError");
+                return prePacket;
+            }
+            sw.wrapOutputSamples();
+            relatedFiles.add(paths.get("sampleOutputFile"));
+            System.out.println(tempLogger("Samples files loaded."));
+        } else {
+            System.out.println(tempLogger("Debugging mode enabled."));
         }
-        sw.wrapOutputSamples();
         relatedFiles.add(paths.get("sampleInputFile"));
         relatedFiles.add(paths.get("submissionOutputFile"));
-        relatedFiles.add(paths.get("sampleOutputFile"));
-        System.out.println(tempLogger("Samples files loaded."));
 
         // Step 2. GET USER SUBMISSION
         FileHelper submittedCode = new FileHelper(paths.get("submissionMainFile"));
@@ -76,13 +84,13 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
         final String extraHeaders = "#include<cstdlib>\n#include<cmath>\n#include<Windows.h>\n";
         final String standardMainFunc = "int main() {\n";
         final String streamRedirector = "\n\tfreopen(\"" + sw.getInputName() + "\",\"r\", stdin);" +
-                "\n\tfreopen(\"" + sw.getOutputName() +".txt\",\"a\", stdout);\n";
+                "\n\tfreopen(\"" + sw.getOutputName() + ".txt\",\"a\", stdout);\n";
 
         String[] insertCode = new String[2];
         insertCode[0] = extraHeaders;
         insertCode[1] = standardMainFunc + streamRedirector;
         Map<String, String> response = Response(srcCode, ".*int main\\(.*\\)\\s*\\{.*", insertCode);
-        if("CompileError".equals(response.get("error_message"))) {
+        if ("CompileError".equals(response.get("error_message"))) {
             prePacket.put("RuntimeStatus", "CompileError");
             return prePacket;
         }
@@ -143,12 +151,26 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
 
             for (int curtp = 0; curtp < testpoints; curtp++) {
 
-                if (!sw.wrapInputSamples(curtp)) {
-                    prePacket.put("RuntimeStatus", "IOSamplesError");
-                    return prePacket;
+                if (!enableDebugMode) { // Runner
+                    if (!sw.wrapInputSamples(curtp)) {
+                        prePacket.put("RuntimeStatus", "IOSamplesError");
+                        return prePacket;
+                    }
+                    System.out.println(tempLogger("Code running on testpoint #") + (curtp + 1));
+                } else { // Debugger
+                    if (curtp != 0) { // Debugger only runs for one time.
+                        return prePacket;
+                    }
+                    if (debugInfo.isEmpty()) {
+                        prePacket.put("RuntimeStatus", "DebuggerError");
+                        return prePacket;
+                    }
+                    if (!sw.wrapInputSamples(debugInfo)) {
+                        prePacket.put("RuntimeStatus", "IOSamplesError");
+                        return prePacket;
+                    }
+                    System.out.println(tempLogger("Code running on debugging mode."));
                 }
-
-                System.out.println(tempLogger("Code running on testpoint #") + (curtp + 1));
 
                 final long timeLimit = 1000;
 
@@ -157,13 +179,13 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
 
                 try {
                     String runCmd = paths.get("submissionExecutable");
-                    final Process runProcess = Runtime.getRuntime().exec(runCmd, null, new File(dstDir + "\\"));
+                    final Process runProcess = Runtime.getRuntime().exec(runCmd, null, new File(paths.get("rootPath")));
 
                     PID = runProcess.pid();
                     final long clockStart = System.currentTimeMillis();
 
-                    String memDetectCmd = dstDir + "\\mem.exe " + PID + " " + timeLimit;
-                    final Process mdProcess = Runtime.getRuntime().exec(memDetectCmd, null, new File(dstDir + "\\"));
+                    String memDetectCmd = paths.get("rootPath") + "mem.exe " + PID + " " + timeLimit;
+                    final Process mdProcess = Runtime.getRuntime().exec(memDetectCmd, null, new File(paths.get("rootPath")));
                     final InputStream memUsageStream = mdProcess.getInputStream();
                     StringBuilder memInfo = new StringBuilder();
 
@@ -184,8 +206,7 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
 
                     if (runProcess.isAlive()) {
                         timeLimitExceededFlag[0] = System.currentTimeMillis() - clockStart;
-                    }
-                    else {
+                    } else {
                         timeLimitExceededFlag[0] = -1;
                     }
                     int memUsage = Integer.parseInt(memInfo.toString().trim());
@@ -198,19 +219,19 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
                     return prePacket;
                 }
 
-                System.out.println(tempLogger("Code finished running."));
-            }
-            // Step 6. GET RUNTIME STATUS
-            if (timeLimitExceededFlag[0] < 0) {
-                prePacket.put("RuntimeStatus", "Accepted");
-                if (memoryLimitExceededFlag[0] > 0) {
-                    prePacket.put("RuntimeStatus", "MemoryLimitExceeded");
+                // Step 6. GET RUNTIME STATUS
+                if (timeLimitExceededFlag[0] < 0) {
+                    prePacket.put("RuntimeStatus", "Accepted");
+                    if (memoryLimitExceededFlag[0] > 0) {
+                        System.out.println(tempLogger("MemoryLimitExceeded!"));
+                        prePacket.put("RuntimeStatus", "MemoryLimitExceeded");
+                        return prePacket;
+                    }
+                } else if (!"Accepted".equals(prePacket.get("RuntimeStatus"))) {
+                    System.out.println(tempLogger("TimeLimitExceeded!"));
+                    prePacket.put("RuntimeStatus", "TimeLimitExceeded");
                     return prePacket;
                 }
-            }
-            else if(!"Accepted".equals(prePacket.get("RuntimeStatus"))){
-                prePacket.put("RuntimeStatus", "TimeLimitExceeded");
-                return prePacket;
             }
         }
         else {
@@ -228,6 +249,22 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
         }
     }
 
+    @Override
+    public Map<String, String> debugger() {
+        FileHelper submissionHelper = new FileHelper(paths.get("submissionOutputFile"));
+        submissionHelper.readAll();
+        String submittedAnswer = submissionHelper.getAll();
+
+        if (submittedAnswer.isEmpty()) {
+            postPacket.put("DebuggerStatus", "InvalidOutput");
+        } else {
+            postPacket.put("DebuggerStatus", submittedAnswer.trim());
+        }
+
+        return postPacket;
+    }
+
+    @Override
     public Map<String, String> checker() {
 
         FileHelper submissionHelper = new FileHelper(paths.get("submissionOutputFile"));

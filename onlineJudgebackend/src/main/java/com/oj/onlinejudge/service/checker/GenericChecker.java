@@ -6,8 +6,9 @@ import java.util.Map;
 
 public interface GenericChecker {
 
-    public Map<String, String> compileAndRunFile(String dstDir) throws IOException, InterruptedException, SQLException;
+    public Map<String, String> compileAndRunFile(String debugFlag) throws IOException, InterruptedException, SQLException;
     public Map<String, String> checker();
+    public Map<String, String> debugger();
     public void clearUps();
 
 }

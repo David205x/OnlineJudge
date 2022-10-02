@@ -99,6 +99,13 @@ public class SampleWrapper {
         return inputHelper.writeAll(Integer.toString(step) + "\n" + sequencedInput.get(index));
     }
 
+    public boolean wrapInputSamples(String debugIO) {
+        debugIO = debugIO.trim();
+        debugIO += "\n";
+        FileHelper inputHelper = new FileHelper(inputFileBase);
+        return inputHelper.writeAll("1" + "\n" + debugIO);
+    }
+
     public String getInputName() {
         return submissionUUID + "_i";
     }
