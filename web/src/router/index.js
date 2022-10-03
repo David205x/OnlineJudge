@@ -6,6 +6,7 @@ import ProblemDetailView from '@/views/problem/ProblemDetailView'
 import ProblemEditorialEditor from "@/components/problem/ProblemEditorialEditor.vue";
 import Page_twoView from "@/views/Page_two/Page_twoView"
 import store from '@/store/index'
+import ProfileOverview from "@/views/user/profile/ProfileOverview";
 const routes = [
   {
     path: "/",
@@ -61,6 +62,14 @@ const routes = [
     component: Page_twoView,
     meta: {
         requestAuth: false
+    }
+  },
+  {
+    path: "/profile/overview",
+    name: "profile_overview",
+    component: ProfileOverview,
+    meta: {
+      requestAuth: false
     }
   },
 ]
