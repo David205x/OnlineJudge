@@ -26,6 +26,7 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
 
         // TODO: Wire it to frontend.
         String debugInfo = null; // to disable debugger, put null here.
+        String targetProblem = Integer.toString(1);
 
         switch (language) {
             case "c_cpp": fileNameBuilder.append(submissionUUID).append("_main.cpp"); break;
@@ -45,7 +46,7 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
             return null;
         }
         if("c_cpp".equals(language)){
-            CppCheckerCore c = new CppCheckerCore(submissionUUID, debugInfo);
+            CppCheckerCore c = new CppCheckerCore(submissionUUID, debugInfo, targetProblem);
             try {
                 ret = c.checkSubmission();
             } catch (Exception e) {
@@ -54,7 +55,7 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
             }
         }
         if("java".equals(language)){
-            JavaCheckerCore j = new JavaCheckerCore(submissionUUID);
+            JavaCheckerCore j = new JavaCheckerCore(submissionUUID, debugInfo, targetProblem);
             try {
                 ret = j.checkSubmission();
             } catch (Exception e) {

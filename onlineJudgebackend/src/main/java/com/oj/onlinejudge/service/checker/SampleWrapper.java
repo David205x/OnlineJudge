@@ -1,10 +1,11 @@
 package com.oj.onlinejudge.service.checker;
 
-import com.oj.onlinejudge.pojo.IO;
-
+import java.io.File;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SampleWrapper {
 
@@ -18,13 +19,13 @@ public class SampleWrapper {
     private int targetProblemKey;
     private int step;
 
-    public void initWrapper(int targetProblem, String fileStorage, String submissionUUID) {
+    public void initWrapper(String fileStorage, String submissionUUID, String targetProblem) {
         this.sampleInput = new ArrayList<>();
         this.sampleOutput = new ArrayList<>();
 
         this.submissionUUID = submissionUUID;
         this.fileStorage = fileStorage;
-        this.targetProblemKey = targetProblem;
+        this.targetProblemKey = Integer.parseInt(targetProblem);
 
         inputFileBase = fileStorage + "\\" + submissionUUID + "_i";
         outputFileBase = fileStorage + "\\" + submissionUUID + "_o";
@@ -34,11 +35,35 @@ public class SampleWrapper {
     }
 
     public boolean getSamplesFromDB() throws SQLException {
-        
-        String driver="com.mysql.jdbc.Driver";
-        String url="jdbc:mysql://localhost:3306/online_judge?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8";
-        String user="root";
-        String password="";
+
+        String fileRoot = System.getenv("BJUT_OJ_HOME") + "\\onlineJudgebackend\\src\\main\\resources\\application.properties";
+
+        FileHelper properties = new FileHelper(fileRoot);
+        properties.readAll();
+        String prop = properties.getAll();
+
+        Pattern userReg = Pattern.compile("username=(.*)");
+        Matcher userMat = userReg.matcher(prop);
+        String user = null;
+        if (userMat.find()) {
+            user = userMat.group().split("=", 2)[1];
+            System.out.println(user);
+        }
+
+        Pattern pwdReg = Pattern.compile("password=(.*)");
+        Matcher pwdMat = pwdReg.matcher(prop);
+        String password = null;
+        if (pwdMat.find()) {
+            password = pwdMat.group().split("=", 2)[1];
+            System.out.println("password: " + password);
+        }
+
+        if (password == null || user == null) {
+            return false;
+        }
+
+        String url = "jdbc:mysql://localhost:3306/online_judge?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8";
+        String driver = "com.mysql.jdbc.Driver";
 
         Connection conn = null;
         PreparedStatement pst = null;

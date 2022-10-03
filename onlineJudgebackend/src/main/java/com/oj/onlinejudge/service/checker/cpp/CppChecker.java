@@ -21,26 +21,28 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
     private final Map<String, String> postPacket = new HashMap<>();
 
     private String submissionUUID;
+    private String targetProblem;
     private SampleWrapper sw;
     private final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
     private List<String> relatedFiles = new ArrayList<>();
     private Map<String, String> paths = new HashMap<>();
 
-    public CppChecker(String fileName, String srcDir, String dstDir, String submissionUUID) {
+    public CppChecker(String dstDir, String submissionUUID, String targetProblem) {
 
         if (this.MinGWPath == null) {
             throw new RuntimeException("Cannot locate local MinGW");
         }
         this.submissionUUID = submissionUUID;
+        this.targetProblem = targetProblem;
 
         sw = new SampleWrapper();
-        sw.initWrapper(1, dstDir, submissionUUID);
+        sw.initWrapper(dstDir, submissionUUID, targetProblem);
 
         paths.put("rootPath", dstDir + "\\");
         paths.put("submissionMainFile", dstDir + "\\" + submissionUUID + "_main.cpp");
         paths.put("submissionExecutable", dstDir + "\\" + submissionUUID + ".exe");
         paths.put("proceededMainFile", dstDir + "\\_" + submissionUUID + "_main.cpp");
-        paths.put("sampleInputFile", srcDir + "\\" + sw.getInputName());
+        paths.put("sampleInputFile", dstDir + "\\" + sw.getInputName());
         paths.put("sampleOutputFile", dstDir + "\\" + sw.getOutputName());
         paths.put("submissionOutputFile", dstDir + "\\" + submissionUUID + "_o.txt");
 
@@ -149,6 +151,11 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
             final long[] timeLimitExceededFlag = {-1}; // if greater than 0 it means TLE happens.
             final long[] memoryLimitExceededFlag = {-1}; // if greater than 0 it means MLE happens.
 
+            final long timeLimit = 1000;
+            final int memoryLimit = 64 << 10;
+
+            long PID = -1;
+
             for (int curtp = 0; curtp < testpoints; curtp++) {
 
                 if (!enableDebugMode) { // Runner
@@ -158,7 +165,7 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
                     }
                     System.out.println(tempLogger("Code running on testpoint #") + (curtp + 1));
                 } else { // Debugger
-                    if (curtp != 0) { // Debugger only runs for one time.
+                    if (curtp != 0) { // Debugger only runs once.
                         return prePacket;
                     }
                     if (debugInfo.isEmpty()) {
@@ -171,11 +178,6 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
                     }
                     System.out.println(tempLogger("Code running on debugging mode."));
                 }
-
-                final long timeLimit = 1000;
-
-                long PID = -1;
-                final int memoryLimit = 64 << 10;
 
                 try {
                     String runCmd = paths.get("submissionExecutable");
