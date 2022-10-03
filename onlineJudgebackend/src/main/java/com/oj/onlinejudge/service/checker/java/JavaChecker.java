@@ -9,6 +9,7 @@ import com.oj.onlinejudge.utils.FilePathUtil;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class JavaChecker extends CodeParserImpl implements GenericChecker {
@@ -16,79 +17,79 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
     private final String JAVA_HOME = FilePathUtil.JAVA_HOME;            //获取主机中的 jdk 路径
     private final String BJUT_OJ_HOME = FilePathUtil.BJUT_OJ_HOME;
     ; // CHANGE THIS!!!!
-    private final Map<String, String> prePacket = new HashMap<>();      // 编译阶段返回
-    private final Map<String, String> postPacket = new HashMap<>();     // 运行阶段的返回
-    private String fileName;
-    private String filePath;
-    private String srcDir;
-    private String dstDir;
+    private final Map<String, String> prePacket = new HashMap<>();
+    private final Map<String, String> postPacket = new HashMap<>();
 
-    private String inputFile;
-    private String outputFile;
-    private String sampleOutputFile;
     private String submissionUUID;
+    private SampleWrapper sw;
+    private final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+    private List<String> relatedFiles = new ArrayList<>();
+    private Map<String, String> paths = new HashMap<>();
 
-    SampleWrapper sw;
 
-    List<String> relatedFiles = new ArrayList<>();
-
-    public JavaChecker(String fileName, String srcDir, String dstDir, String submissionUUID) {
-        this.fileName = fileName;
-        this.srcDir = srcDir;
-        this.dstDir = dstDir;
-
+    public JavaChecker(String dstDir, String submissionUUID, String targetProblem) {
         if (this.JAVA_HOME == null) {
-            throw new RuntimeException("Cannot locate local JAVA_HOME");
+            throw new RuntimeException("Cannot locate local MinGW");
         }
         this.submissionUUID = submissionUUID;
 
         sw = new SampleWrapper();
-        sw.initWrapper(1, dstDir, submissionUUID);
+        sw.initWrapper(dstDir, submissionUUID, targetProblem);
 
-        this.fileName = fileName;
-        this.srcDir = srcDir;
-        this.filePath = srcDir + "\\" + fileName;
+        paths.put("rootPath", dstDir + "\\");
+        paths.put("submissionMainFile", dstDir + "\\Main_" + submissionUUID + ".java");
+        paths.put("submissionExecutable", dstDir + "\\" + submissionUUID + ".class");
+        paths.put("proceededMainFile", dstDir + "\\_Main_" + submissionUUID + ".java");
+        paths.put("sampleInputFile", dstDir + "\\" + sw.getInputName());
+        paths.put("sampleOutputFile", dstDir + "\\" + sw.getOutputName());
+        paths.put("submissionOutputFile", dstDir + "\\" + submissionUUID + "_o.txt");
+    }
 
-        this.dstDir = dstDir;
-
-        this.inputFile = srcDir + "\\" + sw.getInputName();
-
-        this.sampleOutputFile = dstDir + "\\" + sw.getOutputName();
-        this.outputFile = dstDir + "\\" + submissionUUID + "_o.txt";
+    public String tempLogger(String info) {
+        return "[" + format.format(new Date(System.currentTimeMillis())) + "] " + info;
     }
 
     @Override
     public Map<String, String> compileAndRunFile(String debugInfo) throws IOException, InterruptedException, SQLException {
 
-        final String extraHeaders = "import java.io.*;\nimport java.util.*;\nimport java.lang.management.ManagementFactory;\n" +
-                "import java.lang.management.RuntimeMXBean;\n";
+        boolean enableDebugMode = (debugInfo != null);
 
-        sw.getSamplesFromDB();
-        sw.sliceSamples(2);
+        int testpoints = 2; // get this from problem db later.
 
-        relatedFiles.add(inputFile);
-        relatedFiles.add(sampleOutputFile);
-        String PrintStreamIn = "\n\t\tSystem.setIn(new FileInputStream(\"" + inputFile + "\"));";
-        String PrintStreamOut = "\n\t\tSystem.setOut(new PrintStream(new FileOutputStream(\"" + outputFile + "\")));\n";
-        String PrintPid = "\t\tSystem.out.println(\"#\" + String.valueOf(Integer.valueOf(runtimeMXBean.getName().split(\"@\")[0]).intValue()) + \"^\");\n";
-        PrintStreamIn = PrintStreamIn.replaceAll("\\\\", "/");
-        PrintStreamOut = PrintStreamOut.replaceAll("\\\\", "/");
-        String streamRedirector = PrintStreamIn + PrintStreamOut + PrintPid;
+        if (!enableDebugMode) {
+            if (!(sw.getSamplesFromDB() && sw.sliceSamples(testpoints))) {
+                prePacket.put("RuntimeStatus", "IOSamplesError");
+                return prePacket;
+            }
+            sw.wrapOutputSamples();
+            relatedFiles.add(paths.get("sampleOutputFile"));
+            System.out.println(tempLogger("Samples files loaded."));
+        } else {
+            System.out.println(tempLogger("Debugging mode enabled."));
+        }
+        relatedFiles.add(paths.get("sampleInputFile"));
+        relatedFiles.add(paths.get("submissionOutputFile"));
 
-        final String finalFileName = "Main_" + submissionUUID + ".java";
-        FileHelper submittedCode = new FileHelper(srcDir + "\\" + finalFileName);
-        relatedFiles.add(dstDir + "\\" + finalFileName);
+        FileHelper submittedCode = new FileHelper(paths.get("submissionMainFile"));
+        relatedFiles.add(paths.get("submissionMainFile"));
         submittedCode.readAll();
         String srcCode = submittedCode.getAll();
-        final String standardMainFunc = "\tpublic static void" + " main(String args[]) throws FileNotFoundException, NoSuchElementException" + "{\n"
-                + "\n\t\tRuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();\n\n";
+        System.out.println(tempLogger("Submission source extracted."));
+        final String extraHeaders = "import java.io.*;\nimport java.util.*;\nimport java.lang.management.ManagementFactory;\n" +
+                "import java.lang.management.RuntimeMXBean;\n";
+        String PrintStreamIn = "\n\t\tSystem.setIn(new FileInputStream(\"" + paths.get("sampleInputFile") + "\"));";
+        String PrintStreamOut = "\n\t\tSystem.setOut(new PrintStream(new FileOutputStream(\"" + paths.get("submissionOutputFile") + "\", true)));\n";
+        PrintStreamIn = PrintStreamIn.replaceAll("\\\\", "/");
+        PrintStreamOut = PrintStreamOut.replaceAll("\\\\", "/");
+        String streamRedirector = PrintStreamIn + PrintStreamOut;
+
+        final String standardMainFunc = "\tpublic static void" + " main(String args[]) throws FileNotFoundException, NoSuchElementException" + "{\n";
         final String standardMainFunc1 = "public class" + " _Main_" + submissionUUID + "{\n";
         String[] insertCode = new String[2];
         insertCode[0] = "";
         insertCode[1] = standardMainFunc + streamRedirector;
 
-        Map<String, String> response = Response(srcCode, ".*void\\s* main\\s* \\(.*\\)\\s*\\{.*", insertCode);
-
+        Map<String, String> response = Response(srcCode, ".*void\\s* main\\s*\\(.*\\)\\s*\\{.*", insertCode);
         if("CompileError".equals(response.get("error_message"))) {
             prePacket.put("RuntimeStatus", "CompileError");
             return prePacket;
@@ -97,32 +98,30 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
         insertCode[0] = extraHeaders;
         insertCode[1] = standardMainFunc1;
         response = Response(srcCode, ".*public\\s* class\\s* Main\\s*\\{.*", insertCode);
+
         if("CompileError".equals(response.get("error_message"))) {
             prePacket.put("RuntimeStatus", "CompileError");
             return prePacket;
         }
         String finalSrcCode = response.get("ParsedCodeString");
-        final String finalProduct = dstDir + "\\_" + finalFileName;
-        FileHelper helper = new FileHelper(finalProduct);
+        FileHelper helper = new FileHelper(paths.get("proceededMainFile"));
         if (!helper.writeAll(finalSrcCode)) {
             prePacket.put("RuntimeStatus", "InternalError");
             return prePacket;
         }
-
-        relatedFiles.add(outputFile);
+        relatedFiles.add(paths.get("proceededMainFile"));
+        System.out.println(tempLogger("Source code baked."));
 
 
         // COMPILE
         Process compileProcess = null;
-        String compileCmd = "javac " + BJUT_OJ_HOME + "\\files\\" + fileName;
+        String compileCmd = "javac " + paths.get("proceededMainFile");
         String runJavaCmd =  "java " + "-classpath " + BJUT_OJ_HOME + "\\files\\" + " _Main_" + submissionUUID;
         compileProcess = Runtime.getRuntime().exec(compileCmd);
+
         final InputStream errStream = compileProcess.getErrorStream();
         final String[] errMsg = {null};
         StringBuffer errInfo = new StringBuffer();
-        System.out.println(finalSrcCode);
-        relatedFiles.add(dstDir + "\\_Main_" + submissionUUID + ".class");
-        relatedFiles.add(dstDir + "\\_Main_" + submissionUUID + ".java");
 
         new Thread() {
             public void run() {
@@ -150,96 +149,119 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
 
         compileProcess.waitFor();
         compileProcess.destroy();
+
+        relatedFiles.add(paths.get("submissionExecutable"));
         // RUN
         if (errInfo.toString().isEmpty()) { // Timer thread
+            System.out.println(tempLogger("Source compiled."));
             final long timeLimit = 1000;
-            final long clockStart = System.currentTimeMillis();
-            final long[] RetCode = {-1};
-            final boolean[] isOver = {false};
+
+            long PID = -1;
             final long[] timeLimitExceededFlag = {-1}; // if greater than 0 it means TLE happens.
-            //final int[] peakMemUsed = {-1};
+            final long[] memoryLimitExceededFlag = {-1}; // if greater than 0 it means MLE happens.
+            final int memoryLimit = 64 << 20;
 
-            //final int memoryLimit = 40960;
-            try {
-                final Process runProcess = Runtime.getRuntime().exec(runJavaCmd, null, new File(dstDir + "\\"));
-                if (runProcess != null) {
-                    final String[] pid = {null};
+            for (int curtp = 0; curtp < testpoints; curtp++) {
+                final long[] RetCode = {-1};
+                if (!enableDebugMode) { // Runner
+                    if (!sw.wrapInputSamples(curtp)) {
+                        prePacket.put("RuntimeStatus", "IOSamplesError");
+                        return prePacket;
+                    }
+                    System.out.println(tempLogger("Code running on testpoint #") + (curtp + 1));
+                } else { // Debugger
+                    if (curtp != 0) { // Debugger only runs for one time.
+                        return prePacket;
+                    }
+                    if (debugInfo.isEmpty()) {
+                        prePacket.put("RuntimeStatus", "DebuggerError");
+                        return prePacket;
+                    }
+                    if (!sw.wrapInputSamples(debugInfo)) {
+                        prePacket.put("RuntimeStatus", "IOSamplesError");
+                        return prePacket;
+                    }
+                    System.out.println(tempLogger("Code running on debugging mode."));
+                }
+                try {
+                    final Process runProcess = Runtime.getRuntime().exec(runJavaCmd, null);
+
+                    PID = runProcess.pid();
+                    final long clockStart = System.currentTimeMillis();
+
+                    String memDetectCmd = paths.get("rootPath") + "mem.exe " + PID + " " + timeLimit;
+                    final Process mdProcess = Runtime.getRuntime().exec(memDetectCmd, null, new File(paths.get("rootPath")));
+                    final InputStream memUsageStream = mdProcess.getInputStream();
+                    StringBuilder memInfo = new StringBuilder();
+
+                    // MEM DETECTION THREAD
                     new Thread(() -> {
-                        String finalMessage = "";
-                        String line = null;
-                        InputStream inputStream = runProcess.getInputStream();
-                        BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-                        StringBuilder runPidMessage = new StringBuilder();
-                        while (true) {
-                            try {
-                                Thread.sleep(10);
-
-                                if(br.ready() && pid[0] == null) {
-                                    while ((line = br.readLine()) != null) {
-                                        runPidMessage.append(line).append("\n");
-                                    }
-                                    if (!runPidMessage.toString().isEmpty()) {
-                                        finalMessage = runPidMessage.toString();
-                                        pid[0] = finalMessage.substring(finalMessage.indexOf("#") + 1, finalMessage.indexOf("^"));
-                                        System.out.println(pid[0]);
-                                        br.close();
-                                        inputStream.close();
+                        try {
+                            BufferedReader br = new BufferedReader(new InputStreamReader(memUsageStream, StandardCharsets.UTF_8));
+                            String line = null;
+                            while ((line = br.readLine()) != null) {
+                                memInfo.append(line).append("\n");
+                            }
+                            String finalMessage = "";
+                            String lineError = null;
+                            InputStream inputStreamError = runProcess.getInputStream();
+                            BufferedReader brError = new BufferedReader(new InputStreamReader(inputStreamError, StandardCharsets.UTF_8));
+                            StringBuilder runErrorMessage = new StringBuilder();
+                            if(brError.ready()){
+                                while ((lineError = brError.readLine()) != null) {
+                                    runErrorMessage.append(lineError).append("\n");
+                                }
+                                if (!runErrorMessage.toString().isEmpty()) {
+                                    finalMessage = runErrorMessage.toString();
+                                    if(finalMessage.contains("NoSuchElementException")){
+                                        RetCode[0] = 1;
                                     }
                                 }
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
                             }
-
-                            if (System.currentTimeMillis() - clockStart > timeLimit) { // TLE
-                                if(!isOver[0]){
-                                    timeLimitExceededFlag[0] = System.currentTimeMillis() - clockStart;
-                                }
-                                isOver[0] = true;
-                                runProcess.destroy();
-                                return;
-                            }
+                            brError.close();
+                            inputStreamError.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
                     }).start();
-                    runProcess.waitFor();
+
+                    mdProcess.waitFor();
+                    mdProcess.destroy();
+
+                    if (runProcess.isAlive()) {
+                        timeLimitExceededFlag[0] = System.currentTimeMillis() - clockStart;
+                    } else {
+                        timeLimitExceededFlag[0] = -1;
+                    }
+                    int memUsage = Integer.parseInt(memInfo.toString().trim());
+                    memoryLimitExceededFlag[0] = memUsage - memoryLimit;
                     runProcess.destroy();
-                    InputStream inputStream = runProcess.getErrorStream();
-                    BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-                    StringBuilder runErrorMessage = new StringBuilder();
-                    String finalMessage = "";
-                    String line = null;
-                    try {
-                        if(br.ready()){
-                            while ((line = br.readLine()) != null) {
-                                runErrorMessage.append(line).append("\n");
-                            }
-                            if (!runErrorMessage.toString().isEmpty()) {
-                                finalMessage = runErrorMessage.toString();
-                                if(finalMessage.contains("NoSuchElementException")){
-                                    RetCode[0] = 1;
-                                }
-                            }
-                        }
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                    if(RetCode[0] == 1){
-                        prePacket.clear();
-                        prePacket.put("RuntimeStatus", "Non Zero Exit Code");
-                    }else if(timeLimitExceededFlag[0] > 0){
-                        prePacket.clear();
-                        prePacket.put("RuntimeStatus", "TimeLimitExceeded");
-                    }else{
-                        prePacket.clear();
-                        prePacket.put("RuntimeStatus", "Accepted");
-                    }
-                    br.close();
-                    inputStream.close();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    prePacket.put("RuntimeStatus", "InternalError");
+                    return prePacket;
                 }
 
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
+                // Step 6. GET RUNTIME STATUS
+                if(RetCode[0] == 1){
+                    prePacket.clear();
+                    prePacket.put("RuntimeStatus", "Non Zero Exit Code");
+                }
+                else if (timeLimitExceededFlag[0] < 0) {
+                    prePacket.put("RuntimeStatus", "Accepted");
+                    if (memoryLimitExceededFlag[0] > 0) {
+                        System.out.println(tempLogger("MemoryLimitExceeded!"));
+                        prePacket.put("RuntimeStatus", "MemoryLimitExceeded");
+                        return prePacket;
+                    }
+                } else if (!"Accepted".equals(prePacket.get("RuntimeStatus"))) {
+                    System.out.println(tempLogger("TimeLimitExceeded!"));
+                    prePacket.put("RuntimeStatus", "TimeLimitExceeded");
+                    return prePacket;
+                }
             }
+
         }
         else {
             prePacket.put("RuntimeStatus", "CompileError");
@@ -249,22 +271,33 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
 
     @Override
     public Map<String, String> debugger() {
-        return null;
+        FileHelper submissionHelper = new FileHelper(paths.get("submissionOutputFile"));
+        submissionHelper.readAll();
+        String submittedAnswer = submissionHelper.getAll();
+
+        if (submittedAnswer.isEmpty()) {
+            postPacket.put("DebuggerStatus", "InvalidOutput");
+        } else {
+            postPacket.put("DebuggerStatus", submittedAnswer.trim());
+        }
+
+        return postPacket;
     }
 
     @Override
     public Map<String, String> checker() {
 
-        FileHelper submissionHelper = new FileHelper(outputFile);
+        FileHelper submissionHelper = new FileHelper(paths.get("submissionOutputFile"));
         submissionHelper.readAll();
         String submittedAnswer = submissionHelper.getAll();
+
         if (submittedAnswer.isEmpty()) {
             postPacket.put("JudgerStatus", "WrongAnswer");
             postPacket.put("failedAt", Integer.toString(0));
             return postPacket;
         }
 
-        FileHelper sampleHelper = new FileHelper(sampleOutputFile);
+        FileHelper sampleHelper = new FileHelper(paths.get("sampleOutputFile"));
         sampleHelper.readAll();
         String sampleAnswer = sampleHelper.getAll();
 
@@ -272,6 +305,11 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
             ArrayList<String> submitted = answerSplitter(submittedAnswer);
             ArrayList<String> sample = answerSplitter(sampleAnswer);
             if (sample != null && submitted != null) {
+                if (sample.size() != submitted.size()) {
+                    postPacket.put("JudgerStatus", "WrongAnswer");
+                    postPacket.put("failedAt", Integer.toString(-1));
+                    return postPacket;
+                }
                 for (int i = 0; i < sample.size(); i++) {
                     if (!(sample.get(i).equals(submitted.get(i)))) {
                         postPacket.put("JudgerStatus", "WrongAnswer");
@@ -288,13 +326,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
             e.printStackTrace();
             return postPacket;
         }
-
-        if("Accepted".equals(prePacket.get("RuntimeStatus"))){
-            postPacket.put("JudgerStatus", "Accepted");
-        } else {
-            postPacket.put("JudgerStatus", prePacket.get("RuntimeStatus"));
-        }
-
+        postPacket.put("JudgerStatus", "Accepted");
         return postPacket;
     }
 
