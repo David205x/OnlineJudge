@@ -68,25 +68,22 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
         relatedFiles.add(sampleOutputFile);
         String PrintStreamIn = "\n\t\tSystem.setIn(new FileInputStream(\"" + inputFile + "\"));";
         String PrintStreamOut = "\n\t\tSystem.setOut(new PrintStream(new FileOutputStream(\"" + outputFile + "\")));\n";
-        String PrintPid = "\t\tSystem.out.println(\"#\" + String.valueOf(Integer.valueOf(runtimeMXBean.getName().split(\"@\")[0]).intValue()) + \"^\");\n";
         PrintStreamIn = PrintStreamIn.replaceAll("\\\\", "/");
         PrintStreamOut = PrintStreamOut.replaceAll("\\\\", "/");
-        String streamRedirector = PrintStreamIn + PrintStreamOut + PrintPid;
+        String streamRedirector = PrintStreamIn + PrintStreamOut;
 
         final String finalFileName = "Main_" + submissionUUID + ".java";
         FileHelper submittedCode = new FileHelper(srcDir + "\\" + finalFileName);
         relatedFiles.add(dstDir + "\\" + finalFileName);
         submittedCode.readAll();
         String srcCode = submittedCode.getAll();
-        final String standardMainFunc = "\tpublic static void" + " main(String args[]) throws FileNotFoundException, NoSuchElementException" + "{\n"
-                + "\n\t\tRuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();\n\n";
+        final String standardMainFunc = "\tpublic static void" + " main(String args[]) throws FileNotFoundException, NoSuchElementException" + "{\n";
         final String standardMainFunc1 = "public class" + " _Main_" + submissionUUID + "{\n";
         String[] insertCode = new String[2];
         insertCode[0] = "";
         insertCode[1] = standardMainFunc + streamRedirector;
 
-        Map<String, String> response = Response(srcCode, ".*void\\s* main\\s* \\(.*\\)\\s*\\{.*", insertCode);
-
+        Map<String, String> response = Response(srcCode, ".*void\\s* main\\s*\\(.*\\)\\s*\\{.*", insertCode);
         if("CompileError".equals(response.get("error_message"))) {
             prePacket.put("RuntimeStatus", "CompileError");
             return prePacket;
@@ -100,6 +97,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
             return prePacket;
         }
         String finalSrcCode = response.get("ParsedCodeString");
+
         final String finalProduct = dstDir + "\\_" + finalFileName;
         FileHelper helper = new FileHelper(finalProduct);
         if (!helper.writeAll(finalSrcCode)) {
@@ -118,7 +116,6 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
         final InputStream errStream = compileProcess.getErrorStream();
         final String[] errMsg = {null};
         StringBuffer errInfo = new StringBuffer();
-        System.out.println(finalSrcCode);
         relatedFiles.add(dstDir + "\\_Main_" + submissionUUID + ".class");
         relatedFiles.add(dstDir + "\\_Main_" + submissionUUID + ".java");
 
@@ -267,13 +264,32 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
             ArrayList<String> submitted = answerSplitter(submittedAnswer);
             ArrayList<String> sample = answerSplitter(sampleAnswer);
             if (sample != null && submitted != null) {
-                for (int i = 0; i < sample.size(); i++) {
-                    if (!(sample.get(i).equals(submitted.get(i)))) {
+                if(sample.size() <= submitted.size()){  // 提交代码输出多
+                    for (int i = 0; i < sample.size(); i++) {
+                        if (!(sample.get(i).equals(submitted.get(i)))) {
+                            postPacket.put("JudgerStatus", "WrongAnswer");
+                            postPacket.put("failedAt", Integer.toString(i + 1));
+                            return postPacket;
+                        }
+                    }
+                    if (submitted.size() > sample.size()){
                         postPacket.put("JudgerStatus", "WrongAnswer");
-                        postPacket.put("failedAt", Integer.toString(i + 1));
+                        postPacket.put("failedAt", "more ans");
                         return postPacket;
                     }
+                }else {                                 // 提交代码输出少
+                    for (int i = 0; i < submitted.size(); i++) {
+                        if (!(sample.get(i).equals(submitted.get(i)))) {
+                            postPacket.put("JudgerStatus", "WrongAnswer");
+                            postPacket.put("failedAt", Integer.toString(i + 1));
+                            return postPacket;
+                        }
+                    }
+                    postPacket.put("JudgerStatus", "WrongAnswer");
+                    postPacket.put("failedAt", "less ans");
+                    return postPacket;
                 }
+
             } else {
                 postPacket.put("JudgerStatus", "InternalError");
                 return postPacket;

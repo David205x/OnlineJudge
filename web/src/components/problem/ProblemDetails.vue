@@ -3,7 +3,10 @@
         <div class="container">
             <div class="row align-items-start">
                 <div class="col-10" style="height: auto;">
-                        <mathJax :latex="compiledMarkdown()"></mathJax>       
+                        <md-editor 
+                            v-model = $store.state.problem.problemDescription
+                            previewOnly = true>
+                        </md-editor>
                 </div>
                 <div class="col-2">
                     <ul class="list-group">
@@ -17,20 +20,24 @@
         </div>
         <div>
             <div class="container">
-                <div class="row align-items-start">
-                    <div class="col-7">
+                <div class="row align-items-center">
+                    <div class="col">
+
                     </div>
-                    <div class="col-3">
-                        <select class="form-select" aria-label="Default select example" v-model=language_selected>
+                    <div class="col">
+
+                    </div>
+                    <div class="col-4">
+                        <select class="form-select" aria-label="Default select example"  v-model=language_selected>
                             <option value="c_cpp" selected>C++</option>
                             <option value="c_cpp">C</option>
                             <option value="python">Python</option>
                             <option value="java">Java</option>         
                         </select>
                     </div>
-                    <div class="col-2" style="margin-top: 4px; ">
-                        <i @click="refresh" v-on:mouseover="spinnerChangeCog(1)" v-on:mouseout="spinnerChangeCog(0)" :class="spinner_cog == 1 ? 'fa fa-refresh fa-spin fa-2x' : 'fa fa-refresh fa-2x'" ></i>
-                        <i class="fa fa-cog fa-2x" style="margin-left: 50px"></i>
+                    <div class="col justify-content-end" >
+                        <i @click="refresh" v-on:mouseover="spinnerChangeCog(1)" v-on:mouseout="spinnerChangeCog(0)" :class="spinner_cog == 1 ? 'fa fa-refresh fa-spin fa-2x' : 'fa fa-refresh fa-2x'"  style="margin-left: 5vw"></i>
+                        <i class="fa fa-cog fa-2x" style="margin-left: 4vw"></i>
                     </div>
                     
                 </div>
@@ -39,7 +46,7 @@
                 @init="editorInit"
                 :lang="language_selected"
                 theme="textmate"
-                style="height: 600px; margin-top: 8px" 
+                style="height: 80vh; margin-top: 2vh" 
                 v-model:value="code.content"
                 :options="{
                     enableBasicAutocompletion: true, 
@@ -48,28 +55,21 @@
                 }">
                 
             </VAceEditor>
-                
-            <div :class="submission_status == 'Accepted' ? 'accepted' : 'wrong' " >
-                <span style="color:black; font-weight: normal" v-if="submission_status !== '?'">代码运行状态:  </span>
+            <div class="submit_debug">
+                <button @click="submitcode" class="btn btn-primary">调试</button>
                 &nbsp;
-                <span v-if="submission_status !== '?' && submission_status !== 'Waiting'">{{ submission_status }}</span>
+                <button @click="submitcode" class="btn btn-primary">提交</button>
+            </div>
+            <div :class="submission_status == 'Accepted' ? 'accepted' : 'wrong' " >
+                <span style="color:black; font-weight: normal;" v-if="submission_status !== '?'">代码运行状态:  </span>
+                &nbsp;
+                <span style="margin-top: 3vh" v-if="submission_status !== '?' && submission_status !== 'Waiting'">{{ submission_status }}</span>
                 <span class="loading">
                     <span class="fa fa-circle-o-notch fa-spin fa-lg" v-if="submission_status == 'Waiting'"></span>
                 </span>
                 
-                <button @click="submitcode" class="btn btn-primary" style="float: right; margin-top: -10px">提交</button>
                 
             </div>
-        </div>
-        <div style="font-size:10px; ">
-            <calendar-heatmap 
-                    :values="[{ date: '2022-9-11', count: 10 }, { date: '2022-9-10', count: 6 }]" 
-                    end-date="2022-9-20" 
-                    max="12"
-                    round="3"
-                    :range-color="['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39']"
-                    locale="right"
-                    />
         </div>
      </ContentField>
  </template>
@@ -78,13 +78,11 @@
 import ContentField from "@/components/ContentField.vue";
 import { useStore } from "vuex";
 import { ref, reactive } from "vue"
-import { marked } from "marked";
 import { VAceEditor } from 'vue3-ace-editor';
 import ace from 'ace-builds';
-import mathJax from '@/components/mathJax/index.vue';
 import 'font-awesome/css/font-awesome.min.css';
-import { CalendarHeatmap } from 'vue3-calendar-heatmap'
 import 'md-editor-v3/lib/style.css';
+import MdEditor from 'md-editor-v3'
 ace.config.set(
     "basePath", 
     "https://cdn.jsdelivr.net/npm/ace-builds@" + require('ace-builds').version + "/src-noconflict/")
@@ -92,8 +90,7 @@ export default{
     components: { 
         ContentField, 
         VAceEditor,
-        mathJax,
-        CalendarHeatmap,
+        MdEditor,
     },
     
     setup(){  
@@ -121,9 +118,6 @@ export default{
         const spinnerChangeCog = (data) =>{
             spinner_cog.value = data;
         }
-        const compiledMarkdown = () => {
-            return marked.parse(store.state.problem.problemDescription);
-        }
         const submitcode = () =>{
             submission_status.value = "Waiting"
             store.dispatch("sendSubmission", {
@@ -146,7 +140,6 @@ export default{
             md,
             flag,
             spinner_cog,
-            compiledMarkdown,
             spinnerChangeCog,
             code,
             submitcode,
@@ -190,19 +183,32 @@ i.fa {
 div.accepted{
     color: rgb(28, 193, 28);
     font-weight: bold;
+    margin-left: 2vw;
     font-size:large;
-    margin-left: 10px;
-    margin-top: 25px;
+    margin-top: 2vh;
 }
 div.wrong{
     color: red;
     font-weight: bold;
-    margin-left: 10px;
+    margin-left: 2vw;
     font-size:large;
-    margin-top: 25px;
+    margin-top: 2vh;
 }
 span.loading{
     color: rgb(58, 231, 124);
     margin-bottom: 5px;
+}
+button.btn.btn-primary{
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    height: 5vh;
+    width: 5vw;
+}
+div.submit_debug{
+    font-weight: bold;
+    font-size:large;
+    height: 5vh;
+    text-align: right;
 }
 </style>
