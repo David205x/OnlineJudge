@@ -38,7 +38,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
 
         paths.put("rootPath", dstDir + "\\");
         paths.put("submissionMainFile", dstDir + "\\Main_" + submissionUUID + ".java");
-        paths.put("submissionExecutable", dstDir + "\\" + submissionUUID + ".class");
+        paths.put("submissionExecutable", dstDir + "\\_Main_" + submissionUUID + ".class");
         paths.put("proceededMainFile", dstDir + "\\_Main_" + submissionUUID + ".java");
         paths.put("sampleInputFile", dstDir + "\\" + sw.getInputName());
         paths.put("sampleOutputFile", dstDir + "\\" + sw.getOutputName());
@@ -69,6 +69,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
         }
         relatedFiles.add(paths.get("sampleInputFile"));
         relatedFiles.add(paths.get("submissionOutputFile"));
+        relatedFiles.add(paths.get("submissionExecutable"));
 
         FileHelper submittedCode = new FileHelper(paths.get("submissionMainFile"));
         relatedFiles.add(paths.get("submissionMainFile"));
@@ -151,7 +152,6 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
         compileProcess.waitFor();
         compileProcess.destroy();
 
-        relatedFiles.add(paths.get("submissionExecutable"));
         // RUN
         if (errInfo.toString().isEmpty()) { // Timer thread
             System.out.println(tempLogger("Source compiled."));
