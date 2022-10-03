@@ -34,8 +34,8 @@
             </ProblemEditorial>
         </div>
         <div v-else-if="f == 3">
-            <ProblemDetails>
-            </ProblemDetails>
+            <ProblemResultView>
+            </ProblemResultView>
         </div>
      </ContentField>
  </template>
@@ -43,15 +43,15 @@
  <script>
 import ContentField from "@/components/ContentField.vue";
 import { ref } from 'vue'
-import ProblemDetails from "@/components/problem/ProblemDetails.vue";
 import ProblemEditorial from "@/components/problem/ProblemEditorial.vue";
 import 'md-editor-v3/lib/style.css';
 import ProblemDetailHorizontalTemplate from "@/components/problem/ProblemDetailHorizontalTemplate";
 import ProblemDetailVerticalTemplate from "@/components/problem/ProblemDetailVerticalTemplate";
+import ProblemResultView from "@/components/problem/ProblemResultView";
  export default{
     components: {
       ProblemDetailVerticalTemplate,
-      ProblemDetailHorizontalTemplate, ContentField, ProblemDetails, ProblemEditorial },
+      ProblemDetailHorizontalTemplate, ContentField, ProblemResultView, ProblemEditorial },
     setup(){  
         let f = ref(1);
         let layout = ref(2);
