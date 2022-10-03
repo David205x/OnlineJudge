@@ -1,75 +1,86 @@
 <template>
     <ContentField>
-        <div class="container">
+        <div class="container" style="font-size: 17px">
             <div class="row align-items-start">
-                <div class="col-10" style="height: auto;">
-                        <mathJax :latex="compiledMarkdown()"></mathJax>       
+                <div class="col-9" style="height: auto;">
+                    <md-editor
+                        v-model = $store.state.problem.problemDescription
+                        previewOnly = true>
+                    </md-editor>
                 </div>
-                <div class="col-2">
+                <div class="col-3">
                     <ul class="list-group">
-                        <li class="list-group-item">难度</li>
-                        <li class="list-group-item">总通过数</li>
-                        <li class="list-group-item">总提交数</li>
-                        <li class="list-group-item">tag</li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            难度
+                            <span class="badge bg-success">Newbie</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            总通过数
+                            <span class="badge bg-secondary">114</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            总提交数
+                            <span class="badge bg-secondary">514</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            标签
+                            <span class="badge bg-primary">#策马</span>
+                            <span class="badge bg-primary">#看看你的</span>
+                        </li>
                     </ul>
                 </div>
             </div>
         </div>
         <div>
-            <div class="container">
+            <div class="container" style="margin-top: 2vh">
                 <div class="row align-items-start">
-                    <div class="col-7">
+                    <div class="col-6">
                     </div>
-                    <div class="col-3">
-                        <select class="form-select" aria-label="Default select example" v-model=language_selected>
+                    <div class="col-2">
+                        <p class="fw-normal" style="text-align: right; margin: 0.5vh">代码语言 :</p>
+                    </div>
+                    <div class="col-2">
+                        <select class="form-select form-select-sm" aria-label="Default select example" v-model=language_selected>
                             <option value="c_cpp" selected>C++</option>
                             <option value="c_cpp">C</option>
                             <option value="python">Python</option>
-                            <option value="java">Java</option>         
+                            <option value="java">Java</option>
                         </select>
                     </div>
-                    <div class="col-2" style="margin-top: 4px; ">
-                        <i @click="refresh" v-on:mouseover="spinnerChangeCog(1)" v-on:mouseout="spinnerChangeCog(0)" :class="spinner_cog == 1 ? 'fa fa-refresh fa-spin fa-2x' : 'fa fa-refresh fa-2x'" ></i>
-                        <i class="fa fa-cog fa-2x" style="margin-left: 50px"></i>
+                    <div class="col-2" style="margin: 0vh 0vh 0vh">
+                        <i @click="refresh"
+                           v-on:mouseover="spinnerChangeCog(1)"
+                           v-on:mouseout="spinnerChangeCog(0)"
+                           :class="spinner_cog == 1 ? 'fa fa-refresh fa-spin fa-2x' : 'fa fa-refresh fa-2x'" ></i>
+                        <i class="fa fa-cog fa-2x" style="margin-left: 1vh"></i>
                     </div>
-                    
+
                 </div>
             </div>
             <VAceEditor
                 @init="editorInit"
                 :lang="language_selected"
                 theme="textmate"
-                style="height: 600px; margin-top: 8px" 
+                style="height: 600px; margin-top: 1vh"
                 v-model:value="code.content"
                 :options="{
-                    enableBasicAutocompletion: true, 
-                    fontSize:14,
+                    enableBasicAutocompletion: true,
+                    fontSize:17,
                     showPrintMargin:false,
                 }">
-                
             </VAceEditor>
-                
-            <div :class="submission_status == 'Accepted' ? 'accepted' : 'wrong' " >
+
+            <div :class="submission_status == 'Accepted' ? 'accepted' : 'wrong'">
                 <span style="color:black; font-weight: normal" v-if="submission_status !== '?'">代码运行状态:  </span>
                 &nbsp;
                 <span v-if="submission_status !== '?' && submission_status !== 'Waiting'">{{ submission_status }}</span>
                 <span class="loading">
                     <span class="fa fa-circle-o-notch fa-spin fa-lg" v-if="submission_status == 'Waiting'"></span>
                 </span>
-                
-                <button @click="submitcode" class="btn btn-primary" style="float: right; margin-top: -10px">提交</button>
-                
+
+                <button @click="submitcode" class="btn btn-primary" style="float: right; margin-top: -1vh">提交评判</button>
+
             </div>
-        </div>
-        <div style="font-size:10px; ">
-            <calendar-heatmap 
-                    :values="[{ date: '2022-9-11', count: 10 }, { date: '2022-9-10', count: 6 }]" 
-                    end-date="2022-9-20" 
-                    max="12"
-                    round="3"
-                    :range-color="['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39']"
-                    locale="right"
-                    />
         </div>
      </ContentField>
  </template>
@@ -81,10 +92,9 @@ import { ref, reactive } from "vue"
 import { marked } from "marked";
 import { VAceEditor } from 'vue3-ace-editor';
 import ace from 'ace-builds';
-import mathJax from '@/components/mathJax/index.vue';
 import 'font-awesome/css/font-awesome.min.css';
-import { CalendarHeatmap } from 'vue3-calendar-heatmap'
 import 'md-editor-v3/lib/style.css';
+import MdEditor from 'md-editor-v3'
 ace.config.set(
     "basePath", 
     "https://cdn.jsdelivr.net/npm/ace-builds@" + require('ace-builds').version + "/src-noconflict/")
@@ -92,24 +102,17 @@ export default{
     components: { 
         ContentField, 
         VAceEditor,
-        mathJax,
-        CalendarHeatmap,
+        MdEditor,
     },
     
     setup(){  
         let language_selected = ref('c_cpp');
         let spinner_cog = ref(0);
-        const store = useStore();
         let submission_status = ref('?');
-        
+        const store = useStore();
         const code = reactive({
             content: "",
         });
-        const md = {
-            context:
-                "int main(){\n    int t;\n    t = 1;\n    int cnt = 1;\n    while(t--){\n        solve(cnt++);\n    }\n    return 0;\n}\n",
-        }
-        let flag = 0;
         store.dispatch("showProblem", {
             success(){
                 store.commit("updatePullingInfo", false);
@@ -143,8 +146,6 @@ export default{
             code.content = ""
         }
         return {
-            md,
-            flag,
             spinner_cog,
             compiledMarkdown,
             spinnerChangeCog,

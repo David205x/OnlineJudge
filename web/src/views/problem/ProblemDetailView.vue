@@ -12,9 +12,21 @@
             </li>
         </ul>  
         <div v-if="f == 1">
-            <ProblemDetails>
-                
-            </ProblemDetails>
+            <div v-if="layout == 1">
+                <ProblemDetailHorizontalTemplate>
+
+                </ProblemDetailHorizontalTemplate>
+            </div>
+            <div v-else-if="layout == 2">
+                <ProblemDetailVerticalTemplate>
+
+                </ProblemDetailVerticalTemplate>
+            </div>
+<!--            <ProblemDetails>-->
+<!--                -->
+<!--            </ProblemDetails>-->
+
+
         </div>
         <div v-else-if="f == 2">
             <ProblemEditorial>
@@ -22,8 +34,8 @@
             </ProblemEditorial>
         </div>
         <div v-else-if="f == 3">
-            <ProblemDetails>
-            </ProblemDetails>
+            <ProblemResultView>
+            </ProblemResultView>
         </div>
      </ContentField>
  </template>
@@ -31,19 +43,25 @@
  <script>
 import ContentField from "@/components/ContentField.vue";
 import { ref } from 'vue'
-import ProblemDetails from "@/components/problem/ProblemDetails.vue";
 import ProblemEditorial from "@/components/problem/ProblemEditorial.vue";
 import 'md-editor-v3/lib/style.css';
+import ProblemDetailHorizontalTemplate from "@/components/problem/ProblemDetailHorizontalTemplate";
+import ProblemDetailVerticalTemplate from "@/components/problem/ProblemDetailVerticalTemplate";
+import ProblemResultView from "@/components/problem/ProblemResultView";
  export default{
-    components: { ContentField, ProblemDetails, ProblemEditorial },
+    components: {
+      ProblemDetailVerticalTemplate,
+      ProblemDetailHorizontalTemplate, ContentField, ProblemResultView, ProblemEditorial },
     setup(){  
         let f = ref(1);
+        let layout = ref(2);
         const onChange = (data) =>{
             f.value = data;
         }
          return {
             f,
             onChange,
+            layout
          }
     }
  }

@@ -104,6 +104,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
             return prePacket;
         }
         String finalSrcCode = response.get("ParsedCodeString");
+
         FileHelper helper = new FileHelper(paths.get("proceededMainFile"));
         if (!helper.writeAll(finalSrcCode)) {
             prePacket.put("RuntimeStatus", "InternalError");
@@ -326,6 +327,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
             e.printStackTrace();
             return postPacket;
         }
+
         postPacket.put("JudgerStatus", "Accepted");
         return postPacket;
     }
