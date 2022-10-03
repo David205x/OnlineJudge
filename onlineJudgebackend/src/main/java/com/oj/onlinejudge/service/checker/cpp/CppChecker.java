@@ -8,6 +8,8 @@ import com.oj.onlinejudge.utils.FilePathUtil;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 
@@ -17,19 +19,12 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
     ; // CHANGE THIS!!!!
     private final Map<String, String> prePacket = new HashMap<>();
     private final Map<String, String> postPacket = new HashMap<>();
-    private String fileName;
-    private String filePath;
-    private String srcDir;
-    private String dstDir;
 
-    private String inputFile;
-    private String outputFile;
-    private String sampleOutputFile;
     private String submissionUUID;
-
-    SampleWrapper sw;
-
-    List<String> relatedFiles = new ArrayList<>();
+    private SampleWrapper sw;
+    private final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+    private List<String> relatedFiles = new ArrayList<>();
+    private Map<String, String> paths = new HashMap<>();
 
     public CppChecker(String fileName, String srcDir, String dstDir, String submissionUUID) {
 
@@ -38,173 +33,211 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
         }
         this.submissionUUID = submissionUUID;
 
-        sw = new SampleWrapper(dstDir, submissionUUID);
+        sw = new SampleWrapper();
+        sw.initWrapper(1, dstDir, submissionUUID);
 
-        this.fileName = fileName;
-        this.srcDir = srcDir;
-        this.filePath = srcDir + "\\" + fileName;
+        paths.put("rootPath", dstDir + "\\");
+        paths.put("submissionMainFile", dstDir + "\\" + submissionUUID + "_main.cpp");
+        paths.put("submissionExecutable", dstDir + "\\" + submissionUUID + ".exe");
+        paths.put("proceededMainFile", dstDir + "\\_" + submissionUUID + "_main.cpp");
+        paths.put("sampleInputFile", srcDir + "\\" + sw.getInputName());
+        paths.put("sampleOutputFile", dstDir + "\\" + sw.getOutputName());
+        paths.put("submissionOutputFile", dstDir + "\\" + submissionUUID + "_o.txt");
 
-        this.dstDir = dstDir;
-
-        this.inputFile = srcDir + "\\" + sw.getInputName();
-
-        this.sampleOutputFile = dstDir + "\\" + sw.getOutputName();
-        this.outputFile = dstDir + "\\" + submissionUUID + "_o.txt";
 
     }
 
-    public Map<String, String> compileAndRunFile(String dstDir) throws IOException, InterruptedException {
+    public String tempLogger(String info) {
+        return "[" + format.format(new Date(System.currentTimeMillis())) + "] " + info;
+    }
 
-        final String extraHeaders = "#include<cstdlib>\n#include<cmath>\n#include<Windows.h>\n"; // optional
+    @Override
+    public Map<String, String> compileAndRunFile(String debugInfo) throws IOException, InterruptedException, SQLException {
 
-        sw.getSamplesFromDB();
-        sw.wrapSamples();
+        boolean enableDebugMode = (debugInfo != null);
 
-        relatedFiles.add(inputFile);
-        relatedFiles.add(sampleOutputFile);
+        int testpoints = 3; // get this from problem db later.
 
-        final String streamRedirector = "\n\tfreopen(\"" + sw.getInputName() + "\",\"r\", stdin);" +
-                "\n\tfreopen(\"" + sw.getOutputName() +".txt\",\"w\", stdout);\n";
+        // Step 1. LOAD SAMPEL IO FROM DB
+        if (!enableDebugMode) {
+            if (!(sw.getSamplesFromDB() && sw.sliceSamples(testpoints))) {
+                prePacket.put("RuntimeStatus", "IOSamplesError");
+                return prePacket;
+            }
+            sw.wrapOutputSamples();
+            relatedFiles.add(paths.get("sampleOutputFile"));
+            System.out.println(tempLogger("Samples files loaded."));
+        } else {
+            System.out.println(tempLogger("Debugging mode enabled."));
+        }
+        relatedFiles.add(paths.get("sampleInputFile"));
+        relatedFiles.add(paths.get("submissionOutputFile"));
 
-        final String finalFileName = submissionUUID + "_main.cpp";
-        FileHelper submittedCode = new FileHelper(srcDir + "\\" + finalFileName);
-        relatedFiles.add(dstDir + "\\" + finalFileName);
+        // Step 2. GET USER SUBMISSION
+        FileHelper submittedCode = new FileHelper(paths.get("submissionMainFile"));
+        relatedFiles.add(paths.get("submissionMainFile"));
         submittedCode.readAll();
         String srcCode = submittedCode.getAll();
+        System.out.println(tempLogger("Submission source extracted."));
+
+        // Step 3. BAKE THE SUBMISSION SOURCE FILE
+        final String extraHeaders = "#include<cstdlib>\n#include<cmath>\n#include<Windows.h>\n";
         final String standardMainFunc = "int main() {\n";
+        final String streamRedirector = "\n\tfreopen(\"" + sw.getInputName() + "\",\"r\", stdin);" +
+                "\n\tfreopen(\"" + sw.getOutputName() + ".txt\",\"a\", stdout);\n";
 
         String[] insertCode = new String[2];
         insertCode[0] = extraHeaders;
         insertCode[1] = standardMainFunc + streamRedirector;
         Map<String, String> response = Response(srcCode, ".*int main\\(.*\\)\\s*\\{.*", insertCode);
-        if("CompileError".equals(response.get("error_message"))) {
+        if ("CompileError".equals(response.get("error_message"))) {
             prePacket.put("RuntimeStatus", "CompileError");
             return prePacket;
         }
         String finalSrcCode = response.get("ParsedCodeString");
 
-        final String finalProduct = dstDir + "\\_" + finalFileName;
-        FileHelper helper = new FileHelper(finalProduct);
+
+        FileHelper helper = new FileHelper(paths.get("proceededMainFile"));
         if (!helper.writeAll(finalSrcCode)) {
             prePacket.put("RuntimeStatus", "InternalError");
             return prePacket;
         }
+        relatedFiles.add(paths.get("proceededMainFile"));
+        System.out.println(tempLogger("Source code baked."));
 
-        relatedFiles.add(outputFile);
-        relatedFiles.add(finalProduct);
-
-
+        // Step 4. COMPILE
         Process compileProcess = null;
-        String compileCmd = MinGWPath + "\\g++.exe " + finalProduct + " -o " + dstDir + "\\" + submissionUUID + ".exe";
+        String compileCmd = MinGWPath + "\\g++.exe " +
+                paths.get("proceededMainFile") + " -o " +
+                paths.get("submissionExecutable");
         compileProcess = Runtime.getRuntime().exec(compileCmd);
 
         final InputStream errStream = compileProcess.getErrorStream();
         final String[] errMsg = {null};
         StringBuffer errInfo = new StringBuffer();
 
-        relatedFiles.add(dstDir + "\\" + submissionUUID + ".exe");
-
-        // COMPILE
-        new Thread() {
-            public void run() {
+        new Thread(() -> {
+            try {
+                BufferedReader br = new BufferedReader(new InputStreamReader(errStream, StandardCharsets.UTF_8));
+                String line = null;
+                while ((line = br.readLine()) != null) {
+                    errInfo.append(line).append("\n");
+                }
+                if (!errInfo.toString().isEmpty()) {
+                    errMsg[0] = errInfo.toString();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
                 try {
-                    BufferedReader br = new BufferedReader(new InputStreamReader(errStream, StandardCharsets.UTF_8));
-                    String line = null;
-                    while ((line = br.readLine()) != null) {
-                        errInfo.append(line).append("\n");
-                    }
-                    if (!errInfo.toString().isEmpty()) {
-                        errMsg[0] = errInfo.toString();
-                    }
+                    errStream.close();
                 } catch (IOException e) {
+                    System.out.println(Arrays.toString(errMsg));
                     e.printStackTrace();
-                } finally {
-                    try {
-                        errStream.close();
-                    } catch (IOException e) {
-                        System.out.println(Arrays.toString(errMsg));
-                        e.printStackTrace();
-                    }
                 }
             }
-        }.start();
+        }).start();
 
         compileProcess.waitFor();
         compileProcess.destroy();
 
-        // RUN
-        if (errInfo.toString().isEmpty()) { // Timer thread
-            final long timeLimit = 1000;
+        relatedFiles.add(paths.get("submissionExecutable"));
 
+        // Step 5. RUN
+        if (errInfo.toString().isEmpty()) {
+            System.out.println(tempLogger("Source compiled."));
             final long[] timeLimitExceededFlag = {-1}; // if greater than 0 it means TLE happens.
             final long[] memoryLimitExceededFlag = {-1}; // if greater than 0 it means MLE happens.
-            long PID = -1;
-            final int memoryLimit = 64 * 1024;
 
-            try {
-                String runCmd = dstDir + "\\" + submissionUUID + ".exe";
-                final Process runProcess = Runtime.getRuntime().exec(runCmd, null, new File(dstDir + "\\"));
+            for (int curtp = 0; curtp < testpoints; curtp++) {
 
-                PID = runProcess.pid();
-                final long clockStart = System.currentTimeMillis();
-
-                String memDetectCmd = dstDir + "\\mem.exe " + PID + " " + timeLimit;
-                final Process mdProcess = Runtime.getRuntime().exec(memDetectCmd, null, new File(dstDir + "\\"));
-                final InputStream memUsageStream = mdProcess.getInputStream();
-                StringBuilder memInfo = new StringBuilder();
-
-                // MEM DETECTION
-                new Thread(() -> {
-                    try {
-                        BufferedReader br = new BufferedReader(new InputStreamReader(memUsageStream, StandardCharsets.UTF_8));
-                        String line = null;
-                        while ((line = br.readLine()) != null) {
-                            memInfo.append(line).append("\n");
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                if (!enableDebugMode) { // Runner
+                    if (!sw.wrapInputSamples(curtp)) {
+                        prePacket.put("RuntimeStatus", "IOSamplesError");
+                        return prePacket;
                     }
-                }).start();
-                mdProcess.waitFor();
-                mdProcess.destroy();
-
-                if(runProcess.isAlive()){
-                    timeLimitExceededFlag[0] = System.currentTimeMillis() - clockStart;
+                    System.out.println(tempLogger("Code running on testpoint #") + (curtp + 1));
+                } else { // Debugger
+                    if (curtp != 0) { // Debugger only runs for one time.
+                        return prePacket;
+                    }
+                    if (debugInfo.isEmpty()) {
+                        prePacket.put("RuntimeStatus", "DebuggerError");
+                        return prePacket;
+                    }
+                    if (!sw.wrapInputSamples(debugInfo)) {
+                        prePacket.put("RuntimeStatus", "IOSamplesError");
+                        return prePacket;
+                    }
+                    System.out.println(tempLogger("Code running on debugging mode."));
                 }
-                int memUsage = Integer.parseInt(memInfo.toString().trim());
-                memoryLimitExceededFlag[0] = memUsage - memoryLimit;
-                System.out.println(memUsage);
-                runProcess.destroy();
 
-            } catch (Exception e) {
-                e.printStackTrace();
-                prePacket.put("RuntimeStatus", "InternalError");
-                return prePacket;
-            }
+                final long timeLimit = 1000;
 
-            if (timeLimitExceededFlag[0] < 0) {
-                prePacket.put("RuntimeStatus", "Accepted");
-                if (memoryLimitExceededFlag[0] > 0) {
-                    prePacket.put("RuntimeStatus", "MemoryLimitExceeded");
+                long PID = -1;
+                final int memoryLimit = 64 << 10;
+
+                try {
+                    String runCmd = paths.get("submissionExecutable");
+                    final Process runProcess = Runtime.getRuntime().exec(runCmd, null, new File(paths.get("rootPath")));
+
+                    PID = runProcess.pid();
+                    final long clockStart = System.currentTimeMillis();
+
+                    String memDetectCmd = paths.get("rootPath") + "mem.exe " + PID + " " + timeLimit;
+                    final Process mdProcess = Runtime.getRuntime().exec(memDetectCmd, null, new File(paths.get("rootPath")));
+                    final InputStream memUsageStream = mdProcess.getInputStream();
+                    StringBuilder memInfo = new StringBuilder();
+
+                    // MEM DETECTION THREAD
+                    new Thread(() -> {
+                        try {
+                            BufferedReader br = new BufferedReader(new InputStreamReader(memUsageStream, StandardCharsets.UTF_8));
+                            String line = null;
+                            while ((line = br.readLine()) != null) {
+                                memInfo.append(line).append("\n");
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }).start();
+                    mdProcess.waitFor();
+                    mdProcess.destroy();
+
+                    if (runProcess.isAlive()) {
+                        timeLimitExceededFlag[0] = System.currentTimeMillis() - clockStart;
+                    } else {
+                        timeLimitExceededFlag[0] = -1;
+                    }
+                    int memUsage = Integer.parseInt(memInfo.toString().trim());
+                    memoryLimitExceededFlag[0] = memUsage - memoryLimit;
+                    runProcess.destroy();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    prePacket.put("RuntimeStatus", "InternalError");
+                    return prePacket;
+                }
+
+                // Step 6. GET RUNTIME STATUS
+                if (timeLimitExceededFlag[0] < 0) {
+                    prePacket.put("RuntimeStatus", "Accepted");
+                    if (memoryLimitExceededFlag[0] > 0) {
+                        System.out.println(tempLogger("MemoryLimitExceeded!"));
+                        prePacket.put("RuntimeStatus", "MemoryLimitExceeded");
+                        return prePacket;
+                    }
+                } else if (!"Accepted".equals(prePacket.get("RuntimeStatus"))) {
+                    System.out.println(tempLogger("TimeLimitExceeded!"));
+                    prePacket.put("RuntimeStatus", "TimeLimitExceeded");
                     return prePacket;
                 }
             }
-            else if(!"Accepted".equals(prePacket.get("RuntimeStatus"))){
-                prePacket.put("RuntimeStatus", "TimeLimitExceeded");
-            }
-
         }
         else {
             prePacket.put("RuntimeStatus", "CompileError");
         }
         return prePacket;
-    }
-
-    public int memoryUsageExtractor(String bufferInfo) {
-        String[] sliced = bufferInfo.split("\\s+");
-        int index = sliced.length - 2;
-        String memUsed = sliced[index].replace(",", "");
-        return Integer.parseInt(memUsed);
     }
 
     public ArrayList<String> answerSplitter(String answerString) { // I/O string slicer
@@ -216,18 +249,35 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
         }
     }
 
-    public Map<String, String> checker() {
-
-        FileHelper submissionHelper = new FileHelper(outputFile);
+    @Override
+    public Map<String, String> debugger() {
+        FileHelper submissionHelper = new FileHelper(paths.get("submissionOutputFile"));
         submissionHelper.readAll();
         String submittedAnswer = submissionHelper.getAll();
+
+        if (submittedAnswer.isEmpty()) {
+            postPacket.put("DebuggerStatus", "InvalidOutput");
+        } else {
+            postPacket.put("DebuggerStatus", submittedAnswer.trim());
+        }
+
+        return postPacket;
+    }
+
+    @Override
+    public Map<String, String> checker() {
+
+        FileHelper submissionHelper = new FileHelper(paths.get("submissionOutputFile"));
+        submissionHelper.readAll();
+        String submittedAnswer = submissionHelper.getAll();
+
         if (submittedAnswer.isEmpty()) {
             postPacket.put("JudgerStatus", "WrongAnswer");
             postPacket.put("failedAt", Integer.toString(0));
             return postPacket;
         }
 
-        FileHelper sampleHelper = new FileHelper(sampleOutputFile);
+        FileHelper sampleHelper = new FileHelper(paths.get("sampleOutputFile"));
         sampleHelper.readAll();
         String sampleAnswer = sampleHelper.getAll();
 
@@ -235,6 +285,11 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
             ArrayList<String> submitted = answerSplitter(submittedAnswer);
             ArrayList<String> sample = answerSplitter(sampleAnswer);
             if (sample != null && submitted != null) {
+                if (sample.size() != submitted.size()) {
+                    postPacket.put("JudgerStatus", "WrongAnswer");
+                    postPacket.put("failedAt", Integer.toString(-1));
+                    return postPacket;
+                }
                 for (int i = 0; i < sample.size(); i++) {
                     if (!(sample.get(i).equals(submitted.get(i)))) {
                         postPacket.put("JudgerStatus", "WrongAnswer");
@@ -254,6 +309,7 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
         postPacket.put("JudgerStatus", "Accepted");
         return postPacket;
     }
+
     @Override
     public void clearUps() {
 

@@ -1,6 +1,7 @@
 package com.oj.onlinejudge.service.checker.java;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,12 +21,12 @@ public class JavaCheckerCore {
         }
     }
 
-    public Map<String, String> checkSubmission() throws IOException, InterruptedException {
+    public Map<String, String> checkSubmission() throws IOException, InterruptedException, SQLException {
 
         String fname = "_Main_" + submissionUUID + ".java";
 
         JavaChecker j = new JavaChecker(fname, root, root, submissionUUID);
-        Map<String, String> compileResult = j.compileAndRunFile(root);
+        Map<String, String> compileResult = j.compileAndRunFile(null);
 
         Map<String, String> resultPacket = new HashMap<>();
 

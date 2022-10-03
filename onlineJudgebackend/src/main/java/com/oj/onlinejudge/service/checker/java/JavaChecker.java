@@ -8,6 +8,7 @@ import com.oj.onlinejudge.utils.FilePathUtil;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.*;
 
 public class JavaChecker extends CodeParserImpl implements GenericChecker {
@@ -41,7 +42,8 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
         }
         this.submissionUUID = submissionUUID;
 
-        sw = new SampleWrapper(dstDir, submissionUUID);
+        sw = new SampleWrapper();
+        sw.initWrapper(1, dstDir, submissionUUID);
 
         this.fileName = fileName;
         this.srcDir = srcDir;
@@ -56,13 +58,13 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
     }
 
     @Override
-    public Map<String, String> compileAndRunFile(String dstDir) throws IOException, InterruptedException {
+    public Map<String, String> compileAndRunFile(String debugInfo) throws IOException, InterruptedException, SQLException {
 
         final String extraHeaders = "import java.io.*;\nimport java.util.*;\nimport java.lang.management.ManagementFactory;\n" +
                 "import java.lang.management.RuntimeMXBean;\n";
 
         sw.getSamplesFromDB();
-        sw.wrapSamples();
+        sw.sliceSamples(2);
 
         relatedFiles.add(inputFile);
         relatedFiles.add(sampleOutputFile);
@@ -159,44 +161,42 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
                 final Process runProcess = Runtime.getRuntime().exec(runJavaCmd, null, new File(dstDir + "\\"));
                 if (runProcess != null) {
                     final String[] pid = {null};
-                    new Thread() {
-                        public void run() {
-                            String finalMessage = "";
-                            String line = null;
-                            InputStream inputStream = runProcess.getInputStream();
-                            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-                            StringBuilder runPidMessage = new StringBuilder();
-                            while (true) {
-                                try {
-                                    sleep(10);
+                    new Thread(() -> {
+                        String finalMessage = "";
+                        String line = null;
+                        InputStream inputStream = runProcess.getInputStream();
+                        BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+                        StringBuilder runPidMessage = new StringBuilder();
+                        while (true) {
+                            try {
+                                Thread.sleep(10);
 
-                                    if(br.ready() && pid[0] == null) {
-                                        while ((line = br.readLine()) != null) {
-                                            runPidMessage.append(line).append("\n");
-                                        }
-                                        if (!runPidMessage.toString().isEmpty()) {
-                                            finalMessage = runPidMessage.toString();
-                                            pid[0] = finalMessage.substring(finalMessage.indexOf("#") + 1, finalMessage.indexOf("^"));
-                                            System.out.println(pid[0]);
-                                            br.close();
-                                            inputStream.close();
-                                        }
+                                if(br.ready() && pid[0] == null) {
+                                    while ((line = br.readLine()) != null) {
+                                        runPidMessage.append(line).append("\n");
                                     }
-                                } catch (Exception e) {
-                                    throw new RuntimeException(e);
+                                    if (!runPidMessage.toString().isEmpty()) {
+                                        finalMessage = runPidMessage.toString();
+                                        pid[0] = finalMessage.substring(finalMessage.indexOf("#") + 1, finalMessage.indexOf("^"));
+                                        System.out.println(pid[0]);
+                                        br.close();
+                                        inputStream.close();
+                                    }
                                 }
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
 
-                                if (System.currentTimeMillis() - clockStart > timeLimit) { // TLE
-                                    if(!isOver[0]){
-                                        timeLimitExceededFlag[0] = System.currentTimeMillis() - clockStart;
-                                    }
-                                    isOver[0] = true;
-                                    runProcess.destroy();
-                                    return;
+                            if (System.currentTimeMillis() - clockStart > timeLimit) { // TLE
+                                if(!isOver[0]){
+                                    timeLimitExceededFlag[0] = System.currentTimeMillis() - clockStart;
                                 }
+                                isOver[0] = true;
+                                runProcess.destroy();
+                                return;
                             }
                         }
-                    }.start();
+                    }).start();
                     runProcess.waitFor();
                     runProcess.destroy();
                     InputStream inputStream = runProcess.getErrorStream();
@@ -242,6 +242,11 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
             prePacket.put("RuntimeStatus", "CompileError");
         }
         return prePacket;
+    }
+
+    @Override
+    public Map<String, String> debugger() {
+        return null;
     }
 
     @Override

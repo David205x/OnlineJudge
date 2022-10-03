@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 import java.lang.reflect.Array;
 import java.util.*;
 
-// TODO: THIS IS A TEST FUNCTION, MAY GET REMOVED LATER
-
 @Service
 public class ProblemFilter implements com.oj.onlinejudge.service.problems.ProblemFilter {
 
