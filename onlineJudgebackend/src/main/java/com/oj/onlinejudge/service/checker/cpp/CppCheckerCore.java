@@ -15,7 +15,6 @@ public class CppCheckerCore extends CheckerCaller {
 
     public CppCheckerCore(String submissionUUID, String debugInfo, String targetProblem) {
         super();
-        // TODO: Get debugInfo from frontend.
         String fname = submissionUUID + "_main.cpp";
         if (root != null) {
             root += "\\files";

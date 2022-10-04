@@ -74,32 +74,18 @@ public class SampleWrapper {
         return true;
     }
 
-    public int getTimeLimit() throws SQLException {
+    public String[] getRuntimeLimits() throws SQLException {
 
         PreparedStatement statement;
         ResultSet rs;
 
-        String sql = "SELECT timeLimit FROM problem WHERE problemKey = ?;";
+        String sql = "SELECT memoryLimit, timeLimit, testpoint FROM problem WHERE problemKey = ?;";
         statement = conn.prepareStatement(sql);
         statement.setString(1, Integer.toString(targetProblemKey));
         rs = statement.executeQuery();
 
-        return rs.getInt(1);
+        return new String[]{rs.getString(1), rs.getString(2),rs.getString(3)};
     }
-
-    public int getMemoryLimit() throws SQLException {
-
-        PreparedStatement statement;
-        ResultSet rs;
-
-        String sql = "SELECT memoryLimit FROM problem WHERE problemKey = ?;";
-        statement = conn.prepareStatement(sql);
-        statement.setString(1, Integer.toString(targetProblemKey));
-        rs = statement.executeQuery();
-
-        return rs.getInt(1);
-    }
-
 
 
     public boolean getSamplesFromDB() throws SQLException {
