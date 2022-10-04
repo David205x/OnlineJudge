@@ -70,16 +70,18 @@
                 }">
       </VAceEditor>
 
-      <div :class="submission_status == 'Accepted' ? 'accepted' : 'wrong'">
-        <span style="color:black; font-weight: normal" v-if="submission_status !== '?'">代码运行状态:  </span>
+      <div class="submit_debug">
+        <button @click="submitcode" class="btn btn-primary">调试</button>
         &nbsp;
-        <span v-if="submission_status !== '?' && submission_status !== 'Waiting'">{{ submission_status }}</span>
-        <span class="loading">
-                    <span class="fa fa-circle-o-notch fa-spin fa-lg" v-if="submission_status == 'Waiting'"></span>
-                </span>
-
-        <button @click="submitcode" class="btn btn-primary" style="float: right; margin-top: -1vh">提交评判</button>
-
+        <button @click="submitcode" class="btn btn-primary">提交</button>
+      </div>
+      <div :class="submission_status == 'Accepted' ? 'accepted' : 'wrong' " >
+          <span style="color:black; font-weight: normal;" v-if="submission_status !== '?'">代码运行状态:  </span>
+          &nbsp;
+          <span style="margin-top: 3vh" v-if="submission_status !== '?' && submission_status !== 'Waiting'">{{ submission_status }}</span>
+          <span class="loading">
+              <span class="fa fa-circle-o-notch fa-spin fa-lg" v-if="submission_status == 'Waiting'"></span>
+          </span>
       </div>
     </div>
   </ContentField>
@@ -205,5 +207,18 @@ div.wrong{
 span.loading{
   color: rgb(58, 231, 124);
   margin-bottom: 5px;
+}
+button.btn.btn-primary{
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  height: 5vh;
+  width: 5vw;
+}
+div.submit_debug{
+  font-weight: bold;
+  font-size:large;
+  height: 5vh;
+  text-align: right;
 }
 </style>

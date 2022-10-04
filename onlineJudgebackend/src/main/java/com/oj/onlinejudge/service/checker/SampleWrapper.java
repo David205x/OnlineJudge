@@ -1,6 +1,7 @@
 package com.oj.onlinejudge.service.checker;
 
-import java.io.File;
+import com.oj.onlinejudge.utils.FilePathUtil;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,7 @@ public class SampleWrapper {
 
     public boolean getSamplesFromDB() throws SQLException {
 
-        String fileRoot = System.getenv("BJUT_OJ_HOME") + "\\onlineJudgebackend\\src\\main\\resources\\application.properties";
+        String fileRoot = FilePathUtil.BJUT_OJ_HOME + "\\onlineJudgebackend\\src\\main\\resources\\application.properties";
 
         FileHelper properties = new FileHelper(fileRoot);
         properties.readAll();

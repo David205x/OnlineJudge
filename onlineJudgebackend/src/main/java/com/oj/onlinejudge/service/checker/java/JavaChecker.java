@@ -153,6 +153,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
         compileProcess.destroy();
 
         // RUN
+        System.out.println(errInfo.toString());
         if (errInfo.toString().isEmpty()) { // Timer thread
             System.out.println(tempLogger("Source compiled."));
             final long timeLimit = 1000;
@@ -327,7 +328,6 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
             e.printStackTrace();
             return postPacket;
         }
-
         postPacket.put("JudgerStatus", "Accepted");
         return postPacket;
     }
