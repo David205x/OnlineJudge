@@ -15,6 +15,8 @@ public class Problem {
     private String problemname;
     private String source;
     private String description;
+    private Integer timelimit;
+    private Integer memorylimit;
     private Integer testpoint;
     private String tag;
 }

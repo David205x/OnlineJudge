@@ -15,9 +15,11 @@ CREATE TABLE `problem` (
 	`problemKey`		INT				NOT NULL AUTO_INCREMENT COMMENT '题目编号',
 	`problemName`		VARCHAR(256) 	NOT NULL 				COMMENT '题目标题',
 	`source`			VARCHAR(128)							COMMENT '出题人/题目来源',
-	`description`		VARCHAR(2048)	NOT NULL 				COMMENT '题目描述json',
+	`description`		VARCHAR(2048)	NOT NULL 				COMMENT '题目描述',
+	`timeLimit`			INT				NOT NULL				COMMENT '题目时限',
+	`memoryLimit`		INT				NOT NULL				COMMENT '内存限制',
 	`testpoint`			INT				NOT	NULL				COMMENT '测试点数量',
-	`tag`				VARCHAR(128)							COMMENT '标签json',
+	`tag`				VARCHAR(128)							COMMENT '标签',
 	
 	PRIMARY KEY (`problemKey`)
 );
