@@ -38,7 +38,7 @@ public class SampleWrapper {
         String driver="com.mysql.jdbc.Driver";
         String url="jdbc:mysql://localhost:3306/online_judge?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8";
         String user="root";
-        String password="";
+        String password="B9XJ/mQaW%*/";
 
         Connection conn = null;
         PreparedStatement pst = null;

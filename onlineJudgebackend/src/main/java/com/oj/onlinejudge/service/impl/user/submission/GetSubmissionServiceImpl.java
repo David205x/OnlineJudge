@@ -54,7 +54,7 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
             }
         }
         if("java".equals(language)){
-            JavaCheckerCore j = new JavaCheckerCore(submissionUUID);
+            JavaCheckerCore j = new JavaCheckerCore(submissionUUID, debugInfo);
             try {
                 ret = j.checkSubmission();
             } catch (Exception e) {
