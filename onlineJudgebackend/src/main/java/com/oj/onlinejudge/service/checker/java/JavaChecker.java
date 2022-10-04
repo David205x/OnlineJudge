@@ -27,20 +27,20 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
     private Map<String, String> paths = new HashMap<>();
 
 
-    public JavaChecker(String fileName, String srcDir, String dstDir, String submissionUUID) {
+    public JavaChecker(String dstDir, String submissionUUID, String targetProblem) {
         if (this.JAVA_HOME == null) {
             throw new RuntimeException("Cannot locate local MinGW");
         }
         this.submissionUUID = submissionUUID;
 
         sw = new SampleWrapper();
-        sw.initWrapper(1, dstDir, submissionUUID);
+        sw.initWrapper(dstDir, submissionUUID, targetProblem);
 
         paths.put("rootPath", dstDir + "\\");
         paths.put("submissionMainFile", dstDir + "\\Main_" + submissionUUID + ".java");
-        paths.put("submissionExecutable", dstDir + "\\" + submissionUUID + ".class");
+        paths.put("submissionExecutable", dstDir + "\\_Main_" + submissionUUID + ".class");
         paths.put("proceededMainFile", dstDir + "\\_Main_" + submissionUUID + ".java");
-        paths.put("sampleInputFile", srcDir + "\\" + sw.getInputName());
+        paths.put("sampleInputFile", dstDir + "\\" + sw.getInputName());
         paths.put("sampleOutputFile", dstDir + "\\" + sw.getOutputName());
         paths.put("submissionOutputFile", dstDir + "\\" + submissionUUID + "_o.txt");
     }
@@ -54,7 +54,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
 
         boolean enableDebugMode = (debugInfo != null);
 
-        int testpoints = 3; // get this from problem db later.
+        int testpoints = 2; // get this from problem db later.
 
         if (!enableDebugMode) {
             if (!(sw.getSamplesFromDB() && sw.sliceSamples(testpoints))) {
@@ -69,6 +69,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
         }
         relatedFiles.add(paths.get("sampleInputFile"));
         relatedFiles.add(paths.get("submissionOutputFile"));
+        relatedFiles.add(paths.get("submissionExecutable"));
 
         FileHelper submittedCode = new FileHelper(paths.get("submissionMainFile"));
         relatedFiles.add(paths.get("submissionMainFile"));
@@ -77,8 +78,8 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
         System.out.println(tempLogger("Submission source extracted."));
         final String extraHeaders = "import java.io.*;\nimport java.util.*;\nimport java.lang.management.ManagementFactory;\n" +
                 "import java.lang.management.RuntimeMXBean;\n";
-        String PrintStreamIn = "\n\t\tSystem.setIn(new FileInputStream(\"" + BJUT_OJ_HOME + "/files/" + sw.getInputName() + "\"));";
-        String PrintStreamOut = "\n\t\tSystem.setOut(new PrintStream(new FileOutputStream(\"" + BJUT_OJ_HOME + "/files/" + sw.getOutputName() + ".txt\", true)));\n";
+        String PrintStreamIn = "\n\t\tSystem.setIn(new FileInputStream(\"" + paths.get("sampleInputFile") + "\"));";
+        String PrintStreamOut = "\n\t\tSystem.setOut(new PrintStream(new FileOutputStream(\"" + paths.get("submissionOutputFile") + "\", true)));\n";
         PrintStreamIn = PrintStreamIn.replaceAll("\\\\", "/");
         PrintStreamOut = PrintStreamOut.replaceAll("\\\\", "/");
         String streamRedirector = PrintStreamIn + PrintStreamOut;
@@ -104,7 +105,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
             return prePacket;
         }
         String finalSrcCode = response.get("ParsedCodeString");
-        System.out.println(finalSrcCode);
+
         FileHelper helper = new FileHelper(paths.get("proceededMainFile"));
         if (!helper.writeAll(finalSrcCode)) {
             prePacket.put("RuntimeStatus", "InternalError");
@@ -116,9 +117,9 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
 
         // COMPILE
         Process compileProcess = null;
-        String compileCmd = "javac " + BJUT_OJ_HOME + "\\files\\" + "_Main_" + submissionUUID + ".java";
+        String compileCmd = "javac " + paths.get("proceededMainFile");
         String runJavaCmd =  "java " + "-classpath " + BJUT_OJ_HOME + "\\files\\" + " _Main_" + submissionUUID;
-        compileProcess = Runtime.getRuntime().exec(compileCmd, null);
+        compileProcess = Runtime.getRuntime().exec(compileCmd);
 
         final InputStream errStream = compileProcess.getErrorStream();
         final String[] errMsg = {null};
@@ -151,7 +152,6 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
         compileProcess.waitFor();
         compileProcess.destroy();
 
-        relatedFiles.add(paths.get("submissionExecutable"));
         // RUN
         System.out.println(errInfo.toString());
         if (errInfo.toString().isEmpty()) { // Timer thread
@@ -236,7 +236,6 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
                         timeLimitExceededFlag[0] = -1;
                     }
                     int memUsage = Integer.parseInt(memInfo.toString().trim());
-                    System.out.println(memUsage);
                     memoryLimitExceededFlag[0] = memUsage - memoryLimit;
                     runProcess.destroy();
 
@@ -344,16 +343,16 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
 
     @Override
     public void clearUps() {
-//        for (String fileItem : this.relatedFiles) {
-//            try {
-//                File file = new File(fileItem);
-//                if (file.exists()) {
-//                    file.delete();
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                return;
-//            }
-//        }
+        for (String fileItem : this.relatedFiles) {
+            try {
+                File file = new File(fileItem);
+                if (file.exists()) {
+                    file.delete();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+        }
     }
 }

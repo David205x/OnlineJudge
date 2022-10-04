@@ -1,24 +1,46 @@
 <template>
     <ContentField>
-        <div class="container">
+        <div class="container" style="font-size: 17px">
             <div class="row align-items-start">
+<<<<<<< HEAD
                 <div class="col-10" style="height: auto;">
                         <md-editor 
                             v-model = $store.state.problem.problemDescription
                             previewOnly = true>
                         </md-editor>
+=======
+                <div class="col-9" style="height: auto;">
+                    <md-editor
+                        v-model = $store.state.problem.problemDescription
+                        previewOnly = true>
+                    </md-editor>
+>>>>>>> 8cd3720a6ef723ca88733cefe77c719eeaa34c39
                 </div>
-                <div class="col-2">
+                <div class="col-3">
                     <ul class="list-group">
-                        <li class="list-group-item">难度</li>
-                        <li class="list-group-item">总通过数</li>
-                        <li class="list-group-item">总提交数</li>
-                        <li class="list-group-item">tag</li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            难度
+                            <span class="badge bg-success">Newbie</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            总通过数
+                            <span class="badge bg-secondary">114</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            总提交数
+                            <span class="badge bg-secondary">514</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            标签
+                            <span class="badge bg-primary">#策马</span>
+                            <span class="badge bg-primary">#看看你的</span>
+                        </li>
                     </ul>
                 </div>
             </div>
         </div>
         <div>
+<<<<<<< HEAD
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col">
@@ -29,47 +51,56 @@
                     </div>
                     <div class="col-4">
                         <select class="form-select" aria-label="Default select example"  v-model=language_selected>
+=======
+            <div class="container" style="margin-top: 2vh">
+                <div class="row align-items-start">
+                    <div class="col-6">
+                    </div>
+                    <div class="col-2">
+                        <p class="fw-normal" style="text-align: right; margin: 0.5vh">代码语言 :</p>
+                    </div>
+                    <div class="col-2">
+                        <select class="form-select form-select-sm" aria-label="Default select example" v-model=language_selected>
+>>>>>>> 8cd3720a6ef723ca88733cefe77c719eeaa34c39
                             <option value="c_cpp" selected>C++</option>
                             <option value="c_cpp">C</option>
                             <option value="python">Python</option>
-                            <option value="java">Java</option>         
+                            <option value="java">Java</option>
                         </select>
                     </div>
+<<<<<<< HEAD
                     <div class="col justify-content-end" >
                         <i @click="refresh" v-on:mouseover="spinnerChangeCog(1)" v-on:mouseout="spinnerChangeCog(0)" :class="spinner_cog == 1 ? 'fa fa-refresh fa-spin fa-2x' : 'fa fa-refresh fa-2x'"  style="margin-left: 5vw"></i>
                         <i class="fa fa-cog fa-2x" style="margin-left: 4vw"></i>
+=======
+                    <div class="col-2" style="margin: 0vh 0vh 0vh">
+                        <i @click="refresh"
+                           v-on:mouseover="spinnerChangeCog(1)"
+                           v-on:mouseout="spinnerChangeCog(0)"
+                           :class="spinner_cog == 1 ? 'fa fa-refresh fa-spin fa-2x' : 'fa fa-refresh fa-2x'" ></i>
+                        <i class="fa fa-cog fa-2x" style="margin-left: 1vh"></i>
+>>>>>>> 8cd3720a6ef723ca88733cefe77c719eeaa34c39
                     </div>
-                    
+
                 </div>
             </div>
             <VAceEditor
                 @init="editorInit"
                 :lang="language_selected"
                 theme="textmate"
+<<<<<<< HEAD
                 style="height: 80vh; margin-top: 2vh" 
+=======
+                style="height: 600px; margin-top: 1vh"
+>>>>>>> 8cd3720a6ef723ca88733cefe77c719eeaa34c39
                 v-model:value="code.content"
                 :options="{
-                    enableBasicAutocompletion: true, 
-                    fontSize:14,
+                    enableBasicAutocompletion: true,
+                    fontSize:17,
                     showPrintMargin:false,
                 }">
-                
             </VAceEditor>
-            <div class="submit_debug">
-                <button @click="submitcode" class="btn btn-primary">调试</button>
-                &nbsp;
-                <button @click="submitcode" class="btn btn-primary">提交</button>
-            </div>
-            <div :class="submission_status == 'Accepted' ? 'accepted' : 'wrong' " >
-                <span style="color:black; font-weight: normal;" v-if="submission_status !== '?'">代码运行状态:  </span>
-                &nbsp;
-                <span style="margin-top: 3vh" v-if="submission_status !== '?' && submission_status !== 'Waiting'">{{ submission_status }}</span>
-                <span class="loading">
-                    <span class="fa fa-circle-o-notch fa-spin fa-lg" v-if="submission_status == 'Waiting'"></span>
-                </span>
-                
-                
-            </div>
+            
         </div>
      </ContentField>
  </template>
@@ -96,17 +127,11 @@ export default{
     setup(){  
         let language_selected = ref('c_cpp');
         let spinner_cog = ref(0);
-        const store = useStore();
         let submission_status = ref('?');
-        
+        const store = useStore();
         const code = reactive({
             content: "",
         });
-        const md = {
-            context:
-                "int main(){\n    int t;\n    t = 1;\n    int cnt = 1;\n    while(t--){\n        solve(cnt++);\n    }\n    return 0;\n}\n",
-        }
-        let flag = 0;
         store.dispatch("showProblem", {
             success(){
                 store.commit("updatePullingInfo", false);
@@ -137,8 +162,6 @@ export default{
             code.content = ""
         }
         return {
-            md,
-            flag,
             spinner_cog,
             spinnerChangeCog,
             code,

@@ -9,11 +9,11 @@ import java.util.Map;
 
 public class CppCheckerCore extends CheckerCaller {
 
-    String root = System.getenv("BJUT_OJ_HOME");
+    private String root = System.getenv("BJUT_OJ_HOME");
 
-    String debugInfo;
+    private String debugInfo;
 
-    public CppCheckerCore(String submissionUUID, String debugInfo) {
+    public CppCheckerCore(String submissionUUID, String debugInfo, String targetProblem) {
         super();
         // TODO: Get debugInfo from frontend.
         String fname = submissionUUID + "_main.cpp";
@@ -22,7 +22,7 @@ public class CppCheckerCore extends CheckerCaller {
         } else {
             throw new RuntimeException("Cannot locate file storage");
         }
-        setChecker(new CppChecker(fname, root, root, submissionUUID));
+        setChecker(new CppChecker(root, submissionUUID, targetProblem));
         this.debugInfo = debugInfo;
     }
 

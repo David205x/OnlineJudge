@@ -1,33 +1,43 @@
 <template>
     <ContentField>
-        <div>
-            <button @click="initEditorial" class="btn btn-primary">写题解</button>
-        </div>
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <div class="card">
-                        <div class="card-body">
-                            <slot></slot>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <div class="card-body">
-                            <slot></slot>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card">
-                        <div class="card-body">
-                            <slot></slot>
-                        </div>
-                    </div>
-                </div>
+      <div class="row">
+        <div class="col">
+          <div class="card" style="width: 18rem;">
+            <img src="@/assets/1.jpeg" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">简单的加法运算</h5>
+              <p class="card-text">由题干可以....</p>
+              <a href="#" class="btn btn-primary">查看此题题解</a>
             </div>
+          </div>
         </div>
+        <div class="col">
+          <div class="card" style="width: 18rem;">
+            <img src="@/assets/1.jpeg" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">Card title</h5>
+              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+              <a href="#" class="btn btn-primary">Go somewhere</a>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card" style="width: 18rem;">
+            <img src="@/assets/1.jpeg" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">Card title</h5>
+              <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+              <a href="#" class="btn btn-primary">Go somewhere</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <span>
+          如果对某道题的解法有优化或有更好的方法，欢迎上交题解
+        </span>
+        <button @click="initEditorial" class="btn btn-primary">写题解</button>
+      </div>
      </ContentField>
  </template>
    

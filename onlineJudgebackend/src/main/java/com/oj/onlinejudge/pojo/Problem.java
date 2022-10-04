@@ -15,6 +15,6 @@ public class Problem {
     private String problemname;
     private String source;
     private String description;
-    private String sampleio;
+    private Integer testpoint;
     private String tag;
 }

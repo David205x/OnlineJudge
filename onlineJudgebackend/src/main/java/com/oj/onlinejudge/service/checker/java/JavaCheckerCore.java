@@ -13,7 +13,7 @@ public class JavaCheckerCore extends CheckerCaller {
     String root = System.getenv("BJUT_OJ_HOME");
 
     String debugInfo;
-    public JavaCheckerCore(String submissionUUID, String debugInfo) {
+    public JavaCheckerCore(String submissionUUID, String debugInfo, String targetProblem) {
         super();
         String fname = "Main" + submissionUUID + ".java";
         if (root != null) {
@@ -21,7 +21,7 @@ public class JavaCheckerCore extends CheckerCaller {
         } else {
             throw new RuntimeException("Cannot locate file storage");
         }
-        setChecker(new JavaChecker(fname, root, root, submissionUUID));
+        setChecker(new JavaChecker(root, submissionUUID, targetProblem));
         this.debugInfo = debugInfo;
     }
     public Map<String, String> checkSubmission() throws IOException, InterruptedException, SQLException {
