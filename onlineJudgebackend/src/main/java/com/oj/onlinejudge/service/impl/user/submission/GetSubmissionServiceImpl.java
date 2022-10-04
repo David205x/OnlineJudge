@@ -1,21 +1,31 @@
 package com.oj.onlinejudge.service.impl.user.submission;
 
+import com.oj.onlinejudge.mapper.SubmissionMapper;
+import com.oj.onlinejudge.pojo.Submission;
 import com.oj.onlinejudge.service.checker.cpp.CppCheckerCore;
 import com.oj.onlinejudge.service.checker.FileHelper;
 import com.oj.onlinejudge.service.checker.java.JavaCheckerCore;
 import com.oj.onlinejudge.service.user.submission.GetSubmissionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
+
 @Service
 public class GetSubmissionServiceImpl implements GetSubmissionService {
+
+    @Autowired
+    private SubmissionMapper submissionMapper;
 
     private final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
     @Override
     public Map<String, String> GetSubmission(String userKey, String code, String language) throws IOException {
+
+        // TODO: Get problen from DB and wrap them in a package containing mem/time limit, testpoints count etc.
 
         String root = System.getenv("BJUT_OJ_HOME");
         StringBuilder fileNameBuilder = new StringBuilder(root + "\\files\\");
@@ -65,6 +75,16 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
         }
         if("python".equals(language)){
             return null;
+        }
+
+        if (ret != null) {
+            submissionMapper.insert(new Submission(
+                    null,
+                    Integer.parseInt(userKey),
+                    new Timestamp(System.currentTimeMillis()),
+                    ret.get("SubmissionStatus"),
+                    Integer.parseInt(ret.get("TimeElapsed")),
+                    language));
         }
 
         return ret;

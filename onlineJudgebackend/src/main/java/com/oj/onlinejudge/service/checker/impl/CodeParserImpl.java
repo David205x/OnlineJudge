@@ -24,13 +24,15 @@ public class CodeParserImpl implements CodeParser {
     public Map<String, String> Response(String srcCode, String reg, String[] insertCode) {
         String[] interval = ParseCode(srcCode, reg);
         Map<String, String> res = new HashMap<>();
-        Logger logger = LoggerFactory.getLogger("CodeParserImpl.java");
-        if(interval == null){
-            logger.error("传入的代码格式不正确");
-            res.put("error_message", "CompileError");
-            res.put("ParsedCodeString", "CompileError");
-            return res;
-        }
+
+//        Logger logger = LoggerFactory.getLogger("CodeParserImpl.java");
+//        if(interval == null){
+//            logger.error("传入的代码格式不正确");
+//            res.put("error_message", "CompileError");
+//            res.put("ParsedCodeString", "CompileError");
+//            return res;
+//        }
+
         StringBuilder ParsedCodeBuilder = new StringBuilder();
         for (int i = 0; i < insertCode.length; i++) {
             ParsedCodeBuilder.append(insertCode[i]);
