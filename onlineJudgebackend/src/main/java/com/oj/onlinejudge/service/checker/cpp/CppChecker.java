@@ -58,7 +58,9 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
 
         boolean enableDebugMode = (debugInfo != null);
 
-        int testpoints = 3; // get this from problem db later.
+        final int testpoints = 3; // get this from problem db later.
+        final long[] timeElapsed = {-1};
+        prePacket.put("TimeElapsed", "-1");
 
         // Step 1. LOAD SAMPEL IO FROM DB
         if (!enableDebugMode) {
@@ -151,6 +153,7 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
             final long[] timeLimitExceededFlag = {-1}; // if greater than 0 it means TLE happens.
             final long[] memoryLimitExceededFlag = {-1}; // if greater than 0 it means MLE happens.
 
+            // TODO: Get this from SampleWrapper getLimit methods.
             final long timeLimit = 1000;
             final int memoryLimit = 64 << 10;
 
@@ -184,12 +187,25 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
                     final Process runProcess = Runtime.getRuntime().exec(runCmd, null, new File(paths.get("rootPath")));
 
                     PID = runProcess.pid();
-                    final long clockStart = System.currentTimeMillis();
 
                     String memDetectCmd = paths.get("rootPath") + "mem.exe " + PID + " " + timeLimit;
                     final Process mdProcess = Runtime.getRuntime().exec(memDetectCmd, null, new File(paths.get("rootPath")));
                     final InputStream memUsageStream = mdProcess.getInputStream();
                     StringBuilder memInfo = new StringBuilder();
+
+                    // TIMER THREAD
+                    final long clockStart = System.currentTimeMillis();
+                    new Thread(() -> {
+                        while(runProcess.isAlive()) {
+                            try {
+                                Thread.sleep(5);
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                        long curTimeElapsed = System.currentTimeMillis() - clockStart;
+                        prePacket.put("TimeElapsed", Long.toString(Math.max(curTimeElapsed, timeElapsed[0])));
+                    }).start();
 
                     // MEM DETECTION THREAD
                     new Thread(() -> {
