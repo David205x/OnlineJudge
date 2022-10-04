@@ -43,6 +43,7 @@ public class JavaCheckerCore extends CheckerCaller {
             resultPacket.put("SubmissionStatus", compileResult.get("RuntimeStatus"));
         }
 
+        resultPacket.put("TimeElapsed", compileResult.get("TimeElapsed"));
         Checker.clearUps();
 
         return resultPacket;

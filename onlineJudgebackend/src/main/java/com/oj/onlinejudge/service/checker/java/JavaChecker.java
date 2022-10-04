@@ -54,7 +54,8 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
 
         boolean enableDebugMode = (debugInfo != null);
 
-        int testpoints = 2; // get this from problem db later.
+        int testpoints = 3; // get this from problem db later.
+        final long[] timeElapsed = {-1};
 
         if (!enableDebugMode) {
             if (!(sw.getSamplesFromDB() && sw.sliceSamples(testpoints))) {
@@ -189,12 +190,25 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
                     final Process runProcess = Runtime.getRuntime().exec(runJavaCmd, null);
 
                     PID = runProcess.pid();
-                    final long clockStart = System.currentTimeMillis();
 
                     String memDetectCmd = paths.get("rootPath") + "mem.exe " + PID + " " + timeLimit;
                     final Process mdProcess = Runtime.getRuntime().exec(memDetectCmd, null, new File(paths.get("rootPath")));
                     final InputStream memUsageStream = mdProcess.getInputStream();
                     StringBuilder memInfo = new StringBuilder();
+
+                    // TIMER THREAD
+                    final long clockStart = System.currentTimeMillis();
+                    new Thread(() -> {
+                        while(runProcess.isAlive()) {
+                            try {
+                                Thread.sleep(5);
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                        long curTimeElapsed = System.currentTimeMillis() - clockStart;
+                        prePacket.put("TimeElapsed", Long.toString(Math.max(curTimeElapsed, timeElapsed[0])));
+                    }).start();
 
                     // MEM DETECTION THREAD
                     new Thread(() -> {
