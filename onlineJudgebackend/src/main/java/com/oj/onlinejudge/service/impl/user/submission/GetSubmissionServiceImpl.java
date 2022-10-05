@@ -5,6 +5,7 @@ import com.oj.onlinejudge.pojo.Submission;
 import com.oj.onlinejudge.service.checker.cpp.CppCheckerCore;
 import com.oj.onlinejudge.service.checker.FileHelper;
 import com.oj.onlinejudge.service.checker.java.JavaCheckerCore;
+import com.oj.onlinejudge.service.checker.python.PythonCheckerCore;
 import com.oj.onlinejudge.service.user.submission.GetSubmissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,10 +36,6 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
         SubmissionUUIDGen gen = new SubmissionUUIDGen(userKey);
         final String submissionUUID = gen.uuidGen();
         System.out.println(tempLogger("SID: " + submissionUUID + " | Language: " + language));
-
-//        // TODO: Wire it to frontend.
-//        String debugInfo = null; // to disable debugger, put null here.
-//        String targetProblem = Integer.toString(1);
 
         switch (language) {
             case "c_cpp": fileNameBuilder.append(submissionUUID).append("_main.cpp"); break;
@@ -76,7 +73,13 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
             }
         }
         if("python".equals(language)){
-            return null;
+            PythonCheckerCore p = new PythonCheckerCore(submissionUUID, debugInfo, targetProblem);
+            try {
+                ret = p.checkSubmission();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
         }
 
         if (ret != null) {
@@ -87,7 +90,8 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
                         new Timestamp(System.currentTimeMillis()),
                         ret.get("SubmissionStatus"),
                         Integer.parseInt(ret.get("TimeElapsed")),
-                        language));
+                        language)
+                );
                 System.out.println(tempLogger("Submission status: " + ret.get("SubmissionStatus")));
             }
         }

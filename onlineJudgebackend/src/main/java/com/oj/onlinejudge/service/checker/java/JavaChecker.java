@@ -29,7 +29,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
 
     public JavaChecker(String dstDir, String submissionUUID, String targetProblem) {
         if (this.JAVA_HOME == null) {
-            throw new RuntimeException("Cannot locate local MinGW");
+            throw new RuntimeException("Cannot locate local oj home");
         }
         this.submissionUUID = submissionUUID;
 
@@ -53,10 +53,15 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
     public Map<String, String> compileAndRunFile(String debugInfo) throws IOException, InterruptedException, SQLException {
 
         boolean enableDebugMode = (debugInfo != null);
-
-        int testpoints = 3; // get this from problem db later.
         final long[] timeElapsed = {-1};
         prePacket.put("TimeElapsed", "-1");
+
+        String[] restrictions = sw.getRuntimeLimits();
+        if (restrictions == null) {
+            prePacket.put("RuntimeStatus", "SQLError");
+            return prePacket;
+        }
+        final int testpoints = Integer.parseInt(restrictions[2]);
 
         if (!enableDebugMode) {
             if (!(sw.getSamplesFromDB() && sw.sliceSamples(testpoints))) {
@@ -86,7 +91,8 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
         PrintStreamOut = PrintStreamOut.replaceAll("\\\\", "/");
         String streamRedirector = PrintStreamIn + PrintStreamOut;
 
-        final String standardMainFunc = "\tpublic static void" + " main(String args[]) throws FileNotFoundException, NoSuchElementException" + "{\n";
+        final String standardMainFunc =
+                "\tpublic static void" + " main(String args[]) throws FileNotFoundException, NoSuchElementException" + "{\n";
         final String standardMainFunc1 = "public class" + " _Main_" + submissionUUID + "{\n";
         String[] insertCode = new String[2];
         insertCode[0] = "";
