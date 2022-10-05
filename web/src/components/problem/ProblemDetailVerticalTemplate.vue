@@ -57,18 +57,23 @@
 
         </div>
       </div>
-      <VAceEditor
-          @init="editorInit"
-          :lang="language_selected"
-          theme="textmate"
-          style="height: 600px; margin-top: 1vh"
-          v-model:value="code.content"
-          :options="{
-                    enableBasicAutocompletion: true,
-                    fontSize:17,
-                    showPrintMargin:false,
-                }">
-      </VAceEditor>
+      <div id="Vace">
+            <VAceEditor
+            @init="editorInit"
+            :lang="language_selected"
+            theme="textmate"
+            style="height: 600px; margin-top: 1vh"
+            v-model:value="code.content"
+            :options="{
+                      enableBasicAutocompletion: true,
+                      fontSize:FS,
+                      showPrintMargin:false,
+                  }">
+            
+          </VAceEditor>
+        </div>
+            
+      
 
       <div class="submit_debug">
         <button @click="submitcode" class="btn btn-primary">调试</button>
@@ -97,6 +102,7 @@ import ace from 'ace-builds';
 import 'font-awesome/css/font-awesome.min.css';
 import 'md-editor-v3/lib/style.css';
 import MdEditor from 'md-editor-v3'
+import { nextTick } from 'vue'
 ace.config.set(
     "basePath",
     "https://cdn.jsdelivr.net/npm/ace-builds@" + require('ace-builds').version + "/src-noconflict/")
@@ -106,11 +112,15 @@ export default{
     VAceEditor,
     MdEditor,
   },
-
+  created() {
+    
+  },
   setup(){
+    
     let language_selected = ref('c_cpp');
     let spinner_cog = ref(0);
     let submission_status = ref('?');
+    let FS = ref(13);
     const store = useStore();
     const code = reactive({
       content: "",
@@ -123,18 +133,34 @@ export default{
         store.commit("updatePullingInfo", false);
       }
     })
+    nextTick(()=>{
+      document.getElementById("Vace").addEventListener('mousewheel', function(){
+          if (event.ctrlKey === true || event.metaKey) {
+              event.preventDefault();
+              if(FS.value <= 13) FS.value = 13;
+              if(FS.value >= 100) FS.value = 100;
+              if(event.deltaY < 0 && FS.value < 100) FS.value++;
+              if(event.deltaY > 0 && FS.value > 13) FS.value--;
+          }
+      },{ passive: false});
+    })
     const spinnerChangeCog = (data) =>{
       spinner_cog.value = data;
     }
     const compiledMarkdown = () => {
       return marked.parse(store.state.problem.problemDescription);
     }
+    
+    
+    
     const submitcode = () =>{
       submission_status.value = "Waiting"
       store.dispatch("sendSubmission", {
-        userKey: "1",
+        userKey: store.state.user.id,
         content: code.content,
         language: language_selected.value,
+        debugInfo: null,
+        targetProblem:"1",
         success(resp) {
           console.log(resp);
           submission_status.value = resp.SubmissionStatus;
@@ -156,6 +182,7 @@ export default{
       submission_status,
       refresh,
       language_selected,
+      FS,
     }
   },
   computed:{

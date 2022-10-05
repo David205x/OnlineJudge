@@ -92,7 +92,7 @@ export default{
         }
 
         const login = () => {
-            error_message.value = "&nbsp";
+            error_message.value = " ";
             store.dispatch("login", {
                 username: username.value,
                 password: password.value,
