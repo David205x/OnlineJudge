@@ -6,7 +6,6 @@ import com.oj.onlinejudge.pojo.Problem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 @Service
@@ -14,6 +13,39 @@ public class ProblemFilter implements com.oj.onlinejudge.service.problems.Proble
 
     @Autowired
     private ProblemMapper problemMapper;
+
+    @Override
+    public Map<String, String> getProblemDetails(Integer problemKey) {
+        // Shown in problem details page, contains detailed problem info.
+
+        QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("problemkey", Integer.toString(problemKey));
+        List<Problem> problemEntries = problemMapper.selectList(queryWrapper);
+
+        if (problemEntries.size() != 1) {
+            System.out.println("problemKey conflict(s)!");
+            return null;
+        }
+
+        // Tags format: [0]: Difficulty, [1]: TAG #1, [2]: TAG #2
+        String tagStr = problemEntries.get(0).getTag();
+        String[] tags = tagStr.split("~~"); // TODO: TEST THIS LATER
+
+        HashMap<String, String> retMap = new HashMap<>();
+        retMap.put("problemKey", Integer.toString(problemKey));
+        retMap.put("problemBody",  problemEntries.get(0).getDescription());
+        retMap.put("problemDifficulty",  tags[0]);
+
+        // TODO: Get these stats from db.
+        retMap.put("AcceptedAttempts",  Integer.toString(114));
+        retMap.put("TotalAttempts",  Integer.toString(514));
+
+        retMap.put("problemTag1",  tags[1]);
+        retMap.put("problemTag2",  tags[2]);
+
+        return retMap;
+    }
+
 
     @Override
     public Map<String, String> getProblemByKey(Integer problemKey) {
@@ -30,7 +62,6 @@ public class ProblemFilter implements com.oj.onlinejudge.service.problems.Proble
         HashMap<String, String> retMap = new HashMap<>();
         retMap.put("problemKey", Integer.toString(problemKey));
         retMap.put("problemBody",  problemEntries.get(0).getDescription());
-
         return retMap;
     }
 

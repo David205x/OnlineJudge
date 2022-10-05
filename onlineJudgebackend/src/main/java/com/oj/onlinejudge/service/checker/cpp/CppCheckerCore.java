@@ -15,7 +15,6 @@ public class CppCheckerCore extends CheckerCaller {
 
     public CppCheckerCore(String submissionUUID, String debugInfo, String targetProblem) {
         super();
-        // TODO: Get debugInfo from frontend.
         String fname = submissionUUID + "_main.cpp";
         if (root != null) {
             root += "\\files";
@@ -45,6 +44,7 @@ public class CppCheckerCore extends CheckerCaller {
             resultPacket.put("SubmissionStatus", compileResult.get("RuntimeStatus"));
         }
 
+        resultPacket.put("TimeElapsed", compileResult.get("TimeElapsed"));
         Checker.clearUps();
 
         return resultPacket;

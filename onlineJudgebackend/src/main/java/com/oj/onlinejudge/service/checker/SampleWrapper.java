@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 public class SampleWrapper {
 
+    private Connection conn;
     private List<String> sampleInput;
     private ArrayList<String> sequencedInput;
     private List<String> sampleOutput;
@@ -33,10 +34,15 @@ public class SampleWrapper {
 
         sequencedInput = new ArrayList<>();
         this.step = -1;
+
+        try {
+            establishConn();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
-    public boolean getSamplesFromDB() throws SQLException {
-
+    public boolean establishConn() throws SQLException {
         String fileRoot = FilePathUtil.BJUT_OJ_HOME + "\\onlineJudgebackend\\src\\main\\resources\\application.properties";
 
         FileHelper properties = new FileHelper(fileRoot);
@@ -48,7 +54,6 @@ public class SampleWrapper {
         String user = null;
         if (userMat.find()) {
             user = userMat.group().split("=", 2)[1];
-            System.out.println(user);
         }
 
         Pattern pwdReg = Pattern.compile("password=(.*)");
@@ -56,7 +61,6 @@ public class SampleWrapper {
         String password = null;
         if (pwdMat.find()) {
             password = pwdMat.group().split("=", 2)[1];
-            System.out.println("password: " + password);
         }
 
         if (password == null || user == null) {
@@ -66,18 +70,35 @@ public class SampleWrapper {
         String url = "jdbc:mysql://localhost:3306/online_judge?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8";
         String driver = "com.mysql.jdbc.Driver";
 
-        Connection conn = null;
-        PreparedStatement pst = null;
-        ResultSet rs = null;
+        this.conn = DriverManager.getConnection(url, user, password);
+        return true;
+    }
+
+    public String[] getRuntimeLimits() throws SQLException {
+
+        PreparedStatement statement;
+        ResultSet rs;
+
+        String sql = "SELECT memoryLimit, timeLimit, testpoint FROM problem WHERE problemKey = ?;";
+        statement = conn.prepareStatement(sql);
+        statement.setString(1, Integer.toString(targetProblemKey));
+        rs = statement.executeQuery();
+
+        return new String[]{rs.getString(1), rs.getString(2),rs.getString(3)};
+    }
+
+
+    public boolean getSamplesFromDB() throws SQLException {
+
+        PreparedStatement statement;
+        ResultSet rs;
 
         try {
 
-            conn = DriverManager.getConnection(url, user, password);
-
             String sql = "SELECT input, output FROM io WHERE problemKey = ?;";
-            pst = conn.prepareStatement(sql);
-            pst.setString(1, Integer.toString(targetProblemKey));
-            rs = pst.executeQuery();
+            statement = conn.prepareStatement(sql);
+            statement.setString(1, Integer.toString(targetProblemKey));
+            rs = statement.executeQuery();
 
             while (rs.next()) {
                 sampleInput.add(rs.getString(1) + "\n");
