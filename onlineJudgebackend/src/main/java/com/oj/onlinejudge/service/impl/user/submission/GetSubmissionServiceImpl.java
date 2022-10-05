@@ -27,6 +27,8 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
 
         // TODO: Get problen from DB and wrap them in a package containing mem/time limit, testpoints count etc.
 
+        System.out.println(tempLogger("-------------SUBMISSION--------------"));
+
         String root = System.getenv("BJUT_OJ_HOME");
         StringBuilder fileNameBuilder = new StringBuilder(root + "\\files\\");
 
@@ -78,14 +80,19 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
         }
 
         if (ret != null) {
-            submissionMapper.insert(new Submission(
-                    null,
-                    Integer.parseInt(userKey),
-                    new Timestamp(System.currentTimeMillis()),
-                    ret.get("SubmissionStatus"),
-                    Integer.parseInt(ret.get("TimeElapsed")),
-                    language));
+            if (userKey != null && ret.get("TimeElapsed") != null) {
+                submissionMapper.insert(new Submission(
+                        null,
+                        Integer.parseInt(userKey),
+                        new Timestamp(System.currentTimeMillis()),
+                        ret.get("SubmissionStatus"),
+                        Integer.parseInt(ret.get("TimeElapsed")),
+                        language));
+                System.out.println(tempLogger("Submission status: " + ret.get("SubmissionStatus")));
+            }
         }
+
+        System.out.println(tempLogger("-------------------------------------"));
 
         return ret;
     }

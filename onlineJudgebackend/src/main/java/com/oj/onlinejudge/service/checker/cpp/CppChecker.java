@@ -56,11 +56,16 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
     @Override
     public Map<String, String> compileAndRunFile(String debugInfo) throws IOException, InterruptedException, SQLException {
 
-        boolean enableDebugMode = (debugInfo != null);
-
-        final int testpoints = 3; // get this from problem db later.
         final long[] timeElapsed = {-1};
         prePacket.put("TimeElapsed", "-1");
+
+        boolean enableDebugMode = (debugInfo != null);
+        String[] restrictions = sw.getRuntimeLimits();
+        if (restrictions == null) {
+            prePacket.put("RuntimeStatus", "SQLError");
+        }
+
+        final int testpoints = Integer.parseInt(restrictions[2]);
 
         // Step 1. LOAD SAMPEL IO FROM DB
         if (!enableDebugMode) {
@@ -154,8 +159,8 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
             final long[] memoryLimitExceededFlag = {-1}; // if greater than 0 it means MLE happens.
 
             // TODO: Get this from SampleWrapper getLimit methods.
-            final long timeLimit = 1000;
-            final int memoryLimit = 64 << 10;
+            final long timeLimit = Integer.parseInt(restrictions[1]);
+            final int memoryLimit = Integer.parseInt(restrictions[0]);
 
             long PID = -1;
 
@@ -241,12 +246,10 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
                 if (timeLimitExceededFlag[0] < 0) {
                     prePacket.put("RuntimeStatus", "Accepted");
                     if (memoryLimitExceededFlag[0] > 0) {
-                        System.out.println(tempLogger("MemoryLimitExceeded!"));
                         prePacket.put("RuntimeStatus", "MemoryLimitExceeded");
                         return prePacket;
                     }
                 } else if (!"Accepted".equals(prePacket.get("RuntimeStatus"))) {
-                    System.out.println(tempLogger("TimeLimitExceeded!"));
                     prePacket.put("RuntimeStatus", "TimeLimitExceeded");
                     return prePacket;
                 }

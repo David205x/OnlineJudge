@@ -36,6 +36,8 @@ public class CodeParserImpl implements CodeParser {
         StringBuilder ParsedCodeBuilder = new StringBuilder();
         for (int i = 0; i < insertCode.length; i++) {
             ParsedCodeBuilder.append(insertCode[i]);
+
+            // TODO: fix 'interval is null' here.
             if(i < interval.length) ParsedCodeBuilder.append(interval[i]);
         }
         if(insertCode.length < interval.length){

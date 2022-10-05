@@ -37,7 +37,8 @@ public class JavaCheckerCore extends CheckerCaller {
                 resultPacket.put("SubmissionStatus", runResult.get("JudgerStatus"));
             } else {
                 runResult = Checker.debugger();
-                resultPacket.put("SubmissionStatus", runResult.get("DebuggerStatus"));
+                resultPacket.put("SubmissionStatus", "Finished");
+                resultPacket.put("debugOutcome", runResult.get("DebuggerStatus"));
             }
         } else {
             resultPacket.put("SubmissionStatus", compileResult.get("RuntimeStatus"));
