@@ -76,9 +76,9 @@
       
 
       <div class="submit_debug">
-        <button @click="submitcode" class="btn btn-primary">调试</button>
+        <button @click="submitcode(debugInfo)" class="btn btn-primary">调试</button>
         &nbsp;
-        <button @click="submitcode" class="btn btn-primary">提交</button>
+        <button @click="submitcode(null)" class="btn btn-primary">提交</button>
       </div>
       <div :class="submission_status == 'Accepted' ? 'accepted' : 'wrong' " >
           <span style="color:black; font-weight: normal;" v-if="submission_status !== '?'">代码运行状态:  </span>
@@ -87,6 +87,14 @@
           <span class="loading">
               <span class="fa fa-circle-o-notch fa-spin fa-lg" v-if="submission_status == 'Waiting'"></span>
           </span>
+      </div>
+      <div class="mb-3">
+        <label for="validationTextarea" class="form-label">输入</label>
+        <textarea class="form-control" id="validationTextarea" v-model="debugInfo"></textarea>
+      </div>
+      <div class="mb-3">
+        <label for="validationTextarea" class="form-label">输出</label>
+        <textarea class="form-control" id="validationTextarea" v-model="$store.state.problem.debugOutcome"></textarea>
       </div>
     </div>
   </ContentField>
@@ -120,6 +128,7 @@ export default{
     let language_selected = ref('c_cpp');
     let spinner_cog = ref(0);
     let submission_status = ref('?');
+    let debugInfo = ref("");
     let FS = ref(13);
     const store = useStore();
     const code = reactive({
@@ -152,18 +161,19 @@ export default{
     }
     
     
-    
-    const submitcode = () =>{
+    const submitcode = (debugInfo_value) =>{
       submission_status.value = "Waiting"
+      console.log(debugInfo_value)
       store.dispatch("sendSubmission", {
         userKey: store.state.user.id,
         content: code.content,
         language: language_selected.value,
-        debugInfo: null,
-        targetProblem:"1",
+        debugInfo: debugInfo_value,
+        targetProblem: store.state.problem.problemKey,
         success(resp) {
           console.log(resp);
           submission_status.value = resp.SubmissionStatus;
+          store.commit("updataDebugOutcome", resp.debugOutcome)
         },
         error() {
           console.log("?");
@@ -183,6 +193,7 @@ export default{
       refresh,
       language_selected,
       FS,
+      debugInfo,
     }
   },
   computed:{

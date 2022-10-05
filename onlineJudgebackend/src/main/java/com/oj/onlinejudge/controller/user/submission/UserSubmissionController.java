@@ -17,6 +17,10 @@ public class UserSubmissionController {
     @PostMapping("/user/submission/getinfo/")
     public Map<String, String> submission(@RequestParam String userKey, @RequestParam String code,
                                           @RequestParam String language, @RequestParam String debugInfo, @RequestParam String targetProblem) throws IOException {
+        System.out.println(userKey + " " + code + " " + language + " " + debugInfo + " " + targetProblem);
+        if (debugInfo.length() == 0){
+            debugInfo = null;
+        }
         return getSubmissionService.GetSubmission(userKey, code, language, debugInfo, targetProblem);
     }
 }

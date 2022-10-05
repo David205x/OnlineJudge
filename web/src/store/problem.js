@@ -1,18 +1,24 @@
 
 // TODO: THIS IS A TEST FUNCTION, MAY GET REMOVED LATER
 
+
 import $ from 'jquery'
 
 export default{
     state:{
         problemKey: "",
         problemDescription: "",
+        debugOutcome:"",
     },
     getters: {},
     mutations:{
         updateProblem(state, problem) {
             state.problemKey = problem.problemKey;
             state.problemDescription = problem.problemDescription;
+            state.debugOutcome = null
+        },
+        updataDebugOutcome(state, outcome){
+            state.debugOutcome = outcome
         }
     },
     actions:{

@@ -110,6 +110,8 @@ export default{
                     userKey: data.userKey,
                     code: data.content,
                     language: data.language,
+                    debugInfo: data.debugInfo,
+                    targetProblem: data.targetProblem,
                 },
                 // headers: {
                 //     Authorization: "Bearer " + context.state.token,
