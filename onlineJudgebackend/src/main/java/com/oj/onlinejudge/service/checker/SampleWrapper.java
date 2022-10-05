@@ -5,6 +5,7 @@ import com.oj.onlinejudge.utils.FilePathUtil;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -84,7 +85,12 @@ public class SampleWrapper {
         statement.setString(1, Integer.toString(targetProblemKey));
         rs = statement.executeQuery();
 
-        return new String[]{rs.getString(1), rs.getString(2),rs.getString(3)};
+        if (rs.next()) {
+            return new String[]{rs.getString(1), rs.getString(2), rs.getString(3)};
+        }
+        else {
+            return null;
+        }
     }
 
 
@@ -150,7 +156,7 @@ public class SampleWrapper {
         debugIO = debugIO.trim();
         debugIO += "\n";
         FileHelper inputHelper = new FileHelper(inputFileBase);
-        return inputHelper.writeAll("1" + "\n" + debugIO);
+        return inputHelper.writeAll(debugIO);
     }
 
     public String getInputName() {

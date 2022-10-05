@@ -267,12 +267,10 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
                 else if (timeLimitExceededFlag[0] < 0) {
                     prePacket.put("RuntimeStatus", "Accepted");
                     if (memoryLimitExceededFlag[0] > 0) {
-                        System.out.println(tempLogger("MemoryLimitExceeded!"));
                         prePacket.put("RuntimeStatus", "MemoryLimitExceeded");
                         return prePacket;
                     }
                 } else if (!"Accepted".equals(prePacket.get("RuntimeStatus"))) {
-                    System.out.println(tempLogger("TimeLimitExceeded!"));
                     prePacket.put("RuntimeStatus", "TimeLimitExceeded");
                     return prePacket;
                 }
