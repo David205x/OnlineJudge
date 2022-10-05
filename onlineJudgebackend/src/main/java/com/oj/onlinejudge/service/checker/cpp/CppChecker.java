@@ -63,6 +63,7 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
         String[] restrictions = sw.getRuntimeLimits();
         if (restrictions == null) {
             prePacket.put("RuntimeStatus", "SQLError");
+            return prePacket;
         }
 
         final int testpoints = Integer.parseInt(restrictions[2]);
@@ -92,7 +93,8 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
         // Step 3. BAKE THE SUBMISSION SOURCE FILE
         final String extraHeaders = "#include<cstdlib>\n#include<cmath>\n#include<Windows.h>\n";
         final String standardMainFunc = "int main() {\n";
-        final String streamRedirector = "\n\tfreopen(\"" + sw.getInputName() + "\",\"r\", stdin);" +
+        final String streamRedirector =
+                "\n\tfreopen(\"" + sw.getInputName() + "\",\"r\", stdin);" +
                 "\n\tfreopen(\"" + sw.getOutputName() + ".txt\",\"a\", stdout);\n";
 
         String[] insertCode = new String[2];

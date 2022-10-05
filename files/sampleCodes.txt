@@ -1,0 +1,39 @@
+import java.util.Scanner;
+
+public class Main{
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+        int t = sc.nextInt();
+        while(t != 0){
+            t--;
+            int a = sc.nextInt();
+            int b = sc.nextInt();
+
+            System.out.println(a + b);
+        }
+        
+    }
+}
+
+#include<iostream>
+
+using namespace std;
+
+int main() {
+    int t;
+    cin >> t;
+    while(t--) {
+        int a, b;
+        cin >> a >> b;
+        cout << a + b << endl;
+    }
+}
+
+t = int(input())
+while t > 0:
+    t -= 1
+    p = input().split()
+    a = int(p[0])
+    b = int(p[1])
+    print(int(a + b))
