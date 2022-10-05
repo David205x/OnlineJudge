@@ -6,5 +6,5 @@ import java.util.Map;
 
 
 public interface GetSubmissionService {
-    Map<String, String> GetSubmission(String userKey, String code, String language) throws IOException;
+    Map<String, String> GetSubmission(String userKey, String code, String language, String debugInfo, String targetProblem) throws IOException;
 }

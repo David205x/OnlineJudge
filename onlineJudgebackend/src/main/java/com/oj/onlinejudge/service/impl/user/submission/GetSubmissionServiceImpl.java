@@ -23,7 +23,7 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
 
     private final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
     @Override
-    public Map<String, String> GetSubmission(String userKey, String code, String language) throws IOException {
+    public Map<String, String> GetSubmission(String userKey, String code, String language, String debugInfo, String targetProblem) throws IOException {
 
         // TODO: Get problen from DB and wrap them in a package containing mem/time limit, testpoints count etc.
 
@@ -34,9 +34,9 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
         final String submissionUUID = gen.uuidGen();
         System.out.println(tempLogger("SID: " + submissionUUID + " | Language: " + language));
 
-        // TODO: Wire it to frontend.
-        String debugInfo = null; // to disable debugger, put null here.
-        String targetProblem = Integer.toString(1);
+//        // TODO: Wire it to frontend.
+//        String debugInfo = null; // to disable debugger, put null here.
+//        String targetProblem = Integer.toString(1);
 
         switch (language) {
             case "c_cpp": fileNameBuilder.append(submissionUUID).append("_main.cpp"); break;
