@@ -1,8 +1,11 @@
 package com.oj.onlinejudge.service.impl.problems;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.oj.onlinejudge.mapper.ProblemMapper;
+import com.oj.onlinejudge.mapper.SubmissionMapper;
 import com.oj.onlinejudge.pojo.Problem;
+import com.oj.onlinejudge.pojo.Submission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +16,9 @@ public class ProblemFilter implements com.oj.onlinejudge.service.problems.Proble
 
     @Autowired
     private ProblemMapper problemMapper;
+
+    @Autowired
+    private SubmissionMapper submissionMapper;
 
     @Override
     public Map<String, String> getProblemDetails(Integer problemKey) {
@@ -29,23 +35,39 @@ public class ProblemFilter implements com.oj.onlinejudge.service.problems.Proble
 
         // Tags format: [0]: Difficulty, [1]: TAG #1, [2]: TAG #2
         String tagStr = problemEntries.get(0).getTag();
-        String[] tags = tagStr.split("~~"); // TODO: TEST THIS LATER
+        String[] tags = tagStr.split(" ");
+
+        System.out.println(Arrays.toString(tags));
 
         HashMap<String, String> retMap = new HashMap<>();
         retMap.put("problemKey", Integer.toString(problemKey));
         retMap.put("problemBody",  problemEntries.get(0).getDescription());
+        retMap.put("problemName", problemEntries.get(0).getProblemname());
         retMap.put("problemDifficulty",  tags[0]);
 
-        // TODO: Get these stats from db.
-        retMap.put("AcceptedAttempts",  Integer.toString(114));
-        retMap.put("TotalAttempts",  Integer.toString(514));
+        int acAttempts = 0, totAttempts = 0;
+        QueryWrapper<Submission> attemptWrapper = new QueryWrapper<>();
+        attemptWrapper.eq("problemkey", Integer.toString(problemKey));
+        List<Submission> attemptEntries = submissionMapper.selectList(attemptWrapper);
+        totAttempts = attemptEntries.size();
+        for (Submission s : attemptEntries) {
+            if (s.getResult().equals("Accepted")) {
+                acAttempts++;
+            }
+        }
 
-        retMap.put("problemTag1",  tags[1]);
-        retMap.put("problemTag2",  tags[2]);
+        retMap.put("acceptedAttempts",  Integer.toString(acAttempts));
+        retMap.put("totalAttempts",  Integer.toString(totAttempts));
+
+        JSONObject tagJson = new JSONObject();
+        tagJson.put("tag1", tags[1]);
+        tagJson.put("tag2", tags[2]);
+        retMap.put("problemTags", tagJson.toJSONString());
+
+        System.out.println(tagJson.toJSONString());
 
         return retMap;
     }
-
 
     @Override
     public Map<String, String> getProblemByKey(Integer problemKey) {
@@ -62,6 +84,7 @@ public class ProblemFilter implements com.oj.onlinejudge.service.problems.Proble
         HashMap<String, String> retMap = new HashMap<>();
         retMap.put("problemKey", Integer.toString(problemKey));
         retMap.put("problemBody",  problemEntries.get(0).getDescription());
+        retMap.put("problemName",  problemEntries.get(0).getProblemname());
         return retMap;
     }
 
@@ -81,6 +104,7 @@ public class ProblemFilter implements com.oj.onlinejudge.service.problems.Proble
         for (Problem p : problemEntries) {
             retMap.put("problemKey", Integer.toString(p.getProblemkey()));
             retMap.put("problemBody", p.getDescription());
+            retMap.put("problemName",  p.getProblemname());
         }
 
         return retMap;
@@ -89,16 +113,15 @@ public class ProblemFilter implements com.oj.onlinejudge.service.problems.Proble
     @Override
     public Map<String, String> getProblemByTag(String problemTag, Integer tagCount){
 
-        // TODO: Change this with methods in ProblemParser
+        // TODO: Sync with big data introduction course, use dict etc.
         String[] tags = problemTag.split("~~");
         ArrayList<String> queryTags = new ArrayList<>();
         Collections.addAll(queryTags, tags);
 
         System.out.println(queryTags);
 
-        // TODO: Add multi-tag support, cross-comparing between different result sets
         QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("tag", queryTags.get(0));
+        queryWrapper.like("tag", problemTag);
         List<Problem> problemEntries = problemMapper.selectList(queryWrapper);
 
         HashMap<String, String> retMap = new HashMap<>();
@@ -111,8 +134,10 @@ public class ProblemFilter implements com.oj.onlinejudge.service.problems.Proble
         for (Problem p : problemEntries) {
             retMap.put("problemKey", Integer.toString(p.getProblemkey()));
             retMap.put("problemBody", p.getDescription());
+            retMap.put("problemName",  p.getProblemname());
         }
 
         return retMap;
     }
+
 }

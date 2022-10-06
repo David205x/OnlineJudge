@@ -15,6 +15,7 @@ public class Submission {
     @TableId(type = IdType.AUTO)
     private Integer submissionkey;
     private Integer userkey;
+    private Integer problemkey;
     private Timestamp time;
     private String result;
     private Integer runtime;

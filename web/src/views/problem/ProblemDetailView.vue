@@ -1,5 +1,12 @@
 <template>
     <ContentField>
+        <div class="proName" style="margin-left: 1vw">
+            <md-editor
+              v-model = "problemName"
+              previewOnly = true>
+            </md-editor>
+            &nbsp;
+        </div>
         <ul class="nav nav-tabs">
             <li class="nav-item" @click="onChange(1)">
                 <button  :class="f == 1 ? 'nav-link active' : 'nav-link'" >题目</button>       
@@ -22,11 +29,6 @@
 
                 </ProblemDetailVerticalTemplate>
             </div>
-<!--            <ProblemDetails>-->
-<!--                -->
-<!--            </ProblemDetails>-->
-
-
         </div>
         <div v-else-if="f == 2">
             <ProblemEditorial>
@@ -39,33 +41,58 @@
         </div>
      </ContentField>
  </template>
-   
+
+
  <script>
 import ContentField from "@/components/ContentField.vue";
 import { ref } from 'vue'
+import { useStore } from "vuex";
 import ProblemEditorial from "@/components/problem/ProblemEditorial.vue";
 import 'md-editor-v3/lib/style.css';
 import ProblemDetailHorizontalTemplate from "@/components/problem/ProblemDetailHorizontalTemplate";
 import ProblemDetailVerticalTemplate from "@/components/problem/ProblemDetailVerticalTemplate";
 import ProblemResultView from "@/components/problem/ProblemResultView";
+import 'md-editor-v3/lib/style.css';
+import MdEditor from 'md-editor-v3'
  export default{
     components: {
       ProblemDetailVerticalTemplate,
-      ProblemDetailHorizontalTemplate, ContentField, ProblemResultView, ProblemEditorial },
+      ProblemDetailHorizontalTemplate, 
+      ContentField, 
+      ProblemResultView, 
+      ProblemEditorial, 
+      MdEditor
+    },
     setup(){  
+        const store = useStore();
         let f = ref(1);
         let layout = ref(2);
+        let problemName = ref("");
+        let r = window.location.href.match("problemId=.*/");
+        let t = r[0].split("=")[1].split("/")[0]
+        store.dispatch("showProblem", {
+            problemKey : t,
+            success(){
+                problemName.value = "##### " + store.state.problem.problemKey + ". " + store.state.problem.problemName
+                store.commit("updatePullingInfo", false);
+            },
+            error() {
+                store.commit("updatePullingInfo", false);
+            }
+        })
         const onChange = (data) =>{
             f.value = data;
         }
+       
+        console.log(problemName.value)
          return {
             f,
             onChange,
-            layout
+            layout,
+            problemName,
          }
     }
  }
- 
  </script> 
  
  <style scoped> 
