@@ -1,6 +1,4 @@
 
-// TODO: THIS IS A TEST FUNCTION, MAY GET REMOVED LATER
-
 
 import $ from 'jquery'
 

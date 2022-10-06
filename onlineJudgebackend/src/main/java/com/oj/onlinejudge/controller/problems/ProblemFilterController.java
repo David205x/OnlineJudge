@@ -19,5 +19,8 @@ public class ProblemFilterController {
     public Map<String, String> showProblem(@RequestParam String probKey) {
         return problemFilter.getProblemDetails(Integer.parseInt(probKey));
     }
-
+    @PostMapping("/problems/overview/")
+    public Map<String, String> getProblemOverview(){
+        return problemFilter.getProblemByKey(1);
+    }
 }

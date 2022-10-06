@@ -20,8 +20,8 @@
             </thead>
             <tbody>
             <tr>
-              <th scope="row">1</th>
-              <td>Mark</td>
+              <th scope="row">{{$store.state.problemList.problemKey}}</th>
+              <td @click="todetails">{{$store.state.problemList.problemName}}</td>
               <td>lxy</td>
               <td>@mdo</td>
               <td>Otto</td>
@@ -124,10 +124,14 @@
 <script>
 import ContentField from "@/components/ContentField.vue";
 import { useStore } from "vuex";
+import router from "@/router";
+import $ from "jquery";
 export default{
   components: { ContentField },
   setup(){
-
+    const todetails = () =>{
+      router.push({name: "problem_details", params: {id : '1'}});
+    }
     const store = useStore();
     const logged = store.state.user.is_login;
     store.commit("updatePullingInfo", false);
@@ -138,7 +142,22 @@ export default{
         }
       })
     }
+    $.ajax({
+      url: "http://127.0.0.1:3000/problems/overview/",
+      type: 'post',
+      success(resp) {
+        store.commit("updateProblemList",{
+          problemKey: resp.problemKey,
+          problemName: resp.problemName,
+        })
+        console.log(store.state.problemList.problemKey)
+      },
+      error(resp) {
+        console.log(resp)
+      }
+    });
     return {
+      todetails,
       logged,
     }
   }
