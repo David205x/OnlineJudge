@@ -42,7 +42,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/user/account/token/", "/user/account/register/", "/index/info/", "/problems/test/", "/user/submission/getinfo/").permitAll()
+                .antMatchers("/user/account/token/", "/user/account/register/", "/index/info/", "/problems/test/", "/user/submission/getinfo/", "/problems/overview/").permitAll()
                 .antMatchers(HttpMethod.OPTIONS).permitAll()
                 .anyRequest().authenticated();
         http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
