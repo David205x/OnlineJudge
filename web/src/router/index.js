@@ -43,7 +43,7 @@ const routes = [
     }
   },
   {
-    path: "/problem/details/",
+    path: "/problem/details/problemId=:id?/",
     name: "problem_details",
     component: ProblemDetailView,
     meta: {

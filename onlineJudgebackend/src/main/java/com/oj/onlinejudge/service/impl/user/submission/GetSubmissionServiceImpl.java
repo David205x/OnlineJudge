@@ -2,6 +2,7 @@ package com.oj.onlinejudge.service.impl.user.submission;
 
 import com.oj.onlinejudge.mapper.SubmissionMapper;
 import com.oj.onlinejudge.pojo.Submission;
+import com.oj.onlinejudge.service.checker.c.CCheckerCore;
 import com.oj.onlinejudge.service.checker.cpp.CppCheckerCore;
 import com.oj.onlinejudge.service.checker.FileHelper;
 import com.oj.onlinejudge.service.checker.java.JavaCheckerCore;
@@ -38,7 +39,8 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
         System.out.println(tempLogger("SID: " + submissionUUID + " | Language: " + language));
 
         switch (language) {
-            case "c_cpp": fileNameBuilder.append(submissionUUID).append("_main.cpp"); break;
+            case "c": fileNameBuilder.append(submissionUUID).append("_main.c"); break;
+            case "cpp": fileNameBuilder.append(submissionUUID).append("_main.cpp"); break;
             case "java": fileNameBuilder.append("Main_").append(submissionUUID).append(".java"); break;
             case "python": fileNameBuilder.append("Main_").append(submissionUUID).append(".py"); break;
             default: {
@@ -54,10 +56,19 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
         if (!fileHelper.writeAll(code)) {
             return null;
         }
-        if("c_cpp".equals(language)){
-            CppCheckerCore c = new CppCheckerCore(submissionUUID, debugInfo, targetProblem);
+        if("c".equals(language)){
+            CCheckerCore c = new CCheckerCore(submissionUUID, debugInfo, targetProblem);
             try {
                 ret = c.checkSubmission();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        if("cpp".equals(language)){
+            CppCheckerCore cpp = new CppCheckerCore(submissionUUID, debugInfo, targetProblem);
+            try {
+                ret = cpp.checkSubmission();
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;
@@ -83,19 +94,22 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
         }
 
         if (ret != null) {
-            if (userKey != null && ret.get("TimeElapsed") != null) {
-                submissionMapper.insert(new Submission(
-                        null,
-                        Integer.parseInt(userKey),
-                        new Timestamp(System.currentTimeMillis()),
-                        ret.get("SubmissionStatus"),
-                        Integer.parseInt(ret.get("TimeElapsed")),
-                        language)
-                );
+            if (!userKey.isEmpty() && ret.get("TimeElapsed") != null) {
+                String status = ret.get("SubmissionStatus");
+                if (!"Finished".equals(status)) {
+                    submissionMapper.insert(new Submission(
+                            null,
+                            Integer.parseInt(userKey),
+                            Integer.parseInt(targetProblem),
+                            new Timestamp(System.currentTimeMillis()),
+                            ret.get("SubmissionStatus"),
+                            Integer.parseInt(ret.get("TimeElapsed")),
+                            language)
+                    );
+                }
                 System.out.println(tempLogger("Submission status: " + ret.get("SubmissionStatus")));
             }
         }
-
         System.out.println(tempLogger("-------------------------------------"));
 
         return ret;

@@ -12,20 +12,19 @@
           <ul class="list-group">
             <li class="list-group-item d-flex justify-content-between align-items-center">
               难度
-              <span class="badge bg-success">Newbie</span>
+              <span class="badge bg-success">{{$store.state.problem.problemDifficulty}}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center">
               总通过数
-              <span class="badge bg-secondary">114</span>
+              <span class="badge bg-secondary">{{$store.state.problem.acceptedAttempts}}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center">
               总提交数
-              <span class="badge bg-secondary">514</span>
+              <span class="badge bg-secondary">{{$store.state.problem.totalAttempts}}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center">
               标签
-              <span class="badge bg-primary">#策马</span>
-              <span class="badge bg-primary">#看看你的</span>
+              <span class="badge bg-primary" v-for ="tag in $store.state.problem.problemTags" :key = "tag">{{tag}}</span>
             </li>
           </ul>
         </div>
@@ -41,8 +40,8 @@
           </div>
           <div class="col-2">
             <select class="form-select form-select-sm" aria-label="Default select example" v-model=language_selected>
-              <option value="c_cpp" selected>C++</option>
-              <option value="c_cpp">C</option>
+              <option value="cpp" selected>C++</option>
+              <option value="c">C</option>
               <option value="python">Python</option>
               <option value="java">Java</option>
             </select>
@@ -60,7 +59,7 @@
       <div id="Vace">
             <VAceEditor
             @init="editorInit"
-            :lang="language_selected"
+            :lang="(language_selected == 'cpp' || language_selected == 'c') ? 'c_cpp' : language_selected"
             theme="textmate"
             style="height: 600px; margin-top: 1vh"
             v-model:value="code.content"
@@ -76,11 +75,11 @@
       
 
       <div class="submit_debug">
-        <button @click="submitcode(debugInfo)" class="btn btn-primary">调试</button>
+        <button @click="submitcode(debugInfo, 1)" class="btn btn-primary">调试</button>
         &nbsp;
-        <button @click="submitcode(null)" class="btn btn-primary">提交</button>
+        <button @click="submitcode(null, 0)" class="btn btn-primary">提交</button>
       </div>
-      <div :class="submission_status == 'Accepted' ? 'accepted' : 'wrong' " >
+      <div :class="submission_status == 'Accepted' || submission_status == 'Finished' ? 'accepted' : 'wrong' " >
           <span style="color:black; font-weight: normal;" v-if="submission_status !== '?'">代码运行状态:  </span>
           &nbsp;
           <span style="margin-top: 3vh" v-if="submission_status !== '?' && submission_status !== 'Waiting'">{{ submission_status }}</span>
@@ -125,24 +124,19 @@ export default{
   },
   setup(){
     
-    let language_selected = ref('c_cpp');
+    let language_selected = ref('cpp');
     let spinner_cog = ref(0);
     let submission_status = ref('?');
     let debugInfo = ref("");
     let FS = ref(13);
+
     const store = useStore();
     const code = reactive({
       content: "",
     });
-    store.dispatch("showProblem", {
-      success(){
-        store.commit("updatePullingInfo", false);
-      },
-      error() {
-        store.commit("updatePullingInfo", false);
-      }
-    })
+    
     nextTick(()=>{
+      
       document.getElementById("Vace").addEventListener('mousewheel', function(){
           if (event.ctrlKey === true || event.metaKey) {
               event.preventDefault();
@@ -161,24 +155,31 @@ export default{
     }
     
     
-    const submitcode = (debugInfo_value) =>{
+    const submitcode = (debugInfo_value, is_debug) =>{
+      console.log(code.content)
       submission_status.value = "Waiting"
-      console.log(debugInfo_value)
-      store.dispatch("sendSubmission", {
-        userKey: store.state.user.id,
-        content: code.content,
-        language: language_selected.value,
-        debugInfo: debugInfo_value,
-        targetProblem: store.state.problem.problemKey,
-        success(resp) {
-          console.log(resp);
-          submission_status.value = resp.SubmissionStatus;
-          store.commit("updataDebugOutcome", resp.debugOutcome)
-        },
-        error() {
-          console.log("?");
-        }
-      });
+      if(is_debug && (debugInfo_value == null || debugInfo_value.length == 0 || debugInfo_value.replace(/\s*/g,"").length == 0)){
+        submission_status.value = 'Finished'
+      }
+      else {
+          
+          store.dispatch("sendSubmission", {
+            userKey: store.state.user.id,
+            content: code.content,
+            language: language_selected.value,
+            debugInfo: debugInfo_value,
+            targetProblem: store.state.problem.problemKey,
+            success(resp) {
+              console.log(resp);
+              submission_status.value = resp.SubmissionStatus;
+              store.commit("updataDebugOutcome", resp.debugOutcome)
+            },
+            error() {
+              console.log("?");
+            }
+        });
+      }
+      
     }
     const refresh = () =>{
       code.content = ""
