@@ -43,6 +43,8 @@ public class ProblemFilter implements com.oj.onlinejudge.service.problems.Proble
         retMap.put("problemKey", Integer.toString(problemKey));
         retMap.put("problemBody",  problemEntries.get(0).getDescription());
         retMap.put("problemName", problemEntries.get(0).getProblemname());
+        retMap.put("problemTimeLimit", Integer.toString(problemEntries.get(0).getTimelimit()));
+        retMap.put("problemMemoryLimit", Integer.toString(problemEntries.get(0).getMemorylimit()));
         retMap.put("problemDifficulty",  tags[0]);
 
         int acAttempts = 0, totAttempts = 0;

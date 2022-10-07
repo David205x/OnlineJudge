@@ -1,7 +1,8 @@
 package com.oj.onlinejudge.service.problems;
 
-import net.minidev.json.JSONObject;
+
+import com.alibaba.fastjson.JSONObject;
 
 public interface ProblemListService {
-    public JSONObject getList(Integer page);
+    public JSONObject getProblemListOverview(Integer page);
 }

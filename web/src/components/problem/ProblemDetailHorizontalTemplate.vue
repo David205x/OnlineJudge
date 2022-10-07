@@ -57,14 +57,6 @@ export default{
     const code = reactive({
       content: "",
     });
-    store.dispatch("showProblem", {
-      success(){
-        store.commit("updatePullingInfo", false);
-      },
-      error() {
-        store.commit("updatePullingInfo", false);
-      }
-    })
     const spinnerChangeCog = (data) =>{
       spinner_cog.value = data;
     }

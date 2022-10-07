@@ -1,11 +1,7 @@
 <template>
     <ContentField>
         <div class="proName" style="margin-left: 1vw">
-            <md-editor
-              v-model = "problemName"
-              previewOnly = true>
-            </md-editor>
-            &nbsp;
+            <p class="fw-light" style="font-size: 45px">{{problemName}}</p>
         </div>
         <ul class="nav nav-tabs">
             <li class="nav-item" @click="onChange(1)">
@@ -53,15 +49,14 @@ import ProblemDetailHorizontalTemplate from "@/components/problem/ProblemDetailH
 import ProblemDetailVerticalTemplate from "@/components/problem/ProblemDetailVerticalTemplate";
 import ProblemResultView from "@/components/problem/ProblemResultView";
 import 'md-editor-v3/lib/style.css';
-import MdEditor from 'md-editor-v3'
+import "../../assets/font/font.css"
  export default{
     components: {
       ProblemDetailVerticalTemplate,
       ProblemDetailHorizontalTemplate, 
       ContentField, 
       ProblemResultView, 
-      ProblemEditorial, 
-      MdEditor
+      ProblemEditorial,
     },
     setup(){  
         const store = useStore();
@@ -73,7 +68,8 @@ import MdEditor from 'md-editor-v3'
         store.dispatch("showProblem", {
             problemKey : t,
             success(){
-                problemName.value = "#### " + store.state.problem.problemKey + ". " + store.state.problem.problemName
+                // problemName.value = "##### " + store.state.problem.problemKey + ". " + store.state.problem.problemName
+                problemName.value = store.state.problem.problemKey + ". " + store.state.problem.problemName
                 store.commit("updatePullingInfo", false);
             },
             error() {
@@ -95,6 +91,8 @@ import MdEditor from 'md-editor-v3'
  }
  </script> 
  
- <style scoped> 
-
+ <style scoped>
+div.proName{
+  font-family:XW;
+}
  </style>

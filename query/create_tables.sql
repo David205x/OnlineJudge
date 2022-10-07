@@ -48,6 +48,7 @@ CREATE TABLE `io` (
 
 CREATE TABLE `submission` (
 	`submissionKey`		INT				NOT NULL AUTO_INCREMENT COMMENT '提交记录编号',
+	`problemKey`		INT				NOT NULL 				COMMENT '题目编号',
 	`userKey`			INT 			NOT NULL				COMMENT '所属用户',
 	`time`				TIMESTAMP		NOT NULL				COMMENT '提交时间',
 	`result`			VARCHAR(64)		NOT NULL				COMMENT '编译结果',
