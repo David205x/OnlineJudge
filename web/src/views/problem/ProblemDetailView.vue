@@ -73,7 +73,7 @@ import MdEditor from 'md-editor-v3'
         store.dispatch("showProblem", {
             problemKey : t,
             success(){
-                problemName.value = "##### " + store.state.problem.problemKey + ". " + store.state.problem.problemName
+                problemName.value = "#### " + store.state.problem.problemKey + ". " + store.state.problem.problemName
                 store.commit("updatePullingInfo", false);
             },
             error() {
