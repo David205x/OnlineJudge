@@ -19,61 +19,22 @@
             </tr>
             </thead>
             <tbody>
-            <tr>
-              <th scope="row">{{$store.state.problemList.problemKey}}</th>
-              <td @click="todetails">{{$store.state.problemList.problemName}}</td>
-              <td>lxy</td>
-              <td>@mdo</td>
-              <td>Otto</td>
-            </tr>
-            <tr>
-              <th scope="row">2</th>
-              <td>Jacob</td>
-              <td>cxy</td>
-              <td>@fat</td>
-              <td>Fbsks</td>
-            </tr>
-            <tr>
-              <th scope="row">3</th>
-              <td>123</td>
-              <td>lty</td>
-              <td>798</td>
-              <td>110</td>
-            </tr>
-            <tr>
-              <th scope="row">4</th>
-              <td>Larry the Bird</td>
-              <td>wxx</td>
-              <td>lty</td>
-              <td>@twitter</td>
-            </tr>
-            <tr>
-              <th scope="row">5</th>
-              <td>Mark</td>
-              <td>lxy</td>
-              <td>@mdo</td>
-              <td>Otto</td>
-            </tr>
-            <tr>
-              <th scope="row">6</th>
-              <td>Jacob</td>
-              <td>cxy</td>
-              <td>@fat</td>
-              <td>Fbsks</td>
-            </tr>
-            <tr>
-              <th scope="row">7</th>
-              <td>123</td>
-              <td>lty</td>
-              <td>798</td>
-              <td>110</td>
-            </tr>
-            <tr>
-              <th scope="row">8</th>
-              <td>Larry the Bird</td>
-              <td>wxx</td>
-              <td>lty</td>
-              <td>@twitter</td>
+            <tr v-for ="problemOverview in problemOverviews" :key = "problemOverview.problemKey">
+              <th scope="row">{{problemOverview.problemKey}}</th>
+              <td @click="todetails(problemOverview.problemKey)">{{problemOverview.problemName}}</td>
+              <td>{{problemOverview.problemSource}}</td>
+              <td v-if="problemOverview.AcceptedPct < 30">
+                <span class="badge bg-danger">{{problemOverview.AcceptedPct}}%</span>
+              </td>
+              <td v-if="problemOverview.AcceptedPct >= 30 && problemOverview.AcceptedPct < 70">
+                <span class="badge bg-warning">{{problemOverview.AcceptedPct}}%</span>
+              </td>
+              <td v-if="problemOverview.AcceptedPct >= 70">
+                <span class="badge bg-success">{{problemOverview.AcceptedPct}}%</span>
+              </td>
+              <td>
+                <span class="badge bg-primary">{{problemOverview.problemTags}}</span>
+              </td>
             </tr>
             </tbody>
           </table>
@@ -126,11 +87,12 @@ import ContentField from "@/components/ContentField.vue";
 import { useStore } from "vuex";
 import router from "@/router";
 import $ from "jquery";
+import { ref } from 'vue';
 export default{
   components: { ContentField },
   setup(){
-    const todetails = () =>{
-      router.push({name: "problem_details", params: {id : '1'}});
+    const todetails = (index) =>{
+      router.push({name: "problem_details", params: {id : index}});
     }
     const store = useStore();
     const logged = store.state.user.is_login;
@@ -142,15 +104,12 @@ export default{
         }
       })
     }
+    const problemOverviews = ref([{}])
     $.ajax({
       url: "http://127.0.0.1:3000/problems/overview/",
       type: 'post',
       success(resp) {
-        store.commit("updateProblemList",{
-          problemKey: resp.problemKey,
-          problemName: resp.problemName,
-        })
-        console.log(store.state.problemList.problemKey)
+          problemOverviews.value = resp.problemList
       },
       error(resp) {
         console.log(resp)
@@ -159,6 +118,7 @@ export default{
     return {
       todetails,
       logged,
+      problemOverviews
     }
   }
 }

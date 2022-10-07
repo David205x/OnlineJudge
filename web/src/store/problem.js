@@ -9,6 +9,8 @@ export default{
         debugOutcome:"",
         problemName:"",
         problemDifficulty:"",
+        problemTimeLimit: "",
+        problemMemoryLimit: "",
         acceptedAttempts:"",
         totalAttempts:"",
         problemTags: "",
@@ -20,6 +22,8 @@ export default{
             state.problemDescription = problem.problemDescription;
             state.debugOutcome = null;
             state.problemName = problem.problemName;
+            state.problemTimeLimit = problem.problemTimeLimit;
+            state.problemMemoryLimit = problem.problemMemoryLimit;
             state.problemDifficulty = problem.problemDifficulty;
             state.acceptedAttempts = problem.acceptedAttempts;
             state.totalAttempts = problem.totalAttempts;
@@ -45,6 +49,8 @@ export default{
                             problemDescription : resp.problemBody,
                             problemKey : resp.problemKey,
                             problemName : resp.problemName,
+                            problemTimeLimit : resp.problemTimeLimit,
+                            problemMemoryLimit : resp.problemMemoryLimit, 
                             problemDifficulty : resp.problemDifficulty,
                             acceptedAttempts : resp.acceptedAttempts,
                             totalAttempts : resp.totalAttempts,

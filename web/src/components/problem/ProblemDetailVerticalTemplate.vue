@@ -23,6 +23,14 @@
               <span class="badge bg-secondary">{{$store.state.problem.totalAttempts}}</span>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center">
+              时间限制
+              <span class="badge bg-secondary">{{$store.state.problem.problemTimeLimit}}ms</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              空间限制
+              <span class="badge bg-secondary">{{$store.state.problem.problemMemoryLimit}}KB</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
               标签
               <span class="badge bg-primary" v-for ="tag in $store.state.problem.problemTags" :key = "tag">{{tag}}</span>
             </li>

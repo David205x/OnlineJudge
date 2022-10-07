@@ -14,11 +14,11 @@
                     </li>
                     <li class="nav-item">
                         <router-link :class="route_name == 'problem_twoView' ? 'nav-link active' : 'nav-link'"
-                                     :to="{name: 'problem_twoView'}">界面2</router-link>
+                                     :to="{name: 'problem_twoView'}">题库</router-link>
                     </li>
                     <li class="nav-item">
                         <router-link :class="route_name == 'problem_details' ? 'nav-link active' : 'nav-link'"
-                                     :to="{name: 'problem_details', params: {id : 1}}">界面3</router-link>
+                                     :to="{name: 'problem_details', params: {id : 1}}">聊天</router-link>
                     </li>
                     
                 </ul>
