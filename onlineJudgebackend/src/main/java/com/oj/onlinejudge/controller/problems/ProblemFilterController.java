@@ -25,10 +25,14 @@ public class ProblemFilterController {
         return problemFilter.getProblemDetails(Integer.parseInt(probKey));
     }
     @PostMapping("/problems/overview/")
-    // TODO: Add query variations later.
     public JSONObject getProblemOverview(@RequestParam String pageNum){
-        ArrayList<String> tags = new ArrayList<>(List.of(new String[]{"", ""}));
-        // return problemListService.getProblemListOverview(1);
-        return problemListService.getProblemListByTags(tags, true, Integer.parseInt(pageNum));
+        return problemListService.masterProblemListGetter(
+                "",
+                "",
+                "",
+                new ArrayList<>(/*List.of(new String[]{"DP", "C++"})*/),
+                true,
+                0,
+                Integer.parseInt(pageNum));
     }
 }

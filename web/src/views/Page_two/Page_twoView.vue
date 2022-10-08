@@ -33,10 +33,11 @@
                 <span class="badge bg-success">{{problemOverview.AcceptedPct}}%</span>
               </td>
               <td>
-                <span  v-for="problemTag in problemOverview.problemTags" :key = "problemTag">
+                <span v-for="problemTag in problemOverview.problemTags" :key = "problemTag">
                   <span class="badge bg-primary">{{problemTag}}</span>
-                  &nbsp;
+                    &nbsp;
                 </span>
+              
               </td>
             </tr>
             </tbody>

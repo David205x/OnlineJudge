@@ -34,11 +34,8 @@ public class ProblemFilter implements com.oj.onlinejudge.service.problems.Proble
             return null;
         }
 
-        // Tags format: [0]: Difficulty, [1]: TAG #1, [2]: TAG #2
         String tagStr = problemEntries.get(0).getTag();
         String[] tags = tagStr.split(" ");
-
-        System.out.println(Arrays.toString(tags));
 
         HashMap<String, String> retMap = new HashMap<>();
         retMap.put("problemKey", Integer.toString(problemKey));
@@ -66,7 +63,7 @@ public class ProblemFilter implements com.oj.onlinejudge.service.problems.Proble
         for (int i = 1; i < tags.length; i++) {
             tagJson.put("tag" + i, tags[i]);
         }
-        System.out.println(tagJson);
+
         retMap.put("problemTags", tagJson.toJSONString());
 
         return retMap;
