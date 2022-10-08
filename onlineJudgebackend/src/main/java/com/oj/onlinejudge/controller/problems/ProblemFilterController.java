@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -23,7 +25,10 @@ public class ProblemFilterController {
         return problemFilter.getProblemDetails(Integer.parseInt(probKey));
     }
     @PostMapping("/problems/overview/")
+    // TODO: Add query variations later.
     public JSONObject getProblemOverview(){
+        ArrayList<String> tags = new ArrayList<>(List.of(new String[]{"Basic", "C++"}));
         return problemListService.getProblemListOverview(1);
+        // return problemListService.getProblemListByTags(tags, false ,1);
     }
 }
