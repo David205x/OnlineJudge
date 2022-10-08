@@ -27,8 +27,8 @@ public class ProblemFilterController {
     @PostMapping("/problems/overview/")
     // TODO: Add query variations later.
     public JSONObject getProblemOverview(){
-        ArrayList<String> tags = new ArrayList<>(List.of(new String[]{"Basic", "C++"}));
-        return problemListService.getProblemListOverview(1);
-        // return problemListService.getProblemListByTags(tags, false ,1);
+        ArrayList<String> tags = new ArrayList<>(List.of(new String[]{"Extreme", "Algorithm"}));
+        // return problemListService.getProblemListOverview(1);
+        return problemListService.getProblemListByTags(tags, true, 1);
     }
 }
