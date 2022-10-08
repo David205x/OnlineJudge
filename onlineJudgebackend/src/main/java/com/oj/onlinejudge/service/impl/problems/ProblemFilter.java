@@ -63,11 +63,11 @@ public class ProblemFilter implements com.oj.onlinejudge.service.problems.Proble
         retMap.put("totalAttempts",  Integer.toString(totAttempts));
 
         JSONObject tagJson = new JSONObject();
-        tagJson.put("tag1", tags[1]);
-        tagJson.put("tag2", tags[2]);
+        for (int i = 1; i < tags.length; i++) {
+            tagJson.put("tag" + i, tags[i]);
+        }
+        System.out.println(tagJson);
         retMap.put("problemTags", tagJson.toJSONString());
-
-        System.out.println(tagJson.toJSONString());
 
         return retMap;
     }

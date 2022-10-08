@@ -23,14 +23,14 @@ public class ProblemListServiceImpl implements ProblemListService {
     @Autowired
     private SubmissionMapper submissionMapper;
 
-    private final int entriesPerPage = 16;
+    private final int entriesPerPage = 2;
 
     public JSONObject problemInfoExtractor(Problem p) {
 
         JSONObject problem = new JSONObject();
         problem.put("problemKey", p.getProblemkey());
         problem.put("problemName", p.getProblemname());
-        problem.put("problemSource",p.getSource());
+        problem.put("problemSource", p.getSource());
 
         double acAttempts = 0, totAttempts = 0;
         QueryWrapper<Submission> attemptWrapper = new QueryWrapper<>();
@@ -38,20 +38,20 @@ public class ProblemListServiceImpl implements ProblemListService {
         List<Submission> attemptEntries = submissionMapper.selectList(attemptWrapper);
 
         totAttempts = attemptEntries.size();
-        if(totAttempts != 0){
+        if (totAttempts != 0) {
             for (Submission s : attemptEntries) {
                 if (s.getResult().equals("Accepted")) {
                     acAttempts++;
                 }
             }
-            problem.put("AcceptedPct", (int)(100 * (acAttempts)/(totAttempts)));
-        }else {
+            problem.put("AcceptedPct", (int) (100 * (acAttempts) / (totAttempts)));
+        } else {
             problem.put("AcceptedPct", 0);
         }
 
         String tagStr = p.getTag();
         String[] tags = tagStr.split(" ");
-        problem.put("problemTags", tags[0]);
+        problem.put("problemTags", tags);
 
         return problem;
     }
@@ -133,15 +133,17 @@ public class ProblemListServiceImpl implements ProblemListService {
 
         IPage<Problem> problemIPage = new Page<>(page, entriesPerPage);
 
-        // Only supports 2 tags rn, may chance this to a loop later.
-        StringBuilder sqlBuilder = new StringBuilder("tag LIKE '%");
-        sqlBuilder.append(tags.get(0)).append("%'")
-                .append(isUnion ? " OR " : " AND ")
-                .append("tag LIKE '%").append(tags.get(1)).append("%'");
-        System.out.println(sqlBuilder);
-
         QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
-        queryWrapper.apply(sqlBuilder.toString(), tags);
+
+        if (isUnion) {
+            for (String tag : tags) {
+                queryWrapper.like("tag", tag).or();
+            }
+        } else {
+            for (String tag : tags) {
+                queryWrapper.like("tag", tag);
+            }
+        }
         queryWrapper.orderByAsc("problemkey");
         List<Problem> problems = problemMapper.selectPage(problemIPage, queryWrapper).getRecords();
 
@@ -153,6 +155,8 @@ public class ProblemListServiceImpl implements ProblemListService {
         }
 
         ret.put("problemCount", problems.size());
+        ret.put("totalPages", problemMapper.selectCount(null));
+        ret.put("perPage", entriesPerPage);
         ret.put("problemList", problemList);
         return ret;
     }
