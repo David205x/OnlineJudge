@@ -23,7 +23,7 @@ public class ProblemListServiceImpl implements ProblemListService {
     @Autowired
     private SubmissionMapper submissionMapper;
 
-    private final int entriesPerPage = 20;
+    private final int entriesPerPage = 16;
 
     public JSONObject problemInfoExtractor(Problem p) {
 
@@ -133,63 +133,26 @@ public class ProblemListServiceImpl implements ProblemListService {
 
         IPage<Problem> problemIPage = new Page<>(page, entriesPerPage);
 
-        ArrayList<Set<Problem>> problems = new ArrayList<>();
-        Set<Problem> result = null;
-        Set<Problem> sorted = null;
+        // Only supports 2 tags rn, may chance this to a loop later.
+        StringBuilder sqlBuilder = new StringBuilder("tag LIKE '%");
+        sqlBuilder.append(tags.get(0)).append("%'")
+                .append(isUnion ? " OR " : " AND ")
+                .append("tag LIKE '%").append(tags.get(1)).append("%'");
+        System.out.println(sqlBuilder);
+
+        QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
+        queryWrapper.apply(sqlBuilder.toString(), tags);
+        queryWrapper.orderByAsc("problemkey");
+        List<Problem> problems = problemMapper.selectPage(problemIPage, queryWrapper).getRecords();
+
         JSONObject ret = new JSONObject();
         ArrayList<JSONObject> problemList = new ArrayList<>();
 
-        if (tags.size() != 1) { // MULTIPLE TAGS
-
-            if (!isUnion) { // INTERSECTION
-                for (String tag : tags) {
-
-                    QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
-                    queryWrapper.like("tag", tag);
-                    List<Problem> curTagList = problemMapper.selectPage(problemIPage, queryWrapper).getRecords();
-                    Set<Problem> curTagSet = new HashSet<>(curTagList);
-                    problems.add(curTagSet);
-
-                }
-
-                result = new HashSet<>(problems.get(0));
-                for (int i = 1; i < tags.size(); i++) {
-                    result = getIntersectionSet(result, problems.get(i));
-                }
-
-            } else { // UNION
-
-                result = new HashSet<>();
-                for (String tag : tags) {
-
-                    QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
-                    queryWrapper.like("tag", tag);
-                    queryWrapper.orderByAsc("problemkey");
-                    List<Problem> curTagList = problemMapper.selectPage(problemIPage, queryWrapper).getRecords();
-                    result.addAll(curTagList);
-                }
-            }
-
-        } else { // SINGLE TAG
-            QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
-            queryWrapper.like("tag", tags.get(0));
-            List<Problem> curTagList = problemMapper.selectPage(problemIPage, queryWrapper).getRecords();
-            result = new HashSet<>(curTagList);
-        }
-
-        sorted = new TreeSet<Problem>(new Comparator<Problem>() { // SORT TAGS
-            @Override
-            public int compare(Problem p1, Problem p2) {
-                return p1.getProblemkey() - p2.getProblemkey();
-            }
-        });
-        sorted.addAll(result);
-
-        for (Problem p : sorted) {
+        for (Problem p : problems) {
             problemList.add(problemInfoExtractor(p));
         }
 
-        ret.put("problemCount", sorted.size());
+        ret.put("problemCount", problems.size());
         ret.put("problemList", problemList);
         return ret;
     }
