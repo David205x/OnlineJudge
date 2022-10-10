@@ -30,12 +30,12 @@
         <div class="col-9">
           <table class="table table-striped table-hover">
             <thead>
-            <tr>
+            <tr >
               <th scope="col">题目编号</th>
               <th scope="col">题目名称</th>
               <th scope="col">题目来源</th>
               <th scope="col">通过率</th>
-              <th scope="col">题目标签</th>
+              <th scope="col" style="text-align: center;">题目标签</th>
             </tr>
             </thead>
             <tbody>
@@ -53,9 +53,9 @@
                 <span class="badge bg-success">{{problemOverview.AcceptedPct}}%</span>
               </td>
               <td>
-                <span v-for="problemTag in problemOverview.problemTags" :key = "problemTag">
-                  <span class="badge bg-secondary">{{problemTag}}</span>
-                    &nbsp;
+                <span v-for="tag in sliceList(problemOverview.problemTags, 5)" :key="tag">
+                  <span class="badge bg-secondary"> {{tag}}</span>	
+                  &nbsp;																																	
                 </span>
               </td>
             </tr>
@@ -77,11 +77,11 @@
         </div>
         <div class="col-3">
           <div class="list-group">
-            <button @click="ProblemChange(0)" type="button" class="list-group-item list-group-item-action active" aria-current="true">
+            <button @click="ProblemChange(0)" type="button" :class="state == 0 ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'" :aria-current="state == 0">
               ALL
             </button>
-            <button @click="ProblemChange(1)" type="button" class="list-group-item list-group-item-action">Solved</button>
-            <button @click="ProblemChange(2)" type="button" class="list-group-item list-group-item-action">Attempted</button>
+            <button @click="ProblemChange(1)" type="button" :class="state == 1 ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'" :aria-current="state == 1">Solved</button>
+            <button @click="ProblemChange(2)" type="button" :class="state == 2 ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'" :aria-current="state == 2">Attempted</button>
           </div>
           <div class="label2">
           <span>
@@ -137,6 +137,20 @@ export default{
       router.push({name: "problem_details", params: {id : index}});
     }
     const store = useStore();
+    const jwt_token = localStorage.getItem("jwt_token");
+    if(jwt_token){
+        store.commit("updateToken", jwt_token);
+        store.dispatch("getinfo", {
+            success(){
+                store.commit("updatePullingInfo", false);
+            },
+            error() {
+                store.commit("updatePullingInfo", false);
+            }
+        })
+    }else {
+        store.commit("updatePullingInfo", false);
+    }
     const logged = store.state.user.is_login;
     store.commit("updatePullingInfo", false);
     if(store.state.user.is_login){
@@ -249,7 +263,32 @@ export default{
       search_problem_name,
       search_problem_tag,
       ProblemChange,
+      state,
       pages,
+    }
+  },
+  computed: {
+    sliceList() {
+      return function (data,count) {
+        if (data != undefined) {
+          let arrTemp = [];
+          console.log(data)
+          let i = 0;
+          let tag = {};
+          for (tag in data) {
+            i++;
+            if (i > count){
+              break;
+            }
+            arrTemp.push(data[tag])
+          }
+          while(i < count){
+            arrTemp.push('')
+            i++;
+          }
+          return arrTemp
+        }
+      }
     }
   }
 }

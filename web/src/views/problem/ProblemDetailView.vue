@@ -69,6 +69,20 @@ import "../../assets/font/font.css"
         let problemName = ref("");
         let r = window.location.href.match("problemId=.*/");
         let t = r[0].split("=")[1].split("/")[0]
+        const jwt_token = localStorage.getItem("jwt_token");
+        if(jwt_token){
+            store.commit("updateToken", jwt_token);
+            store.dispatch("getinfo", {
+                success(){
+                    store.commit("updatePullingInfo", false);
+                },
+                error() {
+                    store.commit("updatePullingInfo", false);
+                }
+            })
+        }else {
+            store.commit("updatePullingInfo", false);
+        }
         store.dispatch("showProblem", {
             problemKey : t,
             success(){
