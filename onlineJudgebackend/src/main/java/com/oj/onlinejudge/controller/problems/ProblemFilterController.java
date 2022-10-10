@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 @RestController
@@ -25,14 +27,22 @@ public class ProblemFilterController {
     }
 
     @PostMapping("/problems/overview/")
-    public JSONObject getProblemOverview(@RequestParam String pageNum){
+    public JSONObject getProblemOverview(@RequestParam Map<String, String> searchProblem){
+        System.out.println(searchProblem.get("pageNum"));
+        System.out.println(searchProblem.get("userKey"));
+        System.out.println(searchProblem.get("searchProblemKey"));
+        System.out.println(searchProblem.get("searchProblemName"));
+        System.out.println(searchProblem.get("searchProblemTag"));
+        System.out.println(searchProblem.get("problemState"));
+
         return problemListService.masterProblemListGetter(
-                "",
-                "",
-                "",
-                new ArrayList<>(/*List.of(new String[]{"DP", "C++"})*/),
+                searchProblem.get("searchProblemKey"),
+                searchProblem.get("userKey"),
+                searchProblem.get("searchProblemName"),
+                searchProblem.get("searchProblemTag"),
                 true,
-                0,
-                Integer.parseInt(pageNum));
+                searchProblem.get("problemState"),
+                Integer.parseInt(searchProblem.get("pageNum")));
     }
+
 }

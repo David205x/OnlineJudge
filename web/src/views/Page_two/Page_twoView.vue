@@ -1,8 +1,28 @@
 <template>
   <ContentField>
-    <div class="mb-3">
-      <label for="exampleFormControlInput1" class="form-label">Search Bar</label>
-      <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="请根据题目编号，题目名称，题目来源搜索">
+    <span class="fs-1">
+      Search Bar
+    </span>
+    <br>
+    <div class="row g-3 align-items-center">
+      <div class="col-auto">
+        <lbel for="inputProblemNum" class="col-form-label">ProblemNum</lbel>
+      </div>
+      <div class="col-auto">
+        <input v-model="search_problem_key" type="problemNum" id="search_problem_num" class="form-control" aria-describedby="passwordHelpInline">
+      </div>
+      <div class="col-auto">
+        <lbel for="inputProblemName" class="col-form-label">ProblemName</lbel>
+      </div>
+      <div class="col-auto">
+        <input v-model="search_problem_name" type="problemName" id="search_problem_name" class="form-control" aria-describedby="passwordHelpInline">
+      </div>
+      <div class="col-auto">
+        <lbel for="inputProblemName" class="col-form-label">ProblemTag</lbel>
+      </div>
+      <div class="col-auto">
+        <input v-model="search_problem_tag" type="problemTag" id="search_problem_tag" class="form-control" aria-describedby="passwordHelpInline">
+      </div>
     </div>
     <div class="container">
       <div class="row align-items-start">
@@ -57,11 +77,11 @@
         </div>
         <div class="col-3">
           <div class="list-group">
-            <button type="button" class="list-group-item list-group-item-action active" aria-current="true">
+            <button @click="ProblemChange(0)" type="button" class="list-group-item list-group-item-action active" aria-current="true">
               ALL
             </button>
-            <button type="button" class="list-group-item list-group-item-action">Solved</button>
-            <button type="button" class="list-group-item list-group-item-action">Attempted</button>
+            <button @click="ProblemChange(1)" type="button" class="list-group-item list-group-item-action">Solved</button>
+            <button @click="ProblemChange(2)" type="button" class="list-group-item list-group-item-action">Attempted</button>
           </div>
           <div class="label2">
           <span>
@@ -103,10 +123,16 @@ import ContentField from "@/components/ContentField.vue";
 import { useStore } from "vuex";
 import router from "@/router";
 import $ from "jquery";
-import { ref } from 'vue';
+import { ref,nextTick} from 'vue';
 export default{
   components: { ContentField },
   setup(){
+    let search_problem_key = ref('')
+    let search_problem_name = ref('')
+    let search_problem_tag = ref('')
+    let state = ref(0)
+    let pages = ref([]);
+
     const todetails = (index) =>{
       router.push({name: "problem_details", params: {id : index}});
     }
@@ -120,11 +146,48 @@ export default{
         }
       })
     }
+    const ProblemChange = (data) =>{
+      state.value = data;
+      search()
+    }
+    const search = () =>{
+      $.ajax({
+        url: "http://127.0.0.1:3000/problems/overview/",
+        data:{
+          pageNum: "1",
+          userKey: store.state.user.id,
+          searchProblemKey: search_problem_key.value,
+          searchProblemName: search_problem_name.value,
+          searchProblemTag: search_problem_tag.value,
+          problemState: state.value,
+        },
+        type: 'post',
+        success(resp) {
+          problemOverviews.value = resp.problemList
+          total_problems = resp.totalPages;
+          per_num = resp.perPage;
+          update_pages()
+        },
+        error(resp) {
+          console.log(resp)
+        }
+      })
+    }
+    nextTick(()=>{
+      document.onkeydown = function(e){
+        var ev = document.all ? window.event : e;
+        if(ev.keyCode==13) {
+          console.log(search_problem_key.value)
+          search()
+          return false;
+        }
+      }
+    })
     const problemOverviews = ref([{}])
     let current_page = 1;
     let total_problems = 0;
     let per_num = 1;
-    let pages = ref([]);
+
     const click_page = (page) =>{
       if(page == -2) page = current_page - 1;
       else if(page == -1) page = current_page + 1;
@@ -155,7 +218,12 @@ export default{
       $.ajax({
         url: "http://127.0.0.1:3000/problems/overview/",
         data:{
-          pageNum: page,
+          pageNum: JSON.stringify(page),
+          searchPro: "",
+          searchProblemKey:  "",
+          searchProblemName: "",
+          searchProblemTag: "",
+          problemState: "",
         },
         type: 'post',
         success(resp) {
@@ -170,11 +238,17 @@ export default{
       })
     }
     pull_page(current_page)
+
     return {
       todetails,
       logged,
       problemOverviews,
       click_page,
+      search,
+      search_problem_key,
+      search_problem_name,
+      search_problem_tag,
+      ProblemChange,
       pages,
     }
   }
