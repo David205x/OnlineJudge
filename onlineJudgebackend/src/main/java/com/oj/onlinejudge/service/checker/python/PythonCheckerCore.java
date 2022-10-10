@@ -1,7 +1,6 @@
 package com.oj.onlinejudge.service.checker.python;
 
-import com.oj.onlinejudge.service.checker.CheckerCaller;
-import com.oj.onlinejudge.service.checker.java.JavaChecker;
+import com.oj.onlinejudge.service.checker.generic.CheckerCaller;
 
 import java.io.IOException;
 import java.sql.SQLException;

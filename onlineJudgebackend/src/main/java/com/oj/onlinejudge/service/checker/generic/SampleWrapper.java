@@ -1,11 +1,10 @@
-package com.oj.onlinejudge.service.checker;
+package com.oj.onlinejudge.service.checker.generic;
 
 import com.oj.onlinejudge.utils.FilePathUtil;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

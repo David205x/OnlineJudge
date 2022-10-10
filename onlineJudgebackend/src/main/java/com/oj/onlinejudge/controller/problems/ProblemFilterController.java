@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -24,6 +23,7 @@ public class ProblemFilterController {
     public Map<String, String> showProblem(@RequestParam String probKey) {
         return problemFilter.getProblemDetails(Integer.parseInt(probKey));
     }
+
     @PostMapping("/problems/overview/")
     public JSONObject getProblemOverview(@RequestParam String pageNum){
         return problemListService.masterProblemListGetter(

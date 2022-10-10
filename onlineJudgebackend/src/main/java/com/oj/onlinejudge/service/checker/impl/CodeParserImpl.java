@@ -1,8 +1,6 @@
 package com.oj.onlinejudge.service.checker.impl;
 
-import com.oj.onlinejudge.service.checker.CodeParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.oj.onlinejudge.service.checker.generic.CodeParser;
 
 import java.util.HashMap;
 import java.util.Map;

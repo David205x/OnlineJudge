@@ -1,8 +1,8 @@
 package com.oj.onlinejudge.service.checker.python;
 
-import com.oj.onlinejudge.service.checker.FileHelper;
-import com.oj.onlinejudge.service.checker.GenericChecker;
-import com.oj.onlinejudge.service.checker.SampleWrapper;
+import com.oj.onlinejudge.service.checker.generic.FileHelper;
+import com.oj.onlinejudge.service.checker.generic.GenericChecker;
+import com.oj.onlinejudge.service.checker.generic.SampleWrapper;
 import com.oj.onlinejudge.service.checker.impl.CodeParserImpl;
 import com.oj.onlinejudge.utils.FilePathUtil;
 
@@ -11,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class PythonChecker extends CodeParserImpl implements GenericChecker {
 
