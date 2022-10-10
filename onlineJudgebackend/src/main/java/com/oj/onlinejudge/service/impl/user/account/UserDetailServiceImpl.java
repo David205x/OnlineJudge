@@ -1,4 +1,4 @@
-package com.oj.onlinejudge.service.impl;
+package com.oj.onlinejudge.service.impl.user.account;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.oj.onlinejudge.mapper.UserMapper;

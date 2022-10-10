@@ -1,4 +1,4 @@
-package com.oj.onlinejudge.service.checker;
+package com.oj.onlinejudge.service.checker.generic;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

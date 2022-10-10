@@ -4,7 +4,7 @@ import com.oj.onlinejudge.mapper.SubmissionMapper;
 import com.oj.onlinejudge.pojo.Submission;
 import com.oj.onlinejudge.service.checker.c.CCheckerCore;
 import com.oj.onlinejudge.service.checker.cpp.CppCheckerCore;
-import com.oj.onlinejudge.service.checker.FileHelper;
+import com.oj.onlinejudge.service.checker.generic.FileHelper;
 import com.oj.onlinejudge.service.checker.java.JavaCheckerCore;
 import com.oj.onlinejudge.service.checker.python.PythonCheckerCore;
 import com.oj.onlinejudge.service.user.submission.GetSubmissionService;

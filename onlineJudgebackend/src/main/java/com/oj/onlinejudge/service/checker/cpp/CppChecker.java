@@ -1,8 +1,8 @@
 package com.oj.onlinejudge.service.checker.cpp;
 
-import com.oj.onlinejudge.service.checker.FileHelper;
-import com.oj.onlinejudge.service.checker.GenericChecker;
-import com.oj.onlinejudge.service.checker.SampleWrapper;
+import com.oj.onlinejudge.service.checker.generic.FileHelper;
+import com.oj.onlinejudge.service.checker.generic.GenericChecker;
+import com.oj.onlinejudge.service.checker.generic.SampleWrapper;
 import com.oj.onlinejudge.service.checker.impl.CodeParserImpl;
 import com.oj.onlinejudge.utils.FilePathUtil;
 

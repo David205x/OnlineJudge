@@ -34,10 +34,9 @@
               </td>
               <td>
                 <span v-for="problemTag in problemOverview.problemTags" :key = "problemTag">
-                  <span class="badge bg-primary">{{problemTag}}</span>
+                  <span class="badge bg-secondary">{{problemTag}}</span>
                     &nbsp;
                 </span>
-              
               </td>
             </tr>
             </tbody>

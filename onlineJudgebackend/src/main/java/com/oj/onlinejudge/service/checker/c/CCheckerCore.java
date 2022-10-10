@@ -1,7 +1,6 @@
 package com.oj.onlinejudge.service.checker.c;
 
-import com.oj.onlinejudge.service.checker.CheckerCaller;
-import com.oj.onlinejudge.service.checker.cpp.CppChecker;
+import com.oj.onlinejudge.service.checker.generic.CheckerCaller;
 
 import java.io.IOException;
 import java.sql.SQLException;

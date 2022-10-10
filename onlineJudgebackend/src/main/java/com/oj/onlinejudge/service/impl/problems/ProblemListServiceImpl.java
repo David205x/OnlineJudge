@@ -21,7 +21,7 @@ public class ProblemListServiceImpl implements ProblemListService {
     private ProblemMapper problemMapper;
     @Autowired
     private SubmissionMapper submissionMapper;
-    private final int entriesPerPage = 8;
+    private final int entriesPerPage = 10;
 
     public JSONObject problemInfoExtractor(Problem p) {
 
