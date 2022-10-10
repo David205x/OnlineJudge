@@ -180,6 +180,7 @@ export default{
           problemOverviews.value = resp.problemList
           total_problems = resp.totalPages;
           per_num = resp.perPage;
+          current_page = 1;
           update_pages()
         },
         error(resp) {

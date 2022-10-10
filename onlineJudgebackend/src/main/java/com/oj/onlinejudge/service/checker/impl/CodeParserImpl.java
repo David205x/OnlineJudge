@@ -4,10 +4,14 @@ import com.oj.onlinejudge.service.checker.generic.CodeParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class CodeParserImpl implements CodeParser {
+
+    private final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
     @Override
     public String[] ParseCode(String srcCode, String reg) {
         try{
@@ -25,9 +29,8 @@ public class CodeParserImpl implements CodeParser {
         String[] interval = ParseCode(srcCode, reg);
         Map<String, String> res = new HashMap<>();
 
-        Logger logger = LoggerFactory.getLogger("CodeParserImpl.java");
         if(interval == null){
-            logger.error("传入的代码格式不正确");
+            System.out.println(tempLogger("Invalid code structure."));
             res.put("error_message", "CompileError");
             res.put("ParsedCodeString", "CompileError");
             return res;
@@ -50,5 +53,9 @@ public class CodeParserImpl implements CodeParser {
         res.put("ParsedCodeString", ParsedCode);
         res.put("error_message", "success");
         return res;
+    }
+
+    public String tempLogger(String info) {
+        return "[" + format.format(new Date(System.currentTimeMillis())) + "] " + info;
     }
 }
