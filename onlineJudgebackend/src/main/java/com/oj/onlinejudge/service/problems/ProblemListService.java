@@ -10,13 +10,13 @@ public interface ProblemListService {
     public JSONObject masterProblemListGetter(String problemKey,
                                               String userKey,
                                               String problemName,
-                                              ArrayList<String> tags,
+                                              String tags,
                                               boolean isUnion,
-                                              Integer state,
+                                              String state,
                                               Integer page);
     public JSONObject problemListGetter(Integer page);
     public Set<Integer> getProblemListByKey(String key, Integer page);
     public Set<Integer> getProblemListByName(String name, Integer page);
-    public Set<Integer> getProblemListByTags(ArrayList<String> tags, Boolean isUnion, Integer page);
-    public Set<Integer> getProblemListByState(String userKey, Integer state, Integer page);
+    public Set<Integer> getProblemListByTags(String tags, Boolean isUnion, Integer page);
+    public Set<Integer> getProblemListByState(String userKey, String problemState, Integer page);
 }
