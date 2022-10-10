@@ -15,6 +15,7 @@ public interface ProblemListService {
                                               String state,
                                               Integer page);
     public JSONObject problemListGetter(Integer page);
+    public Set<Integer> getFullProblemList();
     public Set<Integer> getProblemListByKey(String key, Integer page);
     public Set<Integer> getProblemListByName(String name, Integer page);
     public Set<Integer> getProblemListByTags(String tags, Boolean isUnion, Integer page);

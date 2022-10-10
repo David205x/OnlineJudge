@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -22,6 +23,8 @@ public class ProblemListServiceImpl implements ProblemListService {
     @Autowired
     private SubmissionMapper submissionMapper;
     private final int entriesPerPage = 10;
+
+    private final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
 
     public JSONObject problemInfoExtractor(Problem p) {
 
@@ -54,6 +57,9 @@ public class ProblemListServiceImpl implements ProblemListService {
         return problem;
     }
 
+    private String tempLogger(String info) {
+        return "[" + format.format(new Date(System.currentTimeMillis())) + "] " + info;
+    }
     @Override
     public JSONObject masterProblemListGetter(String problemKey,
                                               String userKey,
@@ -62,6 +68,8 @@ public class ProblemListServiceImpl implements ProblemListService {
                                               boolean isUnion,
                                               String problemState,
                                               Integer page) {
+
+        System.out.println(tempLogger("---------------FILTER----------------"));
 
         boolean enableKeyFilter = !problemKey.isEmpty();
         boolean enableNameFilter = !problemName.isEmpty();
@@ -74,6 +82,8 @@ public class ProblemListServiceImpl implements ProblemListService {
         JSONObject ret = new JSONObject();
 
         if (!enableKeyFilter && !enableNameFilter && !enableTagFilter && !enableStateFilter) {
+            System.out.println("Getting all problems.");
+            System.out.println(tempLogger("-------------------------------------"));
             return problemListGetter(page);
         }
         ArrayList<JSONObject> problemList = new ArrayList<>();
@@ -81,43 +91,30 @@ public class ProblemListServiceImpl implements ProblemListService {
         IPage<Problem> problemIPage = new Page<>(page, entriesPerPage);
         QueryWrapper<Problem> masterWrapper = new QueryWrapper<>();
 
-        Set<Integer> base = new HashSet<>();
+        Set<Integer> base = new HashSet<>(getFullProblemList());
+        if (enableStateFilter) {
+            base.retainAll(getProblemListByState(userKey, problemState, page));
+        }
         if (enableKeyFilter) {
-            base = getProblemListByKey(problemKey, page);
+            base.retainAll(getProblemListByKey(problemKey, page));
         }
         if (enableNameFilter) {
-            if (base.isEmpty()) {
-                base = getProblemListByName(problemName, page);
-            }
-            else {
-                base.retainAll(getProblemListByName(problemName, page));
-            }
+            base.retainAll(getProblemListByName(problemName, page));
         }
         if (enableTagFilter) {
-            if (base.isEmpty()) {
-                base = getProblemListByTags(tags, isUnion, page);
-            }
-            else {
-                base.retainAll(getProblemListByTags(tags, isUnion, page));
-            }
-        }
-        if (enableStateFilter) {
-            if (base.isEmpty()) {
-                base = getProblemListByState(userKey, problemState, page);
-            }
-            else {
-                base.retainAll(getProblemListByState(userKey, problemState, page));
-            }
+            base.retainAll(getProblemListByTags(tags, isUnion, page));
         }
 
         if (base.isEmpty()) {
+            System.out.println("No matched problems. ");
             ret.put("problemCount", -1);
             ret.put("totalPages", 0);
             ret.put("perPage", entriesPerPage);
             ret.put("problemList", null);
-        }
+        } else {
 
-        else {
+            System.out.println("Final set: " + base);
+
             for (int key : base) {
                 masterWrapper.eq("problemkey", key).or();
             }
@@ -132,6 +129,9 @@ public class ProblemListServiceImpl implements ProblemListService {
             ret.put("perPage", entriesPerPage);
             ret.put("problemList", problemList);
         }
+
+        System.out.println(tempLogger("-------------------------------------"));
+
         return ret;
     }
 
@@ -159,6 +159,23 @@ public class ProblemListServiceImpl implements ProblemListService {
     }
 
     @Override
+    public Set<Integer> getFullProblemList() {
+
+
+        QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
+        queryWrapper.orderByAsc("problemKey");
+        List<Problem> problems = problemMapper.selectList(queryWrapper);
+
+        Set<Integer> ret = new HashSet<>();
+
+        for (Problem p : problems) {
+            ret.add(p.getProblemkey());
+        }
+
+        return ret;
+    }
+
+    @Override
     public Set<Integer> getProblemListByKey(String problemKey, Integer page) {
 
         QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
@@ -170,6 +187,8 @@ public class ProblemListServiceImpl implements ProblemListService {
         for (Problem p : problems) {
             ret.add(p.getProblemkey());
         }
+
+        // System.out.println("Post-KeyFilter: " + ret);
         return ret;
     }
 
@@ -185,6 +204,8 @@ public class ProblemListServiceImpl implements ProblemListService {
         for (Problem p : problems) {
             ret.add(p.getProblemkey());
         }
+
+        // System.out.println("Post-NameFilter: " + ret);
         return ret;
     }
 
@@ -218,6 +239,8 @@ public class ProblemListServiceImpl implements ProblemListService {
         for (Problem p : problems) {
             ret.add(p.getProblemkey());
         }
+
+        // System.out.println("Post-TagFilter: " + ret);
         return ret;
     }
 
@@ -225,7 +248,6 @@ public class ProblemListServiceImpl implements ProblemListService {
     public Set<Integer> getProblemListByState(String userKey, String state, Integer page) {
 
         // state: 0 -> bypass state filter, 1 -> AC entries only, 2 -> entries whose results are not AC
-
         int intState = Integer.parseInt(state);
 
         QueryWrapper<Submission> subQueryWrapper = new QueryWrapper<>();
@@ -244,7 +266,10 @@ public class ProblemListServiceImpl implements ProblemListService {
             }
         }
 
-        return intState == 1 ? acceptedKeys : attemptedKeys;
+        attemptedKeys.removeAll(acceptedKeys);
+        Set<Integer> ret = intState == 1 ? acceptedKeys : attemptedKeys;
+        // System.out.println("Post-StateFilter: " + ret);
+        return ret;
     }
 
 }

@@ -28,12 +28,6 @@ public class ProblemFilterController {
 
     @PostMapping("/problems/overview/")
     public JSONObject getProblemOverview(@RequestParam Map<String, String> searchProblem){
-        System.out.println(searchProblem.get("pageNum"));
-        System.out.println(searchProblem.get("userKey"));
-        System.out.println(searchProblem.get("searchProblemKey"));
-        System.out.println(searchProblem.get("searchProblemName"));
-        System.out.println(searchProblem.get("searchProblemTag"));
-        System.out.println(searchProblem.get("problemState"));
 
         return problemListService.masterProblemListGetter(
                 searchProblem.get("searchProblemKey"),
@@ -44,5 +38,4 @@ public class ProblemFilterController {
                 searchProblem.get("problemState"),
                 Integer.parseInt(searchProblem.get("pageNum")));
     }
-
 }
