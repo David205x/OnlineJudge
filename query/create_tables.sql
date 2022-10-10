@@ -41,8 +41,7 @@ CREATE TABLE `io` (
 	`input`				VARCHAR(1024)	NOT NULL 				COMMENT '输入',
 	`output`			VARCHAR(1024)	NOT NULL 				COMMENT '输出',
 	
-	PRIMARY KEY (`ioKey`),
-	CONSTRAINT `_fk_1` FOREIGN KEY (`problemKey`) 	REFERENCES `problem`(`problemKey`)
+	PRIMARY KEY (`ioKey`)
 );
 
 
@@ -55,8 +54,7 @@ CREATE TABLE `submission` (
 	`runtime`			INT				NOT NULL				COMMENT '运行用时',
 	`language`			VARCHAR(64)		NOT NULL				COMMENT '提交使用语言',
 	
-	PRIMARY KEY (`submissionKey`),
-	CONSTRAINT `submission_fk_1` FOREIGN KEY (`userKey`) 	REFERENCES `user`(`id`)
+	PRIMARY KEY (`submissionKey`)
 );
 
 CREATE TABLE `solution` (
@@ -66,6 +64,5 @@ CREATE TABLE `solution` (
 	`time`				DATE			NOT NULL				COMMENT '提交时间',
 	`content`			VARCHAR(2048)	NOT NULL				COMMENT '正文',
 
-	PRIMARY KEY (`solutionKey`),
-	CONSTRAINT `solution_fk_1` FOREIGN KEY (`problemKey`)	REFERENCES `problem`(`problemKey`)
+	PRIMARY KEY (`solutionKey`)
 )

@@ -13,14 +13,18 @@
             <li class="nav-item" @click="onChange(3)">
                 <button  :class="f == 3 ? 'nav-link active' : 'nav-link'" >提交记录</button>
             </li>
-        </ul>  
+            <div class="form-check form-switch" style="margin-top: 1.5vh">
+                <input class="form-check-input" @click="switchLayout" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                <label class="form-check-label" for="flexSwitchCheckDefault">布局切换</label>
+            </div>
+        </ul>
         <div v-if="f == 1">
             <div v-if="layout == 1">
                 <ProblemDetailHorizontalTemplate>
 
                 </ProblemDetailHorizontalTemplate>
             </div>
-            <div v-else-if="layout == 2">
+            <div v-else-if="layout == -1">
                 <ProblemDetailVerticalTemplate>
 
                 </ProblemDetailVerticalTemplate>
@@ -61,7 +65,7 @@ import "../../assets/font/font.css"
     setup(){  
         const store = useStore();
         let f = ref(1);
-        let layout = ref(2);
+        let layout = ref(-1);
         let problemName = ref("");
         let r = window.location.href.match("problemId=.*/");
         let t = r[0].split("=")[1].split("/")[0]
@@ -79,11 +83,15 @@ import "../../assets/font/font.css"
         const onChange = (data) =>{
             f.value = data;
         }
+        const switchLayout = () => {
+            layout.value = -layout.value;
+        }
        
         console.log(problemName.value)
          return {
             f,
             onChange,
+            switchLayout,
             layout,
             problemName,
          }
