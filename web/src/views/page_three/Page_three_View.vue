@@ -49,6 +49,20 @@ export default{
   setup(){
 
     const store = useStore();
+    const jwt_token = localStorage.getItem("jwt_token");
+    if(jwt_token){
+        store.commit("updateToken", jwt_token);
+        store.dispatch("getinfo", {
+            success(){
+                store.commit("updatePullingInfo", false);
+            },
+            error() {
+                store.commit("updatePullingInfo", false);
+            }
+        })
+    }else {
+        store.commit("updatePullingInfo", false);
+    }
     const logged = store.state.user.is_login;
     store.commit("updatePullingInfo", false);
     if(store.state.user.is_login){

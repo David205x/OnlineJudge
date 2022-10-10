@@ -32,7 +32,13 @@
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center">
               标签
-              <span class="badge bg-primary" v-for ="tag in $store.state.problem.problemTags" :key = "tag">{{tag}}</span>
+              <table >
+                <tr v-for="(row, index) in sliceList($store.state.problem.problemTags, 4)" :key="index">
+                  <td class="badge bg-primary" v-for="(item, i) in row" :key="i">																																				
+                     {{item}}
+                  </td>
+                </tr>
+              </table>
             </li>
           </ul>
         </div>
@@ -137,8 +143,9 @@ export default{
     let submission_status = ref('?');
     let debugInfo = ref("");
     let FS = ref(13);
-
     const store = useStore();
+    
+    
     const code = reactive({
       content: "",
     });
@@ -205,10 +212,31 @@ export default{
       debugInfo,
     }
   },
-  computed:{
-
-
-  },
+  computed: {
+    sliceList() {
+      return function (data,count) {
+        if (data != undefined) {
+          let arrTemp = [];
+          console.log(data)
+          let i = 0;
+          let j = 0;
+          let tag = {};
+          arrTemp.push([]);
+          for (tag in data) {
+            if (j == count) {
+              arrTemp.push([]);
+              j = 0;
+              i++;
+            }
+            j++;
+            arrTemp[i].push(data[tag])
+          }
+          
+          return arrTemp
+        }
+      }
+    }
+  }
 }
 
 </script>
