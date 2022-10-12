@@ -1,9 +1,8 @@
 package com.oj.onlinejudge.service.problems;
 
-import java.util.ArrayList;
 import java.util.Map;
 
-public interface ProblemFilter {
+public interface ProblemDetailService {
 
 
     Map<String, String> getProblemDetails(Integer problemKey);

@@ -1,5 +1,6 @@
 package com.oj.onlinejudge.service.checker.python;
 
+import com.oj.onlinejudge.service.Logger;
 import com.oj.onlinejudge.service.checker.generic.FileHelper;
 import com.oj.onlinejudge.service.checker.generic.GenericChecker;
 import com.oj.onlinejudge.service.checker.generic.SampleWrapper;
@@ -47,10 +48,6 @@ public class PythonChecker extends CodeParserImpl implements GenericChecker {
 
     }
 
-    public String tempLogger(String info) {
-        return "[" + format.format(new Date(System.currentTimeMillis())) + "] " + info;
-    }
-
     @Override
     public Map<String, String> compileAndRunFile(String debugInfo) throws IOException, InterruptedException, SQLException {
 
@@ -74,9 +71,9 @@ public class PythonChecker extends CodeParserImpl implements GenericChecker {
             }
             sw.wrapOutputSamples();
             relatedFiles.add(paths.get("sampleOutputFile"));
-            System.out.println(tempLogger("Samples files loaded."));
+            Logger.basicLogger("Samples files loaded.");
         } else {
-            System.out.println(tempLogger("Debugging mode enabled."));
+            Logger.basicLogger("Debugging mode enabled.");
         }
         relatedFiles.add(paths.get("sampleInputFile"));
 
@@ -89,7 +86,7 @@ public class PythonChecker extends CodeParserImpl implements GenericChecker {
         relatedFiles.add(paths.get("submissionMainFile"));
         submittedCode.readAll();
         String srcCode = submittedCode.getAll();
-        System.out.println(tempLogger("Submission source extracted."));
+        Logger.basicLogger("Submission source extracted.");
 
         // Step 3. BAKE THE SUBMISSION SOURCE FILE
         final String extraHeaders = "import sys\nimport os\n";
@@ -111,7 +108,7 @@ public class PythonChecker extends CodeParserImpl implements GenericChecker {
             return prePacket;
         }
         relatedFiles.add(paths.get("proceededMainFile"));
-        System.out.println(tempLogger("Source code baked."));
+        Logger.basicLogger("Source code baked.");
 
         // Step 4. PYTHON DOESNT NEED TO COMPILE
 
@@ -164,7 +161,7 @@ public class PythonChecker extends CodeParserImpl implements GenericChecker {
                     prePacket.put("RuntimeStatus", "IOSamplesError");
                     return prePacket;
                 }
-                System.out.println(tempLogger("Code running on testpoint #") + (curtp + 1));
+                Logger.basicLogger("Code running on testpoint #" + (curtp + 1));
             } else { // Debugger
                 if (curtp != 0) { // Debugger only runs once.
                     return prePacket;
@@ -177,7 +174,7 @@ public class PythonChecker extends CodeParserImpl implements GenericChecker {
                     prePacket.put("RuntimeStatus", "IOSamplesError");
                     return prePacket;
                 }
-                System.out.println(tempLogger("Code running on debugging mode."));
+                Logger.basicLogger("Code running on debugging mode.");
             }
 
             try {

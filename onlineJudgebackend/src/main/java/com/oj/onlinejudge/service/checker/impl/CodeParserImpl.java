@@ -1,8 +1,7 @@
 package com.oj.onlinejudge.service.checker.impl;
 
+import com.oj.onlinejudge.service.Logger;
 import com.oj.onlinejudge.service.checker.generic.CodeParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -30,7 +29,7 @@ public class CodeParserImpl implements CodeParser {
         Map<String, String> res = new HashMap<>();
 
         if(interval == null){
-            System.out.println(tempLogger("Invalid code structure."));
+            Logger.basicLogger("Invalid code structure.");
             res.put("error_message", "CompileError");
             res.put("ParsedCodeString", "CompileError");
             return res;

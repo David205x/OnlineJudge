@@ -7,6 +7,8 @@ import com.oj.onlinejudge.mapper.SubmissionMapper;
 import com.oj.onlinejudge.pojo.Problem;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.oj.onlinejudge.pojo.Submission;
+import com.oj.onlinejudge.service.Logger;
+import com.oj.onlinejudge.service.impl.GenericFilterService;
 import com.oj.onlinejudge.service.problems.ProblemListService;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,14 +18,13 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
-public class ProblemListServiceImpl implements ProblemListService {
+public class ProblemListServiceImpl implements ProblemListService, GenericFilterService {
 
     @Autowired
     private ProblemMapper problemMapper;
     @Autowired
     private SubmissionMapper submissionMapper;
-    private final int entriesPerPage = 10;
-
+    private final int entriesPerPage = 8;
     private final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
 
     public JSONObject problemInfoExtractor(Problem p) {
@@ -33,7 +34,7 @@ public class ProblemListServiceImpl implements ProblemListService {
         problem.put("problemName", p.getProblemname());
         problem.put("problemSource", p.getSource());
 
-        double acAttempts = 0, totAttempts = 0;
+        double acAttempts = 0, totAttempts;
         QueryWrapper<Submission> attemptWrapper = new QueryWrapper<>();
         attemptWrapper.eq("problemkey", Integer.toString(p.getProblemkey()));
         List<Submission> attemptEntries = submissionMapper.selectList(attemptWrapper);
@@ -57,9 +58,6 @@ public class ProblemListServiceImpl implements ProblemListService {
         return problem;
     }
 
-    private String tempLogger(String info) {
-        return "[" + format.format(new Date(System.currentTimeMillis())) + "] " + info;
-    }
     @Override
     public JSONObject masterProblemListGetter(String problemKey,
                                               String userKey,
@@ -69,7 +67,7 @@ public class ProblemListServiceImpl implements ProblemListService {
                                               String problemState,
                                               Integer page) {
 
-        System.out.println(tempLogger("---------------FILTER----------------"));
+        Logger.titleLogger("PROBLEM FILTER");
 
         boolean enableKeyFilter = !problemKey.isEmpty();
         boolean enableNameFilter = !problemName.isEmpty();
@@ -82,8 +80,6 @@ public class ProblemListServiceImpl implements ProblemListService {
         JSONObject ret = new JSONObject();
 
         if (!enableKeyFilter && !enableNameFilter && !enableTagFilter && !enableStateFilter) {
-            System.out.println("Getting all problems.");
-            System.out.println(tempLogger("-------------------------------------"));
             return problemListGetter(page);
         }
         ArrayList<JSONObject> problemList = new ArrayList<>();
@@ -93,16 +89,16 @@ public class ProblemListServiceImpl implements ProblemListService {
 
         Set<Integer> base = new HashSet<>(getFullProblemList());
         if (enableStateFilter) {
-            base.retainAll(getProblemListByState(userKey, problemState, page));
+            base.retainAll(getProblemListByState(userKey, problemState));
         }
         if (enableKeyFilter) {
-            base.retainAll(getProblemListByKey(problemKey, page));
+            base.retainAll(getProblemListByKey(problemKey));
         }
         if (enableNameFilter) {
-            base.retainAll(getProblemListByName(problemName, page));
+            base.retainAll(getProblemListByName(problemName));
         }
         if (enableTagFilter) {
-            base.retainAll(getProblemListByTags(tags, isUnion, page));
+            base.retainAll(getProblemListByTags(tags, isUnion));
         }
 
         if (base.isEmpty()) {
@@ -130,7 +126,7 @@ public class ProblemListServiceImpl implements ProblemListService {
             ret.put("problemList", problemList);
         }
 
-        System.out.println(tempLogger("-------------------------------------"));
+        Logger.placeholderLogger();
 
         return ret;
     }
@@ -155,6 +151,10 @@ public class ProblemListServiceImpl implements ProblemListService {
         ret.put("totalPages", problemMapper.selectCount(null));
         ret.put("perPage", entriesPerPage);
         ret.put("problemList", problemList);
+
+        System.out.println("Getting all problems.");
+        Logger.placeholderLogger();
+
         return ret;
     }
 
@@ -176,7 +176,7 @@ public class ProblemListServiceImpl implements ProblemListService {
     }
 
     @Override
-    public Set<Integer> getProblemListByKey(String problemKey, Integer page) {
+    public Set<Integer> getProblemListByKey(String problemKey) {
 
         QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
         queryWrapper.orderByAsc("problemkey");
@@ -188,12 +188,11 @@ public class ProblemListServiceImpl implements ProblemListService {
             ret.add(p.getProblemkey());
         }
 
-        // System.out.println("Post-KeyFilter: " + ret);
         return ret;
     }
 
     @Override
-    public Set<Integer> getProblemListByName(String name, Integer page) {
+    public Set<Integer> getProblemListByName(String name) {
 
         QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
         queryWrapper.like("problemname", name);
@@ -205,7 +204,6 @@ public class ProblemListServiceImpl implements ProblemListService {
             ret.add(p.getProblemkey());
         }
 
-        // System.out.println("Post-NameFilter: " + ret);
         return ret;
     }
 
@@ -217,7 +215,7 @@ public class ProblemListServiceImpl implements ProblemListService {
     }
 
     @Override
-    public Set<Integer> getProblemListByTags(String tags, Boolean isUnion, Integer page) {
+    public Set<Integer> getProblemListByTags(String tags, Boolean isUnion) {
 
         QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
 
@@ -240,12 +238,11 @@ public class ProblemListServiceImpl implements ProblemListService {
             ret.add(p.getProblemkey());
         }
 
-        // System.out.println("Post-TagFilter: " + ret);
         return ret;
     }
 
     @Override
-    public Set<Integer> getProblemListByState(String userKey, String state, Integer page) {
+    public Set<Integer> getProblemListByState(String userKey, String state) {
 
         // state: 0 -> bypass state filter, 1 -> AC entries only, 2 -> entries whose results are not AC
         int intState = Integer.parseInt(state);
@@ -267,9 +264,8 @@ public class ProblemListServiceImpl implements ProblemListService {
         }
 
         attemptedKeys.removeAll(acceptedKeys);
-        Set<Integer> ret = intState == 1 ? acceptedKeys : attemptedKeys;
-        // System.out.println("Post-StateFilter: " + ret);
-        return ret;
+
+        return intState == 1 ? acceptedKeys : attemptedKeys;
     }
 
 }

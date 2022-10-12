@@ -6,19 +6,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
+import java.sql.Date;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Submission {
+public class Solution {
     @TableId(type = IdType.AUTO)
-    private Integer submissionkey;
-    private Integer userkey;
-    private String  username;
+    private Integer solutionkey;
     private Integer problemkey;
-    private Timestamp time;
-    private String result;
-    private Integer runtime;
-    private String language;
+    private Integer userkey;
+    private String username;
+    private Date time;
+    private String content;
 }
