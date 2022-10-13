@@ -1,4 +1,4 @@
-package com.oj.onlinejudge.service.checker.generic;
+package com.oj.onlinejudge.service.checker.utils;
 
 import com.oj.onlinejudge.utils.FilePathUtil;
 

@@ -1,10 +1,10 @@
 package com.oj.onlinejudge.service.checker.cpp;
 
 import com.oj.onlinejudge.service.Logger;
-import com.oj.onlinejudge.service.checker.generic.FileHelper;
-import com.oj.onlinejudge.service.checker.generic.GenericChecker;
-import com.oj.onlinejudge.service.checker.generic.SampleWrapper;
-import com.oj.onlinejudge.service.checker.impl.CodeParserImpl;
+import com.oj.onlinejudge.service.checker.utils.FileHelper;
+import com.oj.onlinejudge.service.checker.utils.GenericChecker;
+import com.oj.onlinejudge.service.checker.utils.SampleWrapper;
+import com.oj.onlinejudge.service.checker.utils.CodeParserImpl;
 import com.oj.onlinejudge.utils.FilePathUtil;
 
 import java.io.*;
@@ -161,7 +161,6 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
             final long[] timeLimitExceededFlag = {-1}; // if greater than 0 it means TLE happens.
             final long[] memoryLimitExceededFlag = {-1}; // if greater than 0 it means MLE happens.
 
-            // TODO: Get this from SampleWrapper getLimit methods.
             final long timeLimit = Integer.parseInt(restrictions[1]);
             final int memoryLimit = Integer.parseInt(restrictions[0]);
 

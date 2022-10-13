@@ -1,16 +1,15 @@
 package com.oj.onlinejudge.service.checker.python;
 
 import com.oj.onlinejudge.service.Logger;
-import com.oj.onlinejudge.service.checker.generic.FileHelper;
-import com.oj.onlinejudge.service.checker.generic.GenericChecker;
-import com.oj.onlinejudge.service.checker.generic.SampleWrapper;
-import com.oj.onlinejudge.service.checker.impl.CodeParserImpl;
+import com.oj.onlinejudge.service.checker.utils.FileHelper;
+import com.oj.onlinejudge.service.checker.utils.GenericChecker;
+import com.oj.onlinejudge.service.checker.utils.SampleWrapper;
+import com.oj.onlinejudge.service.checker.utils.CodeParserImpl;
 import com.oj.onlinejudge.utils.FilePathUtil;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class PythonChecker extends CodeParserImpl implements GenericChecker {
@@ -23,7 +22,6 @@ public class PythonChecker extends CodeParserImpl implements GenericChecker {
     private String submissionUUID;
     private String targetProblem;
     private SampleWrapper sw;
-    private final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
     private List<String> relatedFiles = new ArrayList<>();
     private Map<String, String> paths = new HashMap<>();
 

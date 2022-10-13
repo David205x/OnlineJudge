@@ -6,6 +6,7 @@ import com.oj.onlinejudge.mapper.ProblemMapper;
 import com.oj.onlinejudge.mapper.SubmissionMapper;
 import com.oj.onlinejudge.pojo.Problem;
 import com.oj.onlinejudge.pojo.Submission;
+import com.oj.onlinejudge.service.Logger;
 import com.oj.onlinejudge.service.problems.ProblemDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,11 +28,13 @@ public class ProblemDetailServiceImpl implements ProblemDetailService {
         // Shown in problem details page, contains detailed problem info.
 
         QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("problemkey", Integer.toString(problemKey));
+        queryWrapper.eq("problemkey", problemKey);
         List<Problem> problemEntries = problemMapper.selectList(queryWrapper);
 
         if (problemEntries.size() != 1) {
-            System.out.println("problemKey conflict(s)!");
+            Logger.titleLogger("PROBLEM DETAILS");
+            Logger.basicLogger("problemKey conflict(s)!");
+            Logger.placeholderLogger();
             return null;
         }
 
@@ -114,8 +117,7 @@ public class ProblemDetailServiceImpl implements ProblemDetailService {
     @Override
     public Map<String, String> getProblemByTag(String problemTag, Integer tagCount){
 
-        // TODO: Sync with big data introduction course, use dict etc.
-        String[] tags = problemTag.split("~~");
+        String[] tags = problemTag.split(" ");
         ArrayList<String> queryTags = new ArrayList<>();
         Collections.addAll(queryTags, tags);
 
