@@ -1,10 +1,10 @@
-package com.oj.onlinejudge.service.impl.user.account;
+package com.oj.onlinejudge.service.impl.user.self;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.oj.onlinejudge.mapper.SubmissionMapper;
 import com.oj.onlinejudge.pojo.Submission;
-import com.oj.onlinejudge.service.user.account.UserHeatmapService;
+import com.oj.onlinejudge.service.user.self.UserHeatmapService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
