@@ -1,7 +1,7 @@
 package com.oj.onlinejudge.controller.user.submission;
 
 import com.alibaba.fastjson.JSONObject;
-import com.oj.onlinejudge.service.user.account.UserHeatmapService;
+import com.oj.onlinejudge.service.user.self.UserHeatmapService;
 import com.oj.onlinejudge.service.user.submission.GetSubmissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,14 +21,16 @@ public class UserSubmissionController {
 
     @PostMapping("/user/submission/getinfo/")
     public Map<String, String> submission(@RequestParam String userKey, @RequestParam String code,
-                                          @RequestParam String language, @RequestParam String debugInfo, @RequestParam String targetProblem) throws IOException {
-        if (debugInfo.length() == 0){
+            @RequestParam String language, @RequestParam String debugInfo, @RequestParam String targetProblem)
+            throws IOException {
+        if (debugInfo.length() == 0) {
             debugInfo = null;
         }
         return getSubmissionService.GetSubmission(userKey, code, language, debugInfo, targetProblem);
     }
+
     @PostMapping("/user/submission/heatmap/")
-    public JSONObject heatmap(@RequestParam String userKey){
+    public JSONObject heatmap(@RequestParam String userKey) {
         return userHeatmapService.getHeatmapInfo(userKey);
     }
 }
