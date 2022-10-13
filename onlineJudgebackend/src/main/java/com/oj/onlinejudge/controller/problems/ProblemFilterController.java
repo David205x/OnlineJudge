@@ -25,7 +25,6 @@ public class ProblemFilterController {
 
     @PostMapping("/problems/overview/")
     public JSONObject getProblemOverview(@RequestParam Map<String, String> searchProblem){
-
         return problemListService.masterProblemListGetter(
                 searchProblem.get("searchProblemKey"),
                 searchProblem.get("userKey"),

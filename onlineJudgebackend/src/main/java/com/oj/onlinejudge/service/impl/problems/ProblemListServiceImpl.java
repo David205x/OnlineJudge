@@ -210,7 +210,6 @@ public class ProblemListServiceImpl implements ProblemListService, GenericFilter
         QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
 
         String[] slicedTags = tags.split(" ");
-
         if (isUnion) {
             for (String tag : slicedTags) {
                 queryWrapper.like("tag", tag).or();
@@ -254,7 +253,6 @@ public class ProblemListServiceImpl implements ProblemListService, GenericFilter
         }
 
         attemptedKeys.removeAll(acceptedKeys);
-
         return intState == 1 ? acceptedKeys : attemptedKeys;
     }
 

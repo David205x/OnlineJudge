@@ -26,8 +26,8 @@
                   <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
                     <content-field style="font-size: 10px">
                         <calendar-heatmap
-                            :values="[{ date: '2022-9-11', count: 10 }, { date: '2022-9-10', count: 6 }]"
-                            end-date="2022-9-20"
+                            :values="submissionList"
+                            end-date="2022-10-20"
                             max="12"
                             round="3"
                             :range-color="['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39']"
@@ -97,6 +97,8 @@
 import ContentField from "@/components/ContentField.vue";
 import { CalendarHeatmap } from 'vue3-calendar-heatmap'
 import { useStore } from 'vuex'
+import { ref } from 'vue'
+import $ from 'jquery'
 export default {
   name: "ProfileDetailView",
   components: {
@@ -106,11 +108,29 @@ export default {
   setup(){
     const store = useStore();
     const jwt_token = localStorage.getItem("jwt_token");
+    let submissionList = ref([]);
+    
     if(jwt_token){
         store.commit("updateToken", jwt_token);
         store.dispatch("getinfo", {
             success(){
                 store.commit("updatePullingInfo", false);
+                $.ajax({
+                    url: "http://127.0.0.1:3000/user/submission/heatmap/",
+                    type: 'post',
+                    data:{
+                        userKey: store.state.user.id
+                    },
+                    headers: {
+                        Authorization: "Bearer " + jwt_token,
+                    },
+                    success(resp) {
+                        submissionList.value = resp.submissionList
+                    },
+                    error(resp) {
+                        console.log(resp);
+                    }
+                });
             },
             error() {
                 store.commit("updatePullingInfo", false);
@@ -118,6 +138,10 @@ export default {
         })
     }else {
         store.commit("updatePullingInfo", false);
+    }
+    
+    return{
+        submissionList
     }
   }
 }

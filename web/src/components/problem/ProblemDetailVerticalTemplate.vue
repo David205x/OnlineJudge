@@ -31,10 +31,10 @@
               <span class="badge bg-secondary">{{$store.state.problem.problemMemoryLimit}}KB</span>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center">
-              标签
+              <span>标签</span>
               <table >
-                <tr v-for="(row, index) in sliceList($store.state.problem.problemTags, 4)" :key="index">
-                  <td class="badge bg-primary" v-for="(item, i) in row" :key="i">																																				
+                <tr v-for="(row, index) in sliceList($store.state.problem.problemTags, 3)" :key="index">  
+                  <td class="badge bg-primary" style="margin-right:1vh" v-for="(item, i) in row" :key="i">																																				
                      {{item}}
                   </td>
                 </tr>
@@ -86,8 +86,6 @@
           </VAceEditor>
         </div>
             
-      
-
       <div class="submit_debug">
         <button @click="submitcode(debugInfo, 1)" class="btn btn-primary">调试</button>
         &nbsp;
@@ -124,6 +122,8 @@ import 'font-awesome/css/font-awesome.min.css';
 import 'md-editor-v3/lib/style.css';
 import MdEditor from 'md-editor-v3'
 import { nextTick } from 'vue'
+import $ from 'jquery'
+import { onMounted, onUnmounted } from 'vue'
 ace.config.set(
     "basePath",
     "https://cdn.jsdelivr.net/npm/ace-builds@" + require('ace-builds').version + "/src-noconflict/")
@@ -144,7 +144,22 @@ export default{
     let debugInfo = ref("");
     let FS = ref(13);
     const store = useStore();
-    
+      $.ajax({
+      url: "http://127.0.0.1:3000/chatting/start/",
+      type: 'post',
+      data:{
+        a_id : "1",
+        b_id : "1",
+      },
+      success(resp) {
+        console.log("成功")
+        console.log(resp)
+      },
+      error(resp) {
+        console.log("失败")
+        console.log(resp)
+      }
+    })
     
     const code = reactive({
       content: "",
@@ -169,7 +184,7 @@ export default{
       return marked.parse(store.state.problem.problemDescription);
     }
     
-    
+
     const submitcode = (debugInfo_value, is_debug) =>{
       console.log(code.content)
       submission_status.value = "Waiting"
@@ -199,6 +214,33 @@ export default{
     const refresh = () =>{
       code.content = ""
     }
+    const socketUrl = `ws://127.0.0.1:3000/websocket/${store.state.user.token}/`;
+    let socket = null;
+    onMounted(() => {
+          socket = new WebSocket(socketUrl);
+          socket.onopen = () => {
+              console.log("connected");
+              //store.commit("updateSocket", socket);
+          }
+          socket.onmessage = msg => {
+              const data = JSON.parse(msg.data);
+
+              if (data.event === "start-matching") {
+                console.log(data);
+              } else if (data.event === "move") {
+                  console.log(data);
+              } else if (data.event === "result") {
+                  console.log(data);
+              }
+          }
+          socket.onclose = () => {
+              console.log("disconnected");
+          }
+      });
+
+      onUnmounted(() => {
+          socket.close();
+      })
     return {
       spinner_cog,
       compiledMarkdown,

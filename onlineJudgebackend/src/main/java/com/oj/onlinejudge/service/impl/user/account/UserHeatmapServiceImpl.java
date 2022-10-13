@@ -55,10 +55,10 @@ public class UserHeatmapServiceImpl implements UserHeatmapService {
             JSONObject heatmapNode = new JSONObject();
             heatmapNode.put("date", dateInfo.get(i));
             heatmapNode.put("count", countInfo[i]);
+
+
             submissionList.add(heatmapNode);
         }
-
-        System.out.println(submissionList);
 
         ret.put("submissionList", submissionList);
         return ret;
