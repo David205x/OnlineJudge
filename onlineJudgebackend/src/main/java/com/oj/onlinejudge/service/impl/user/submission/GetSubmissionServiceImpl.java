@@ -8,7 +8,7 @@ import com.oj.onlinejudge.pojo.User;
 import com.oj.onlinejudge.service.Logger;
 import com.oj.onlinejudge.service.checker.c.CCheckerCore;
 import com.oj.onlinejudge.service.checker.cpp.CppCheckerCore;
-import com.oj.onlinejudge.service.checker.generic.FileHelper;
+import com.oj.onlinejudge.service.checker.utils.FileHelper;
 import com.oj.onlinejudge.service.checker.java.JavaCheckerCore;
 import com.oj.onlinejudge.service.checker.python.PythonCheckerCore;
 import com.oj.onlinejudge.service.user.submission.GetSubmissionService;
@@ -17,8 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -27,15 +25,11 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
 
     @Autowired
     private SubmissionMapper submissionMapper;
-
     @Autowired
     private UserMapper userMapper;
 
-    private final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
     @Override
     public Map<String, String> GetSubmission(String userKey, String code, String language, String debugInfo, String targetProblem) throws IOException {
-
-        // TODO: Get problen from DB and wrap them in a package containing mem/time limit, testpoints count etc.
 
         Logger.titleLogger("SUBMISSION");
 
@@ -128,5 +122,4 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
 
         return ret;
     }
-
 }

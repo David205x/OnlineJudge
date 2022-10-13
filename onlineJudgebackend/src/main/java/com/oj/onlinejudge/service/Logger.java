@@ -1,7 +1,5 @@
 package com.oj.onlinejudge.service;
 
-// TODO: Wrap all tempLogger methods here, making its method static.
-
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -21,16 +19,17 @@ public class Logger {
 
     public static void basicLogger(String info) {
         timesCalled++;
-        stream.println("[" + format.format(new Date(System.currentTimeMillis()))+ "] " + info);
+        stream.println("[" + format.format(new Date(System.currentTimeMillis())) + "] " + info);
         return;
     }
 
     public static void placeholderLogger() {
         timesCalled++;
-        StringBuilder logger = new StringBuilder("[" + format.format(new Date(System.currentTimeMillis()))+ "] ");
+        StringBuilder logger = new StringBuilder("[" + format.format(new Date(System.currentTimeMillis())) + "] ");
         for (int i = 0; i < defaultTitleLength; i++) {
             logger.append("*");
         }
+        logger.append('\n');
         stream.println(logger);
     }
 
@@ -44,7 +43,7 @@ public class Logger {
         int left = (totalLength - titleLength) >> 1;
         int right = totalLength - left - titleLength;
 
-        StringBuilder logger = new StringBuilder("[" + format.format(new Date(System.currentTimeMillis()))+ "] ");
+        StringBuilder logger = new StringBuilder("[" + format.format(new Date(System.currentTimeMillis())) + "] ");
         for (int i = 0; i < left; i++) {
             logger.append("*");
         }
@@ -55,6 +54,8 @@ public class Logger {
         stream.println(logger);
     }
 
-    public int loggerCalled() {return timesCalled;}
+    public int loggerCalled() {
+        return timesCalled;
+    }
 
 }

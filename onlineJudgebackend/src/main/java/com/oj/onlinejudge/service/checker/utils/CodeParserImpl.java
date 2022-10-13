@@ -1,7 +1,6 @@
-package com.oj.onlinejudge.service.checker.impl;
+package com.oj.onlinejudge.service.checker.utils;
 
 import com.oj.onlinejudge.service.Logger;
-import com.oj.onlinejudge.service.checker.generic.CodeParser;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

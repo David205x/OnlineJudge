@@ -67,8 +67,6 @@ public class ProblemListServiceImpl implements ProblemListService, GenericFilter
                                               String problemState,
                                               Integer page) {
 
-        Logger.titleLogger("PROBLEM FILTER");
-
         boolean enableKeyFilter = !problemKey.isEmpty();
         boolean enableNameFilter = !problemName.isEmpty();
         boolean enableTagFilter = !tags.isEmpty();
@@ -102,14 +100,11 @@ public class ProblemListServiceImpl implements ProblemListService, GenericFilter
         }
 
         if (base.isEmpty()) {
-            System.out.println("No matched problems. ");
             ret.put("problemCount", -1);
             ret.put("totalPages", 0);
             ret.put("perPage", entriesPerPage);
             ret.put("problemList", null);
         } else {
-
-            System.out.println("Final set: " + base);
 
             for (int key : base) {
                 masterWrapper.eq("problemkey", key).or();
@@ -125,8 +120,6 @@ public class ProblemListServiceImpl implements ProblemListService, GenericFilter
             ret.put("perPage", entriesPerPage);
             ret.put("problemList", problemList);
         }
-
-        Logger.placeholderLogger();
 
         return ret;
     }
@@ -151,9 +144,6 @@ public class ProblemListServiceImpl implements ProblemListService, GenericFilter
         ret.put("totalPages", problemMapper.selectCount(null));
         ret.put("perPage", entriesPerPage);
         ret.put("problemList", problemList);
-
-        System.out.println("Getting all problems.");
-        Logger.placeholderLogger();
 
         return ret;
     }

@@ -1,24 +1,24 @@
 <template>
   <ContentField>
     <span class="fs-1">
-      Search Bar
+      题目列表
     </span>
     <br>
     <div class="row g-3 align-items-center">
       <div class="col-auto">
-        <lbel for="inputProblemNum" class="col-form-label">ProblemNum</lbel>
+        <lbel for="inputProblemNum" class="col-form-label">题目编号</lbel>
       </div>
       <div class="col-auto">
         <input v-model="search_problem_key" type="problemNum" id="search_problem_num" class="form-control" aria-describedby="passwordHelpInline">
       </div>
       <div class="col-auto">
-        <lbel for="inputProblemName" class="col-form-label">ProblemName</lbel>
+        <lbel for="inputProblemName" class="col-form-label">题目名称</lbel>
       </div>
       <div class="col-auto">
         <input v-model="search_problem_name" type="problemName" id="search_problem_name" class="form-control" aria-describedby="passwordHelpInline">
       </div>
       <div class="col-auto">
-        <lbel for="inputProblemName" class="col-form-label">ProblemTag</lbel>
+        <lbel for="inputProblemName" class="col-form-label">题目标签</lbel>
       </div>
       <div class="col-auto">
         <input v-model="search_problem_tag" type="problemTag" id="search_problem_tag" class="form-control" aria-describedby="passwordHelpInline">
@@ -78,10 +78,14 @@
         <div class="col-3">
           <div class="list-group">
             <button @click="ProblemChange(0)" type="button" :class="state == 0 ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'" :aria-current="state == 0">
-              ALL
+              全部题目
             </button>
-            <button @click="ProblemChange(1)" type="button" :class="state == 1 ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'" :aria-current="state == 1">Solved</button>
-            <button @click="ProblemChange(2)" type="button" :class="state == 2 ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'" :aria-current="state == 2">Attempted</button>
+            <button @click="ProblemChange(1)" type="button" :class="state == 1 ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'" :aria-current="state == 1">
+              已通过
+            </button>
+            <button @click="ProblemChange(2)" type="button" :class="state == 2 ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'" :aria-current="state == 2">
+              已尝试
+            </button>
           </div>
           <div class="label2">
           <span>

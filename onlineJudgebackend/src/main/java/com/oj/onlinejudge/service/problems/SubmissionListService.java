@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import java.util.Set;
 
-public interface ProblemSubmissionService {
+public interface SubmissionListService {
 
     public JSONObject submissionListGetter(String problemKey, int page);
     public JSONObject masterSubmissionListGetter(String problemKey,
@@ -12,7 +12,6 @@ public interface ProblemSubmissionService {
                                                  String result,
                                                  String lang,
                                                  int page);
-
     public Set<Integer> getFullSubmissionList();
     public Set<Integer> getProblemListByColumn(String columnName, String criteria);
 

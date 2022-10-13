@@ -8,7 +8,7 @@ import com.oj.onlinejudge.mapper.SubmissionMapper;
 import com.oj.onlinejudge.pojo.Submission;
 import com.oj.onlinejudge.service.Logger;
 import com.oj.onlinejudge.service.impl.GenericFilterService;
-import com.oj.onlinejudge.service.problems.ProblemSubmissionService;
+import com.oj.onlinejudge.service.problems.SubmissionListService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
-public class ProblemSubmissionServiceImpl implements ProblemSubmissionService, GenericFilterService {
+public class SubmissionListListServiceImpl implements SubmissionListService, GenericFilterService {
 
     @Autowired
     private SubmissionMapper submissionMapper;
