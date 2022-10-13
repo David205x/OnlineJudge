@@ -1,5 +1,6 @@
 package com.oj.onlinejudge.service.checker.java;
 
+import com.oj.onlinejudge.service.Logger;
 import com.oj.onlinejudge.service.checker.generic.FileHelper;
 import com.oj.onlinejudge.service.checker.generic.GenericChecker;
 import com.oj.onlinejudge.service.checker.generic.SampleWrapper;
@@ -70,9 +71,9 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
             }
             sw.wrapOutputSamples();
             relatedFiles.add(paths.get("sampleOutputFile"));
-            System.out.println(tempLogger("Samples files loaded."));
+            Logger.basicLogger("Samples files loaded.");
         } else {
-            System.out.println(tempLogger("Debugging mode enabled."));
+            Logger.basicLogger("Debugging mode enabled.");
         }
         relatedFiles.add(paths.get("sampleInputFile"));
         relatedFiles.add(paths.get("submissionOutputFile"));
@@ -82,7 +83,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
         relatedFiles.add(paths.get("submissionMainFile"));
         submittedCode.readAll();
         String srcCode = submittedCode.getAll();
-        System.out.println(tempLogger("Submission source extracted."));
+        Logger.basicLogger("Submission source extracted.");
         final String extraHeaders = "import java.io.*;\nimport java.util.*;\nimport java.lang.management.ManagementFactory;\n" +
                 "import java.lang.management.RuntimeMXBean;\n";
         String PrintStreamIn = "\n\t\tSystem.setIn(new FileInputStream(\"" + paths.get("sampleInputFile") + "\"));";
@@ -120,7 +121,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
             return prePacket;
         }
         relatedFiles.add(paths.get("proceededMainFile"));
-        System.out.println(tempLogger("Source code baked."));
+        Logger.basicLogger("Source code baked.");
 
 
         // COMPILE
@@ -162,7 +163,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
 
         // RUN
         if (errInfo.toString().isEmpty()) { // Timer thread
-            System.out.println(tempLogger("Source compiled."));
+            Logger.basicLogger("Source compiled.");
             final long timeLimit = 1000;
 
             long PID = -1;
@@ -177,7 +178,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
                         prePacket.put("RuntimeStatus", "IOSamplesError");
                         return prePacket;
                     }
-                    System.out.println(tempLogger("Code running on testpoint #") + (curtp + 1));
+                    Logger.basicLogger("Code running on testpoint #" + (curtp + 1));
                 } else { // Debugger
                     if (curtp != 0) { // Debugger only runs for one time.
                         return prePacket;
@@ -190,7 +191,7 @@ public class JavaChecker extends CodeParserImpl implements GenericChecker {
                         prePacket.put("RuntimeStatus", "IOSamplesError");
                         return prePacket;
                     }
-                    System.out.println(tempLogger("Code running on debugging mode."));
+                    Logger.basicLogger("Code running on debugging mode.");
                 }
                 try {
                     final Process runProcess = Runtime.getRuntime().exec(runJavaCmd, null);

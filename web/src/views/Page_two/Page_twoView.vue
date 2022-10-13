@@ -61,19 +61,22 @@
             </tr>
             </tbody>
           </table>
-          <nav aria-label="...">
-            <ul class="pagination" style="float: right;">
-                <li class="page-item" @click="click_page(-2)">
-                    <a class="page-link" href="#">前一页</a>
-                </li>
-                <li :class="'page-item ' + page.is_active" v-for="page in pages" :key="page.number" @click="click_page(page.number)">
-                    <a class="page-link" href="#">{{ page.number }}</a>
-                </li>
-                <li class="page-item" @click="click_page(-1)">
-                    <a class="page-link" href="#">下一页</a>
-                </li>
-            </ul>
-        </nav>
+          <div>
+            <nav aria-label="...">
+              <ul class="pagination" style="float: right;">
+                  <li class="page-item" @click="click_page(-2)">
+                      <a class="page-link" href="#">前一页</a>
+                  </li>
+                  <li :class="'page-item ' + page.is_active" v-for="page in pages" :key="page.number" @click="click_page(page.number)">
+                      <a class="page-link" href="#">{{ page.number }}</a>
+                  </li>
+                  <li class="page-item" @click="click_page(-1)">
+                      <a class="page-link" href="#">下一页</a>
+                  </li>
+              </ul>
+            </nav>
+          </div>
+         
         </div>
         <div class="col-3">
           <div class="list-group">
@@ -164,6 +167,7 @@ export default{
       state.value = data;
       search()
     }
+   
     const search = () =>{
       $.ajax({
         url: "http://127.0.0.1:3000/problems/overview/",
@@ -180,7 +184,7 @@ export default{
           problemOverviews.value = resp.problemList
           total_problems = resp.totalPages;
           per_num = resp.perPage;
-          current_page = 1
+          current_page = 1;
           update_pages()
         },
         error(resp) {
@@ -189,6 +193,7 @@ export default{
       })
     }
     nextTick(()=>{
+      
       document.onkeydown = function(e){
         var ev = document.all ? window.event : e;
         if(ev.keyCode==13) {

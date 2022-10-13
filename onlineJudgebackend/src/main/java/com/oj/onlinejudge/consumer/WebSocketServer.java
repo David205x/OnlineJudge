@@ -33,8 +33,8 @@ public class WebSocketServer {
 
     public static RestTemplate restTemplate;
 
-    private final static String addPlayerUrl = "http://127.0.0.1:3001/player/add/";
-    private final static String removePlayerUrl = "http://127.0.0.1:3001/player/remove/";
+    private final static String addUserUrl = "http://127.0.0.1:3001/user/add/";
+    private final static String removeUserUrl = "http://127.0.0.1:3001/user/remove/";
 
 
     @Autowired
@@ -75,7 +75,11 @@ public class WebSocketServer {
             matchpool.remove(this.user);
         }
     }
+    public static void startChatting(Integer aId, Integer bId){
+        User a = userMapper.selectById(aId);
+        User b = userMapper.selectById(bId);
 
+    }
     private void startMatching(Integer botId) {
         System.out.println("startMatching");
         MultiValueMap<String, String> data = new LinkedMultiValueMap<>();

@@ -6,6 +6,7 @@ import com.oj.onlinejudge.mapper.ProblemMapper;
 import com.oj.onlinejudge.mapper.SubmissionMapper;
 import com.oj.onlinejudge.pojo.Problem;
 import com.oj.onlinejudge.pojo.Submission;
+import com.oj.onlinejudge.service.problems.ProblemDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +14,7 @@ import java.util.*;
 
 
 @Service
-public class ProblemFilter implements com.oj.onlinejudge.service.problems.ProblemFilter {
+public class ProblemDetailServiceImpl implements ProblemDetailService {
 
     @Autowired
     private ProblemMapper problemMapper;

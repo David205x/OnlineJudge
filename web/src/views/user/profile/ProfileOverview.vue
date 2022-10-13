@@ -109,6 +109,7 @@ export default {
     const store = useStore();
     const jwt_token = localStorage.getItem("jwt_token");
     let submissionList = ref([]);
+    
     if(jwt_token){
         store.commit("updateToken", jwt_token);
         store.dispatch("getinfo", {
@@ -138,6 +139,7 @@ export default {
     }else {
         store.commit("updatePullingInfo", false);
     }
+    
     return{
         submissionList
     }

@@ -7,21 +7,25 @@ import com.oj.onlinejudge.mapper.SubmissionMapper;
 import com.oj.onlinejudge.pojo.Problem;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.oj.onlinejudge.pojo.Submission;
+import com.oj.onlinejudge.service.Logger;
+import com.oj.onlinejudge.service.impl.GenericFilterService;
 import com.oj.onlinejudge.service.problems.ProblemListService;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
-public class ProblemListServiceImpl implements ProblemListService {
+public class ProblemListServiceImpl implements ProblemListService, GenericFilterService {
 
     @Autowired
     private ProblemMapper problemMapper;
     @Autowired
     private SubmissionMapper submissionMapper;
-    private final int entriesPerPage = 10;
+    private final int entriesPerPage = 8;
+    private final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
 
     public JSONObject problemInfoExtractor(Problem p) {
 
@@ -30,7 +34,7 @@ public class ProblemListServiceImpl implements ProblemListService {
         problem.put("problemName", p.getProblemname());
         problem.put("problemSource", p.getSource());
 
-        double acAttempts = 0, totAttempts = 0;
+        double acAttempts = 0, totAttempts;
         QueryWrapper<Submission> attemptWrapper = new QueryWrapper<>();
         attemptWrapper.eq("problemkey", Integer.toString(p.getProblemkey()));
         List<Submission> attemptEntries = submissionMapper.selectList(attemptWrapper);
@@ -63,6 +67,8 @@ public class ProblemListServiceImpl implements ProblemListService {
                                               String problemState,
                                               Integer page) {
 
+        Logger.titleLogger("PROBLEM FILTER");
+
         boolean enableKeyFilter = !problemKey.isEmpty();
         boolean enableNameFilter = !problemName.isEmpty();
         boolean enableTagFilter = !tags.isEmpty();
@@ -81,46 +87,30 @@ public class ProblemListServiceImpl implements ProblemListService {
         IPage<Problem> problemIPage = new Page<>(page, entriesPerPage);
         QueryWrapper<Problem> masterWrapper = new QueryWrapper<>();
 
-        Set<Integer> base = new HashSet<>();
-        boolean f = false;
+        Set<Integer> base = new HashSet<>(getFullProblemList());
+        if (enableStateFilter) {
+            base.retainAll(getProblemListByState(userKey, problemState));
+        }
         if (enableKeyFilter) {
-            base = getProblemListByKey(problemKey, page);
-            f = true;
+            base.retainAll(getProblemListByKey(problemKey));
         }
         if (enableNameFilter) {
-            if(f){
-                base.retainAll(getProblemListByName(problemName, page));
-            }else {
-                f = true;
-                base = (getProblemListByName(problemName, page));
-            }
-
+            base.retainAll(getProblemListByName(problemName));
         }
         if (enableTagFilter) {
-            if(f){
-                base.retainAll(getProblemListByTags(tags, isUnion, page));
-            }else {
-                f = true;
-                base = (getProblemListByTags(tags, isUnion, page));
-            }
-
+            base.retainAll(getProblemListByTags(tags, isUnion));
         }
-        if (enableStateFilter) {
-            if(f){
-                base.retainAll(getProblemListByState(userKey, problemState, page));
-            }else {
-                f = true;
-                base = getProblemListByState(userKey, problemState, page);
-            }
 
-        }
         if (base.isEmpty()) {
+            System.out.println("No matched problems. ");
             ret.put("problemCount", -1);
             ret.put("totalPages", 0);
             ret.put("perPage", entriesPerPage);
             ret.put("problemList", null);
-        }
-        else {
+        } else {
+
+            System.out.println("Final set: " + base);
+
             for (int key : base) {
                 masterWrapper.eq("problemkey", key).or();
             }
@@ -135,6 +125,9 @@ public class ProblemListServiceImpl implements ProblemListService {
             ret.put("perPage", entriesPerPage);
             ret.put("problemList", problemList);
         }
+
+        Logger.placeholderLogger();
+
         return ret;
     }
 
@@ -158,11 +151,32 @@ public class ProblemListServiceImpl implements ProblemListService {
         ret.put("totalPages", problemMapper.selectCount(null));
         ret.put("perPage", entriesPerPage);
         ret.put("problemList", problemList);
+
+        System.out.println("Getting all problems.");
+        Logger.placeholderLogger();
+
         return ret;
     }
 
     @Override
-    public Set<Integer> getProblemListByKey(String problemKey, Integer page) {
+    public Set<Integer> getFullProblemList() {
+
+
+        QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
+        queryWrapper.orderByAsc("problemKey");
+        List<Problem> problems = problemMapper.selectList(queryWrapper);
+
+        Set<Integer> ret = new HashSet<>();
+
+        for (Problem p : problems) {
+            ret.add(p.getProblemkey());
+        }
+
+        return ret;
+    }
+
+    @Override
+    public Set<Integer> getProblemListByKey(String problemKey) {
 
         QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
         queryWrapper.orderByAsc("problemkey");
@@ -173,11 +187,12 @@ public class ProblemListServiceImpl implements ProblemListService {
         for (Problem p : problems) {
             ret.add(p.getProblemkey());
         }
+
         return ret;
     }
 
     @Override
-    public Set<Integer> getProblemListByName(String name, Integer page) {
+    public Set<Integer> getProblemListByName(String name) {
 
         QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
         queryWrapper.like("problemname", name);
@@ -188,6 +203,7 @@ public class ProblemListServiceImpl implements ProblemListService {
         for (Problem p : problems) {
             ret.add(p.getProblemkey());
         }
+
         return ret;
     }
 
@@ -199,7 +215,7 @@ public class ProblemListServiceImpl implements ProblemListService {
     }
 
     @Override
-    public Set<Integer> getProblemListByTags(String tags, Boolean isUnion, Integer page) {
+    public Set<Integer> getProblemListByTags(String tags, Boolean isUnion) {
 
         QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
 
@@ -220,14 +236,14 @@ public class ProblemListServiceImpl implements ProblemListService {
         for (Problem p : problems) {
             ret.add(p.getProblemkey());
         }
+
         return ret;
     }
 
     @Override
-    public Set<Integer> getProblemListByState(String userKey, String state, Integer page) {
+    public Set<Integer> getProblemListByState(String userKey, String state) {
 
         // state: 0 -> bypass state filter, 1 -> AC entries only, 2 -> entries whose results are not AC
-
         int intState = Integer.parseInt(state);
 
         QueryWrapper<Submission> subQueryWrapper = new QueryWrapper<>();
@@ -245,9 +261,8 @@ public class ProblemListServiceImpl implements ProblemListService {
                 attemptedKeys.add(s.getProblemkey());
             }
         }
+
         attemptedKeys.removeAll(acceptedKeys);
-        System.out.println(acceptedKeys);
-        System.out.println(attemptedKeys);
         return intState == 1 ? acceptedKeys : attemptedKeys;
     }
 
