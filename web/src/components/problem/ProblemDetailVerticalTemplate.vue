@@ -31,14 +31,17 @@
               <span class="badge bg-secondary">{{$store.state.problem.problemMemoryLimit}}KB</span>
             </li>
             <li class="list-group-item d-flex justify-content-between align-items-center">
-              <span>标签</span>
-              <table >
-                <tr v-for="(row, index) in sliceList($store.state.problem.problemTags, 3)" :key="index">  
-                  <td class="badge bg-primary" style="margin-right:1vh" v-for="(item, i) in row" :key="i">																																				
-                     {{item}}
-                  </td>
-                </tr>
-              </table>
+              <div class="col-3">标签</div>
+              <div class="col-9" style="margin-left:3vw">
+                <table>
+                  <tr v-for="(row, index) in sliceList($store.state.problem.problemTags, 3)" :key="index">  
+                    <td class="badge bg-primary" style="margin-right:1vh" v-for="(item, i) in row" :key="i">																																				
+                       {{item}}
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              
             </li>
           </ul>
         </div>
