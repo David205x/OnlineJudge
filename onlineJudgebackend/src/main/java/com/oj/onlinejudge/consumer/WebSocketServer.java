@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.oj.onlinejudge.consumer.util.JwtAuthentication;
 import com.oj.onlinejudge.mapper.UserMapper;
 import com.oj.onlinejudge.pojo.User;
+import com.oj.onlinejudge.service.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -55,7 +56,7 @@ public class WebSocketServer {
         this.user = userMapper.selectById(userId);
         if (this.user != null) {
             users.put(userId, this);
-            System.out.println("connected");
+            Logger.basicLogger("connected");
         } else {
             try {
                 this.session.close();
@@ -69,7 +70,7 @@ public class WebSocketServer {
     @OnClose
     public void onClose() {
         // 关闭链接
-        System.out.println("disconnected");
+        Logger.basicLogger("disconnected");
         if (this.user != null) {
             users.remove(this.user.getId());
             matchpool.remove(this.user);
@@ -81,7 +82,7 @@ public class WebSocketServer {
 
     }
     private void startMatching(Integer botId) {
-        System.out.println("startMatching");
+        Logger.basicLogger("startMatching");
         MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
 //        data.add("user_id", this.user.getId().toString());
 //        data.add("rating", this.user.getRating().toString());
@@ -90,7 +91,7 @@ public class WebSocketServer {
     }
 
     private void stopMatching() {
-        System.out.println("stopMatching");
+        Logger.basicLogger("stopMatching");
         MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
         data.add("user_id", this.user.getId().toString());
         //restTemplate.postForObject(removePlayerUrl, data, String.class);
@@ -100,7 +101,7 @@ public class WebSocketServer {
     @OnMessage
     public void onMessage(String message, Session session) {
         // 从Client接收消息
-        System.out.println("receive message");
+        Logger.basicLogger("receive message");
         JSONObject data = JSONObject.parseObject(message);
 
     }

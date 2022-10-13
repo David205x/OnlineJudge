@@ -1,4 +1,4 @@
-package com.oj.onlinejudge.service.user.account;
+package com.oj.onlinejudge.service.user.self;
 
 import com.alibaba.fastjson.JSONObject;
 
