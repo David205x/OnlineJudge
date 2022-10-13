@@ -28,13 +28,20 @@ public class ProblemFilterController {
 
     @PostMapping("/problems/overview/")
     public JSONObject getProblemOverview(@RequestParam Map<String, String> searchProblem){
-        System.out.println(searchProblem.get("pageNum"));
-        System.out.println(searchProblem.get("userKey"));
-        System.out.println(searchProblem.get("searchProblemKey"));
-        System.out.println(searchProblem.get("searchProblemName"));
-        System.out.println(searchProblem.get("searchProblemTag"));
-        System.out.println(searchProblem.get("problemState"));
-
+        System.out.println("pageNum" + searchProblem.get("pageNum"));
+        System.out.println("userKey" + searchProblem.get("userKey"));
+        System.out.println("searchProblemKey" + searchProblem.get("searchProblemKey"));
+        System.out.println("searchProblemName" + searchProblem.get("searchProblemName"));
+        System.out.println("searchProblemTag" + searchProblem.get("searchProblemTag"));
+        System.out.println("problemState" + searchProblem.get("problemState"));
+        System.out.println(problemListService.masterProblemListGetter(
+                searchProblem.get("searchProblemKey"),
+                searchProblem.get("userKey"),
+                searchProblem.get("searchProblemName"),
+                searchProblem.get("searchProblemTag"),
+                true,
+                searchProblem.get("problemState"),
+                Integer.parseInt(searchProblem.get("pageNum"))));
         return problemListService.masterProblemListGetter(
                 searchProblem.get("searchProblemKey"),
                 searchProblem.get("userKey"),

@@ -82,41 +82,44 @@ public class ProblemListServiceImpl implements ProblemListService {
         QueryWrapper<Problem> masterWrapper = new QueryWrapper<>();
 
         Set<Integer> base = new HashSet<>();
+        boolean f = false;
         if (enableKeyFilter) {
             base = getProblemListByKey(problemKey, page);
+            f = true;
         }
         if (enableNameFilter) {
-            if (base.isEmpty()) {
-                base = getProblemListByName(problemName, page);
-            }
-            else {
+            if(f){
                 base.retainAll(getProblemListByName(problemName, page));
+            }else {
+                f = true;
+                base = (getProblemListByName(problemName, page));
             }
+
         }
         if (enableTagFilter) {
-            if (base.isEmpty()) {
-                base = getProblemListByTags(tags, isUnion, page);
-            }
-            else {
+            if(f){
                 base.retainAll(getProblemListByTags(tags, isUnion, page));
+            }else {
+                f = true;
+                base = (getProblemListByTags(tags, isUnion, page));
             }
+
         }
         if (enableStateFilter) {
-            if (base.isEmpty()) {
+            if(f){
+                base.retainAll(getProblemListByState(userKey, problemState, page));
+            }else {
+                f = true;
                 base = getProblemListByState(userKey, problemState, page);
             }
-            else {
-                base.retainAll(getProblemListByState(userKey, problemState, page));
-            }
-        }
 
+        }
         if (base.isEmpty()) {
             ret.put("problemCount", -1);
             ret.put("totalPages", 0);
             ret.put("perPage", entriesPerPage);
             ret.put("problemList", null);
         }
-
         else {
             for (int key : base) {
                 masterWrapper.eq("problemkey", key).or();
@@ -201,7 +204,6 @@ public class ProblemListServiceImpl implements ProblemListService {
         QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
 
         String[] slicedTags = tags.split(" ");
-
         if (isUnion) {
             for (String tag : slicedTags) {
                 queryWrapper.like("tag", tag).or();
@@ -243,7 +245,9 @@ public class ProblemListServiceImpl implements ProblemListService {
                 attemptedKeys.add(s.getProblemkey());
             }
         }
-
+        attemptedKeys.removeAll(acceptedKeys);
+        System.out.println(acceptedKeys);
+        System.out.println(attemptedKeys);
         return intState == 1 ? acceptedKeys : attemptedKeys;
     }
 
