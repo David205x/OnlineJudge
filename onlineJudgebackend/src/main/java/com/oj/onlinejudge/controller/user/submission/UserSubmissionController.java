@@ -27,7 +27,7 @@ public class UserSubmissionController {
         }
         return getSubmissionService.GetSubmission(userKey, code, language, debugInfo, targetProblem);
     }
-    @PostMapping("/user/submission/heatmap")
+    @PostMapping("/user/submission/heatmap/")
     public JSONObject heatmap(@RequestParam String userKey){
         return userHeatmapService.getHeatmapInfo(userKey);
     }

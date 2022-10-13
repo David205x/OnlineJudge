@@ -116,7 +116,7 @@ export default {
             success(){
                 store.commit("updatePullingInfo", false);
                 $.ajax({
-                    url: "http://127.0.0.1:3000/user/submission/heatmap",
+                    url: "http://127.0.0.1:3000/user/submission/heatmap/",
                     type: 'post',
                     data:{
                         userKey: store.state.user.id
