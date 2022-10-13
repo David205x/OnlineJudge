@@ -1,16 +1,15 @@
 package com.oj.onlinejudge.service.checker.c;
 
 import com.oj.onlinejudge.service.Logger;
-import com.oj.onlinejudge.service.checker.generic.FileHelper;
-import com.oj.onlinejudge.service.checker.generic.GenericChecker;
-import com.oj.onlinejudge.service.checker.generic.SampleWrapper;
-import com.oj.onlinejudge.service.checker.impl.CodeParserImpl;
+import com.oj.onlinejudge.service.checker.utils.FileHelper;
+import com.oj.onlinejudge.service.checker.utils.GenericChecker;
+import com.oj.onlinejudge.service.checker.utils.SampleWrapper;
+import com.oj.onlinejudge.service.checker.utils.CodeParserImpl;
 import com.oj.onlinejudge.utils.FilePathUtil;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class CChecker extends CodeParserImpl implements GenericChecker {
@@ -22,7 +21,6 @@ public class CChecker extends CodeParserImpl implements GenericChecker {
     private String submissionUUID;
     private String targetProblem;
     private SampleWrapper sw;
-    private final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
     private List<String> relatedFiles = new ArrayList<>();
     private Map<String, String> paths = new HashMap<>();
 
@@ -46,10 +44,6 @@ public class CChecker extends CodeParserImpl implements GenericChecker {
         paths.put("submissionOutputFile", dstDir + "\\" + submissionUUID + "_o.txt");
 
 
-    }
-
-    public String tempLogger(String info) {
-        return "[" + format.format(new Date(System.currentTimeMillis())) + "] " + info;
     }
 
     @Override
@@ -159,7 +153,6 @@ public class CChecker extends CodeParserImpl implements GenericChecker {
             final long[] timeLimitExceededFlag = {-1}; // if greater than 0 it means TLE happens.
             final long[] memoryLimitExceededFlag = {-1}; // if greater than 0 it means MLE happens.
 
-            // TODO: Get this from SampleWrapper getLimit methods.
             final long timeLimit = Integer.parseInt(restrictions[1]);
             final int memoryLimit = Integer.parseInt(restrictions[0]);
 

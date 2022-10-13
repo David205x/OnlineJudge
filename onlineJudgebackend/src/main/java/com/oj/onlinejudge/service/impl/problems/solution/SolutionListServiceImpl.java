@@ -32,11 +32,12 @@ public class SolutionListServiceImpl implements SolutionListService, GenericFilt
     private JSONObject solutionInfoExtractor(Solution s) {
 
         JSONObject solution = new JSONObject();
-        solution.put("submissionKey", s.getSolutionkey());
+        solution.put("solutionKey", s.getSolutionkey());
         solution.put("userKey", s.getUserkey());
         solution.put("userName", s.getUsername());
         solution.put("date", s.getTime());
-        solution.put("content", s.getContent());
+        String contentOverview =  s.getContent().substring(0, 13) + "...";
+        solution.put("contentOverview", contentOverview);
 
         return solution;
     }
@@ -64,7 +65,7 @@ public class SolutionListServiceImpl implements SolutionListService, GenericFilt
         IPage<Solution> solutionIPage = new Page<>(page, entriesPerPage);
 
         QueryWrapper<Solution> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderByAsc("problemKey");
+        queryWrapper.orderByAsc("solutionKey");
         List<Solution> solutions = solutionMapper.selectPage(solutionIPage, queryWrapper).getRecords();
 
         JSONObject ret = new JSONObject();
@@ -77,14 +78,13 @@ public class SolutionListServiceImpl implements SolutionListService, GenericFilt
         ret.put("solutionsCount", solutions.size());
         ret.put("totalPages", solutionMapper.selectCount(null));
         ret.put("perPage", entriesPerPage);
-        ret.put("problemList", problemList);
+        ret.put("solutionList", problemList);
 
         return ret;
     }
 
     @Override
     public Set<Integer> getFullSolutionList() {
-        // this method is deprecated, it exists only to maintain the structure of GenericFilterService interface.
         return null;
     }
 
