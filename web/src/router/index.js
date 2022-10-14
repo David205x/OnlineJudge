@@ -9,6 +9,7 @@ import store from '@/store/index'
 import ProfileOverview from "@/views/user/profile/ProfileOverview";
 import ProblemResultView from "@/components/problem/ProblemResultView";
 import ProblemResultView2 from "@/components/problem/ProblemResultView2";
+import ChattingRoom from "@/components/chatting/ChattingRoom";
 const routes = [
   {
     path: "/",
@@ -90,6 +91,14 @@ const routes = [
       requestAuth: false
     }
   },
+  {
+    path: "/chatting/chattingroom/",
+    name: "problem_result_2",
+    component: ChattingRoom,
+    meta:{
+      requestAuth: false
+    }
+  }
 ]
 
 const router = createRouter({

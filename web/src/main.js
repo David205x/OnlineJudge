@@ -2,7 +2,11 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-createApp(App).use(store).use(router).mount('#app');
+import Chat from 'vue3-beautiful-chat'
+createApp(App).use(store).use(router).use(Chat).mount('#app');
+
+
+
 // // 创建对象
 // const app = createApp(App)
 // // 必须使用 nextTick，不然会有加载顺序问题，导致绑定失败
