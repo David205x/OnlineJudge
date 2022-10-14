@@ -1,28 +1,21 @@
 <template>
   <ContentField>
-    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Previous</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button @click="initpage" class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">1</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">2</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">3</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">4</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">5</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">...</button>
-      </li>
-    </ul>
+    <div>
+      <nav aria-label="...">
+        <ul class="pagination" style="float: right;">
+          <li class="page-item" @click="click_page(-2)">
+            <a class="page-link" href="#">前一页</a>
+          </li>
+          <li :class="'page-item ' + page.is_active" v-for="page in pages" :key="page.number" @click="click_page(page.number)">
+            <a class="page-link" href="#">{{ page.number }}</a>
+          </li>
+          <li class="page-item" @click="click_page(-1)">
+            <a class="page-link" href="#">下一页</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
       <table id="listStatus" class="table table-striped table-hover">
         <thead>
         <tr>
@@ -31,10 +24,10 @@
             Username<br>
             <input type="text" id="un" name="un" class="search_text" style="width:100%">
           </th>
-          <th class="prob sorting_disabled" rowspan="1" colspan="1" style="text-align: center">
+<!--          <th class="prob sorting_disabled" rowspan="1" colspan="1" style="text-align: center">
             Prob<br>
             <input type="text" id="probunm" name="probunm" class="search_text" style="width:100%">
-          </th>
+          </th>-->
           <th class="status sorting_disabled" rowspan="1" colspan="1" style="text-align: center">
             Result
             <br>
@@ -55,8 +48,6 @@
             </select>
           </th>
           <th scope="col">Time<br>(ms)</th>
-          <th scope="col">Mem<br>(MB)</th>
-          <th class="length hidden-lg-down sorting_disabled" rowspan="1" colspan="1" >Length<br/></th>
           <th class="language hidden-lg-down sorting_disabled" rowspan="1" colspan="1" style="text-align: center">
             Lang
             <br>
@@ -72,72 +63,16 @@
         </tr>
         </thead>
         <tbody>
-        <tr>
-          <th scope="row">1</th>
-          <td>wxx</td>
-          <td>3306</td>
-          <td style="color: #42b983">Accepted</td>
-          <td>123</td>
-          <td>4096</td>
-          <td>20</td>
-          <td>C++</td>
-          <td>1 minutes ago</td>
-        </tr>
-        <tr>
-          <th scope="row">2</th>
-          <td>wxx</td>
-          <td>3306</td>
-          <td style="color: #42b983">Accepted</td>
-          <td>123</td>
-          <td>4096</td>
-          <td>20</td>
-          <td>C++</td>
-          <td>1 minutes ago</td>
-        </tr>
-        <tr>
-          <th scope="row">3</th>
-          <td>123</td>
-          <td>lty</td>
-          <td>798</td>
-          <td>110</td>
-        </tr>
-        <tr>
-          <th scope="row">4</th>
-          <td>Larry the Bird</td>
-          <td>wxx</td>
-          <td>lty</td>
-          <td>@twitter</td>
-        </tr>
-        <tr>
-          <th scope="row">5</th>
-          <td>Mark</td>
-          <td>lxy</td>
-          <td>@mdo</td>
-          <td>Otto</td>
-        </tr>
-        <tr>
-          <th scope="row">6</th>
-          <td>Jacob</td>
-          <td>cxy</td>
-          <td>@fat</td>
-          <td>Fbsks</td>
-        </tr>
-        <tr>
-          <th scope="row">7</th>
-          <td>123</td>
-          <td>lty</td>
-          <td>798</td>
-          <td>110</td>
-        </tr>
-        <tr>
-          <th scope="row">8</th>
-          <td>Larry the Bird</td>
-          <td>wxx</td>
-          <td>lty</td>
-          <td>@twitter</td>
+        <tr v-for ="submissionOverview in SubmissionOverview" :key = "submissionOverview.submissionKey">
+          <th scope="row">{{submissionOverview.submissionKey}}</th>
+<!--          <td @click="todetails(submissionOverview.username)">-->
+          <td>{{submissionOverview.userName}}</td>
+          <td>{{submissionOverview.result}}</td>
+          <td>{{submissionOverview.timeUsed}}</td>
+          <td>{{submissionOverview.lang}}</td>
+          <td>{{submissionOverview.date}}</td>
         </tr>
         </tbody>
-
       </table>
   </ContentField>
 
@@ -147,13 +82,18 @@
 import ContentField from "@/components/ContentField.vue";
 import { useStore } from "vuex";
 import router from "@/router";
-
+import {ref} from 'vue'
+import $ from "jquery";
 export default{
-  components: { ContentField },
+  components: {ContentField },
   setup(){
     const initpage = () =>{
       router.push({name: "problem_result_2"});
     }
+    let SubmissionOverview = ref([{}]);
+    let r = window.location.href.match("problemId=.*/");
+    let t = r[0].split("=")[1].split("/")[0];
+    let pages = ref([]);
     const store = useStore();
     const logged = store.state.user.is_login;
     store.commit("updatePullingInfo", false);
@@ -164,11 +104,97 @@ export default{
         }
       })
     }
+    console.log(store.state.user.token);
+    let current_page = 1;
+    let total_problems = 0;
+    let per_num = 1;
+
+    const click_page = (page) =>{
+      if(page == -2) page = current_page - 1;
+      else if(page == -1) page = current_page + 1;
+      let max_pages = parseInt(Math.ceil(total_problems / per_num));
+
+      if(page >= 1 && page <= max_pages){
+        pull_page(page);
+      }
+    }
+
+    const update_pages = () =>{
+      let max_pages = parseInt(Math.ceil(total_problems / per_num));
+
+      let new_pages = [];
+
+      for(let i = current_page - 2; i <= current_page + 2; i++){
+        if(i >= 1 && i <= max_pages){
+          new_pages.push({
+            number: i,
+            is_active: i === current_page ? "active" : "",
+          });
+        }
+      }
+      pages.value = new_pages
+    }
+    const pull_page = (page) =>{
+
+      current_page = page;
+      $.ajax({
+        url: "http://127.0.0.1:3000/problem/details/" + t + "/sublist/",
+        type: 'post',
+        headers: {
+          Authorization: "Bearer " + store.state.user.token,
+        },
+        data:{
+          userName: store.state.user.username,
+          result: "",
+          lang: "",
+          page: JSON.stringify(page),
+        },
+        success(resp) {
+          SubmissionOverview.value = resp.submissionList;
+          total_problems = resp.totalPages;
+          per_num = resp.perPage;
+          console.log(resp)
+          update_pages()
+        },
+        error(resp) {
+          console.log(resp)
+        }
+      })
+    }
+    pull_page(current_page)
     return {
       logged,
       initpage,
+      SubmissionOverview,
+      click_page,
+    }
+  },
+  computed: {
+    sliceList() {
+      return function (data,count) {
+        if (data != undefined) {
+          let arrTemp = [];
+          console.log(data)
+          let i = 0;
+          let tag = {};
+          for (tag in data) {
+            i++;
+            if (i > count){
+              break;
+            }
+            arrTemp.push(data[tag])
+          }
+          while(i < count){
+            arrTemp.push('')
+            i++;
+          }
+          return arrTemp
+        }
+      }
     }
   }
+
+
 }
 
 </script>
