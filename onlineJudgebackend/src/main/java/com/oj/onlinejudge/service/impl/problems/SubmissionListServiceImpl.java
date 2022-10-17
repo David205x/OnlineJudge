@@ -16,22 +16,22 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
-public class SubmissionListListServiceImpl implements SubmissionListService, GenericFilterService {
+public class SubmissionListServiceImpl implements SubmissionListService, GenericFilterService {
 
     @Autowired
     private SubmissionMapper submissionMapper;
     private final int entriesPerPage = 10;
-    private final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private JSONObject submissionInfoExtractor(Submission s) {
 
         JSONObject submission = new JSONObject();
         submission.put("submissionKey", s.getSubmissionkey());
-        submission.put("userKey", s.getUserkey());
+        submission.put("userName", s.getUsername());
         submission.put("result", s.getResult());
         submission.put("timeUsed", s.getRuntime());
         submission.put("lang", s.getLanguage());
-        submission.put("date", s.getTime());
+        submission.put("date", format.format(new Date(s.getTime().getTime())));
 
         return submission;
     }
@@ -61,27 +61,27 @@ public class SubmissionListListServiceImpl implements SubmissionListService, Gen
 
         Set<Integer> base = new HashSet<>(getFullSubmissionList());
         if (enableUserFilter) {
-            base.retainAll(getProblemListByColumn("userKey", userName));
+            base.retainAll(getProblemListByColumn("userName", userName));
         }
         if (enableResultFilter) {
-            base.retainAll(getProblemListByColumn("result", userName));
+            base.retainAll(getProblemListByColumn("result", result));
         }
         if (enableLangFilter) {
-            base.retainAll(getProblemListByColumn("lang", userName));
+            base.retainAll(getProblemListByColumn("lang", lang));
         }
 
         if (base.isEmpty()) {
-            System.out.println("No matched submissions. ");
+            Logger.basicLogger("No matched submissions. ");
             ret.put("submissionCount", -1);
             ret.put("totalPages", 0);
             ret.put("perPage", entriesPerPage);
             ret.put("submissionList", null);
         } else {
 
-            System.out.println("Final set: " + base);
+            Logger.basicLogger("Final set: " + base);
 
             for (int key : base) {
-                masterWrapper.eq("submission", key).or();
+                masterWrapper.eq("submissionkey", key).or();
             }
             List<Submission> submissions = submissionMapper.selectPage(submissionIPage, masterWrapper).getRecords();
 
@@ -104,7 +104,7 @@ public class SubmissionListListServiceImpl implements SubmissionListService, Gen
     public Set<Integer> getFullSubmissionList() {
 
         QueryWrapper<Submission> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderByAsc("problemKey");
+        queryWrapper.orderByAsc("submissionkey");
         List<Submission> submissions = submissionMapper.selectList(queryWrapper);
 
         Set<Integer> ret = new HashSet<>();
@@ -132,12 +132,12 @@ public class SubmissionListListServiceImpl implements SubmissionListService, Gen
             submissionList.add(submissionInfoExtractor(s));
         }
 
-        ret.put("problemCount", submissionList.size());
+        ret.put("submissionCount", submissionList.size());
         ret.put("totalPages", submissionMapper.selectCount(null));
         ret.put("perPage", entriesPerPage);
-        ret.put("problemList", submissionList);
+        ret.put("submissionList", submissionList);
 
-        System.out.println("Getting all submissions.");
+        Logger.basicLogger("Getting all submissions.");
         Logger.placeholderLogger();
 
         return ret;

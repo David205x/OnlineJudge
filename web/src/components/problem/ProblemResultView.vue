@@ -84,6 +84,7 @@ import { useStore } from "vuex";
 import router from "@/router";
 import {ref} from 'vue'
 import $ from "jquery";
+
 export default{
   components: {ContentField },
   setup(){
@@ -104,7 +105,6 @@ export default{
         }
       })
     }
-    console.log(store.state.user.token);
     let current_page = 1;
     let total_problems = 0;
     let per_num = 1;
@@ -144,7 +144,7 @@ export default{
           Authorization: "Bearer " + store.state.user.token,
         },
         data:{
-          userName: store.state.user.username,
+          userName: "",
           result: "",
           lang: "",
           page: JSON.stringify(page),
@@ -153,7 +153,7 @@ export default{
           SubmissionOverview.value = resp.submissionList;
           total_problems = resp.totalPages;
           per_num = resp.perPage;
-          console.log(resp)
+          console.log(resp);
           update_pages()
         },
         error(resp) {
