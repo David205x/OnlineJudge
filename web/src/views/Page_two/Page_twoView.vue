@@ -9,24 +9,38 @@
         <lbel for="inputProblemNum" class="col-form-label">题目编号</lbel>
       </div>
       <div class="col-auto">
-        <input v-model="search_problem_key" type="problemNum" id="search_problem_num" class="form-control" aria-describedby="passwordHelpInline">
+        <input v-model="search_problem_key" type="problemNum" id="search_problem_num" class="form-control" aria-describedby="passwordHelpInline" @input="search()">
       </div>
       <div class="col-auto">
         <lbel for="inputProblemName" class="col-form-label">题目名称</lbel>
       </div>
       <div class="col-auto">
-        <input v-model="search_problem_name" type="problemName" id="search_problem_name" class="form-control" aria-describedby="passwordHelpInline">
+        <input v-model="search_problem_name" type="problemName" id="search_problem_name" class="form-control" aria-describedby="passwordHelpInline" @input="getFundList($event)">
       </div>
       <div class="col-auto">
         <lbel for="inputProblemName" class="col-form-label">题目标签</lbel>
       </div>
       <div class="col-auto">
-        <input v-model="search_problem_tag" type="problemTag" id="search_problem_tag" class="form-control" aria-describedby="passwordHelpInline">
+        <input v-model="search_problem_tag" type="problemTag" id="search_problem_tag" class="form-control" aria-describedby="passwordHelpInline" @input="search()">
       </div>
     </div>
     <div class="container">
       <div class="row align-items-start">
-
+        <div>
+          <nav aria-label="...">
+            <ul class="pagination" style="float: right;">
+              <li class="page-item" @click="click_page(-2)">
+                <a class="page-link" href="#">前一页</a>
+              </li>
+              <li :class="'page-item ' + page.is_active" v-for="page in pages" :key="page.number" @click="click_page(page.number)">
+                <a class="page-link" href="#">{{ page.number }}</a>
+              </li>
+              <li class="page-item" @click="click_page(-1)">
+                <a class="page-link" href="#">下一页</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
         <div class="col-9">
           <table class="table table-striped table-hover">
             <thead>
@@ -61,21 +75,6 @@
             </tr>
             </tbody>
           </table>
-          <div>
-            <nav aria-label="...">
-              <ul class="pagination" style="float: right;">
-                  <li class="page-item" @click="click_page(-2)">
-                      <a class="page-link" href="#">前一页</a>
-                  </li>
-                  <li :class="'page-item ' + page.is_active" v-for="page in pages" :key="page.number" @click="click_page(page.number)">
-                      <a class="page-link" href="#">{{ page.number }}</a>
-                  </li>
-                  <li class="page-item" @click="click_page(-1)">
-                      <a class="page-link" href="#">下一页</a>
-                  </li>
-              </ul>
-            </nav>
-          </div>
          
         </div>
         <div class="col-3">
@@ -90,12 +89,12 @@
               已尝试
             </button>
           </div>
-          <div class="label2">
-          <span>
+<!--          <div class="label2">-->
+<!--          <span>
             根据题目标签筛选题目
           </span>
-          </div>
-          <select
+          </div>-->
+<!--          <select
               style="  width: 30vh; "
               class="select_problem"
               onblur="size=0"
@@ -113,7 +112,7 @@
             <option value="audi">大学网奥数</option>
             <option value="audi">大学网奥数</option>
             <option value="audi">大学网奥数</option>
-          </select>
+          </select>-->
         </div>
       </div>
     </div>
@@ -167,11 +166,11 @@ export default{
         }
       })
     }
-    const ProblemChange = (data) =>{
-      state.value = data;
+
+    const getFundList = (el) =>{
+      search_problem_name.value = el.target.value
       search()
     }
-   
     const search = () =>{
       $.ajax({
         url: "http://127.0.0.1:3000/problems/overview/",
@@ -200,7 +199,6 @@ export default{
       document.onkeydown = function(e){
         var ev = document.all ? window.event : e;
         if(ev.keyCode==13) {
-          console.log(search_problem_key.value)
           search()
           return false;
         }
@@ -222,8 +220,8 @@ export default{
     }
 
     const update_pages = () =>{
+
       let max_pages = parseInt(Math.ceil(total_problems / per_num));
-      
       let new_pages = [];
 
       for(let i = current_page - 2; i <= current_page + 2; i++){
@@ -271,9 +269,9 @@ export default{
       search_problem_key,
       search_problem_name,
       search_problem_tag,
-      ProblemChange,
       state,
       pages,
+      getFundList
     }
   },
   computed: {
@@ -281,7 +279,6 @@ export default{
       return function (data,count) {
         if (data != undefined) {
           let arrTemp = [];
-          console.log(data)
           let i = 0;
           let tag = {};
           for (tag in data) {
