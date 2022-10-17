@@ -209,6 +209,10 @@ export default{
     let total_problems = 0;
     let per_num = 1;
 
+    const ProblemChange = (data) =>{
+      state.value = data;
+      search()
+    }
     const click_page = (page) =>{
       if(page == -2) page = current_page - 1;
       else if(page == -1) page = current_page + 1;
@@ -271,7 +275,8 @@ export default{
       search_problem_tag,
       state,
       pages,
-      getFundList
+      ProblemChange,
+      getFundList,
     }
   },
   computed: {
