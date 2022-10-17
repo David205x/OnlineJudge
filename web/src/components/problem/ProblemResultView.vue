@@ -22,7 +22,7 @@
           <th scope="col">Num<br></th>
           <th class="username sorting_disabled" rowspan="1" colspan="1" style="text-align: center">
             Username<br>
-            <input type="text" id="un" name="un" class="search_text" style="width:100%">
+            <input v-model="searchUsername" type="text" id="un" name="un" class="search_text" style="width:100%" @input="search()">
           </th>
 <!--          <th class="prob sorting_disabled" rowspan="1" colspan="1" style="text-align: center">
             Prob<br>
@@ -31,32 +31,26 @@
           <th class="status sorting_disabled" rowspan="1" colspan="1" style="text-align: center">
             Result
             <br>
-            <select id="res" name="res" class="custom-select">
-              <option value="0">All</option>
-              <option value="1">Accepted</option>
-              <option value="2">Presentation Error</option>
-              <option value="3">Wrong Answer</option>
-              <option value="4">Time Limit Exceed</option>
-              <option value="5">Memory Limit Exceed</option>
-              <option value="6">Output Limit Exceed</option>
-              <option value="7">Runtime Error</option>
-              <option value="8">Compile Error</option>
-              <option value="9">Judge Failed</option>
-              <option value="10">Unknown Error</option>
-              <option value="11">Submit Error</option>
-              <option value="12">Queuing &amp;&amp; Judging</option>
+            <select  v-model="searchResult" id="res" name="res" class="custom-select" @click="search()">
+              <option value="">All</option>
+              <option value="Accepted">Accepted</option>
+              <option value="WrongAnswer">Wrong Answer</option>
+              <option value="TimeLimitExceeded">Time Limit Exceeded</option>
+              <option value="MemoryLimitExceeded">Memory Limit Exceeded</option>
+              <option value="CompileError">Compile Error</option>
+              <option value="Others">Others</option>
             </select>
           </th>
           <th scope="col">Time<br>(ms)</th>
           <th class="language hidden-lg-down sorting_disabled" rowspan="1" colspan="1" style="text-align: center">
             Lang
             <br>
-            <select name="language" id="language" class="custom-select">
+            <select v-model="searchLang" name="language" id="language" class="custom-select" @click="search()">
               <option value="">All</option>
-              <option value="C++">C++</option>
-              <option value="C">C</option>
-              <option value="JAVA">Java</option>
-              <option value="PYTHON">Python</option>
+              <option value="c_cpp">C++</option>
+              <option value="cpp">C</option>
+              <option value="java">Java</option>
+              <option value="python">Python</option>
             </select>
           </th>
           <th scope="col">Submit Time<br></th>
@@ -67,6 +61,15 @@
           <th scope="row">{{submissionOverview.submissionKey}}</th>
 <!--          <td @click="todetails(submissionOverview.username)">-->
           <td>{{submissionOverview.userName}}</td>
+<!--          <td v-if="submissionOverview.result == 'Accepted'">
+            <span class="badge bg-success">{{submissionOverview.result}}</span>
+          </td>
+          <td v-if="submissionOverview.result == 'WrongAnswer'">
+            <span class="badge bg-danger">{{submissionOverview.result}}</span>
+          </td>
+          <td v-if="submissionOverview.result == 'Finished'">
+            <span class="badge bg-warning">{{submissionOverview.result}}</span>
+          </td>-->
           <td>{{submissionOverview.result}}</td>
           <td>{{submissionOverview.timeUsed}}</td>
           <td>{{submissionOverview.lang}}</td>
@@ -82,7 +85,7 @@
 import ContentField from "@/components/ContentField.vue";
 import { useStore } from "vuex";
 import router from "@/router";
-import {ref} from 'vue'
+import {nextTick, ref} from 'vue'
 import $ from "jquery";
 
 export default{
@@ -95,8 +98,13 @@ export default{
     let r = window.location.href.match("problemId=.*/");
     let t = r[0].split("=")[1].split("/")[0];
     let pages = ref([]);
+
+    let searchResult = ref('');
+    let searchLang = ref('');
+    let searchUsername = ref('');
     const store = useStore();
     const logged = store.state.user.is_login;
+
     store.commit("updatePullingInfo", false);
     if(store.state.user.is_login){
       store.dispatch("getinfoInMainPage", {
@@ -105,6 +113,41 @@ export default{
         }
       })
     }
+    const search = () =>{
+      $.ajax({
+        url: "http://127.0.0.1:3000/problem/details/" + t + "/sublist/",
+        type: 'post',
+        headers: {
+          Authorization: "Bearer " + store.state.user.token,
+        },
+        data:{
+          userName: searchUsername.value,
+          result: searchResult.value,
+          lang: searchLang.value,
+          page: '1',
+        },
+        success(resp) {
+          SubmissionOverview.value = resp.submissionList;
+          total_problems = resp.totalPages;
+          per_num = resp.perPage;
+          console.log(resp);
+          update_pages()
+        },
+        error(resp) {
+          console.log(resp)
+        }
+      })
+    }
+    nextTick(()=>{
+      document.onkeydown = function(e){
+        var ev = document.all ? window.event : e;
+        if(ev.keyCode==13) {
+          console.log(searchUsername.value)
+          search()
+          return false;
+        }
+      }
+    })
     let current_page = 1;
     let total_problems = 0;
     let per_num = 1;
@@ -162,11 +205,17 @@ export default{
       })
     }
     pull_page(current_page)
+
     return {
       logged,
       initpage,
       SubmissionOverview,
+      pages,
+      searchResult,
+      searchLang,
+      searchUsername,
       click_page,
+      search,
     }
   },
   computed: {

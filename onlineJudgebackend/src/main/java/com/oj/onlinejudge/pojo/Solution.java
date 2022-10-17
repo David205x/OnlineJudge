@@ -18,5 +18,7 @@ public class Solution {
     private Integer userkey;
     private String username;
     private Date time;
+    private String title;
+    private String overview;
     private String content;
 }

@@ -55,6 +55,8 @@ public class SolutionListServiceImpl implements SolutionListService, GenericFilt
                 Integer.parseInt(userKey),
                 Users.get(0).getUsername(),
                 new Date(System.currentTimeMillis()),
+                "",
+                "",
                 content)
         ) != 0;
     }
