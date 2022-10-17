@@ -85,7 +85,7 @@ import router from "@/router";
 import {ref} from 'vue'
 import $ from "jquery";
 export default{
-  components: {ContentField },
+  components: { ContentField },
   setup(){
     const initpage = () =>{
       router.push({name: "problem_result_2"});
