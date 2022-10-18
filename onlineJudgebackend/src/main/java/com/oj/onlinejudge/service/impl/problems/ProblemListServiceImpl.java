@@ -7,8 +7,7 @@ import com.oj.onlinejudge.mapper.SubmissionMapper;
 import com.oj.onlinejudge.pojo.Problem;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.oj.onlinejudge.pojo.Submission;
-import com.oj.onlinejudge.service.Logger;
-import com.oj.onlinejudge.service.impl.GenericFilterService;
+import com.oj.onlinejudge.service.impl.GenericOjFilter;
 import com.oj.onlinejudge.service.problems.ProblemListService;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
-public class ProblemListServiceImpl implements ProblemListService, GenericFilterService {
+public class ProblemListServiceImpl extends GenericOjFilter implements ProblemListService {
 
     @Autowired
     private ProblemMapper problemMapper;
@@ -31,7 +30,7 @@ public class ProblemListServiceImpl implements ProblemListService, GenericFilter
 
         JSONObject problem = new JSONObject();
         problem.put("problemKey", p.getProblemkey());
-        problem.put("problemName", p.getProblemname());
+        problem.put("problemName", normalize(p.getProblemname(), 18));
         problem.put("problemSource", p.getSource());
 
         double acAttempts = 0, totAttempts;

@@ -6,8 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.oj.onlinejudge.mapper.SubmissionMapper;
 import com.oj.onlinejudge.pojo.Submission;
-import com.oj.onlinejudge.service.Logger;
-import com.oj.onlinejudge.service.impl.GenericFilterService;
+import com.oj.onlinejudge.service.impl.GenericOjFilter;
 import com.oj.onlinejudge.service.problems.SubmissionListService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,12 +15,12 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
-public class SubmissionListServiceImpl implements SubmissionListService, GenericFilterService {
+public class SubmissionListServiceImpl extends GenericOjFilter implements SubmissionListService {
 
     @Autowired
     private SubmissionMapper submissionMapper;
     private final int entriesPerPage = 10;
-    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final SimpleDateFormat submissionTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private JSONObject submissionInfoExtractor(Submission s) {
 
@@ -31,7 +30,7 @@ public class SubmissionListServiceImpl implements SubmissionListService, Generic
         submission.put("result", s.getResult());
         submission.put("timeUsed", s.getRuntime());
         submission.put("lang", s.getLanguage());
-        submission.put("date", format.format(new Date(s.getTime().getTime())));
+        submission.put("date", submissionTime.format(new Date(s.getTime().getTime())));
 
         return submission;
     }
@@ -42,8 +41,6 @@ public class SubmissionListServiceImpl implements SubmissionListService, Generic
                                                  String result,
                                                  String lang,
                                                  int page) {
-
-        Logger.titleLogger("SUBMISSION FILTER");
 
         boolean enableUserFilter = !userName.isEmpty();
         boolean enableResultFilter = !result.isEmpty();
@@ -59,43 +56,40 @@ public class SubmissionListServiceImpl implements SubmissionListService, Generic
         IPage<Submission> submissionIPage = new Page<>(page, entriesPerPage);
         QueryWrapper<Submission> masterWrapper = new QueryWrapper<>();
 
-        Set<Integer> base = new HashSet<>(getFullSubmissionList());
+        ArrayList<String> criteria = new ArrayList<>();
+        ArrayList<Integer> restrictions = new ArrayList<>();
+        ArrayList<String> values = new ArrayList<>();
+
         if (enableUserFilter) {
-            base.retainAll(getProblemListByColumn("userName", userName));
+            criteria.add("userName");
+            restrictions.add(1);
+            values.add(userName);
         }
         if (enableResultFilter) {
-            base.retainAll(getProblemListByColumn("result", result));
+            criteria.add("result");
+            restrictions.add(0);
+            values.add(result);
         }
         if (enableLangFilter) {
-            base.retainAll(getProblemListByColumn("lang", lang));
+            criteria.add("language");
+            restrictions.add(0);
+            values.add(lang);
         }
 
-        if (base.isEmpty()) {
-            Logger.basicLogger("No matched submissions. ");
-            ret.put("submissionCount", -1);
-            ret.put("totalPages", 0);
-            ret.put("perPage", entriesPerPage);
-            ret.put("submissionList", null);
-        } else {
+        String sql = sqlQueryBuilder(criteria, restrictions, values);
 
-            Logger.basicLogger("Final set: " + base);
+        masterWrapper.apply(sql);
+        masterWrapper.orderByAsc("submissionKey");
+        List<Submission> submissions = submissionMapper.selectPage(submissionIPage, masterWrapper).getRecords();
 
-            for (int key : base) {
-                masterWrapper.eq("submissionkey", key).or();
-            }
-            List<Submission> submissions = submissionMapper.selectPage(submissionIPage, masterWrapper).getRecords();
-
-            for (Submission s : submissions) {
-                submissionList.add(submissionInfoExtractor(s));
-            }
-
-            ret.put("submissionCount", submissions.size());
-            ret.put("totalPages", submissionMapper.selectCount(masterWrapper));
-            ret.put("perPage", entriesPerPage);
-            ret.put("submissionList", submissionList);
+        for (Submission s : submissions) {
+            submissionList.add(submissionInfoExtractor(s));
         }
 
-        Logger.placeholderLogger();
+        ret.put("submissionCount", submissions.size());
+        ret.put("totalPages", submissionMapper.selectCount(masterWrapper));
+        ret.put("perPage", entriesPerPage);
+        ret.put("submissionList", submissionList);
 
         return ret;
     }
@@ -133,22 +127,19 @@ public class SubmissionListServiceImpl implements SubmissionListService, Generic
         }
 
         ret.put("submissionCount", submissionList.size());
-        ret.put("totalPages", submissionMapper.selectCount(null));
+        ret.put("totalPages", submissionMapper.selectCount(submissionsWrapper));
         ret.put("perPage", entriesPerPage);
         ret.put("submissionList", submissionList);
-
-        Logger.basicLogger("Getting all submissions.");
-        Logger.placeholderLogger();
 
         return ret;
     }
 
     @Override
-    public Set<Integer> getProblemListByColumn(String columnName, String criteria) {
+    public Set<Integer> getProblemListByColumn(String columnName, String value) {
 
         QueryWrapper<Submission> queryWrapper = new QueryWrapper<>();
         queryWrapper.orderByAsc("submissionKey");
-        queryWrapper.like(columnName, criteria);
+        queryWrapper.like(columnName, value);
         List<Submission> submissions = submissionMapper.selectList(queryWrapper);
 
         Set<Integer> ret = new HashSet<>();

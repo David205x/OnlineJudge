@@ -19,9 +19,9 @@
       <table id="listStatus" class="table table-striped table-hover">
         <thead>
         <tr>
-          <th scope="col">Num<br></th>
+          <th scope="col">提交编号<br></th>
           <th class="username sorting_disabled" rowspan="1" colspan="1" style="text-align: center">
-            Username<br>
+            用户名<br>
             <input v-model="searchUsername" type="text" id="un" name="un" class="search_text" style="width:100%" @input="search()">
           </th>
 <!--          <th class="prob sorting_disabled" rowspan="1" colspan="1" style="text-align: center">
@@ -29,7 +29,7 @@
             <input type="text" id="probunm" name="probunm" class="search_text" style="width:100%">
           </th>-->
           <th class="status sorting_disabled" rowspan="1" colspan="1" style="text-align: center">
-            Result
+            运行结果
             <br>
             <select  v-model="searchResult" id="res" name="res" class="custom-select" @click="search()">
               <option value="">All</option>
@@ -41,19 +41,19 @@
               <option value="Others">Others</option>
             </select>
           </th>
-          <th scope="col">Time<br>(ms)</th>
+          <th scope="col">运行时间<br>(ms)</th>
           <th class="language hidden-lg-down sorting_disabled" rowspan="1" colspan="1" style="text-align: center">
-            Lang
+            语言
             <br>
             <select v-model="searchLang" name="language" id="language" class="custom-select" @click="search()">
               <option value="">All</option>
-              <option value="c_cpp">C++</option>
-              <option value="cpp">C</option>
+              <option value="cpp">C++</option>
+              <option value="c">C</option>
               <option value="java">Java</option>
               <option value="python">Python</option>
             </select>
           </th>
-          <th scope="col">Submit Time<br></th>
+          <th scope="col">提交时间<br></th>
         </tr>
         </thead>
         <tbody>
