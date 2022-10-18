@@ -13,6 +13,6 @@ public interface SubmissionListService {
                                                  String lang,
                                                  int page);
     public Set<Integer> getFullSubmissionList();
-    public Set<Integer> getProblemListByColumn(String columnName, String criteria);
+    public Set<Integer> getProblemListByColumn(String columnName, String value);
 
 }

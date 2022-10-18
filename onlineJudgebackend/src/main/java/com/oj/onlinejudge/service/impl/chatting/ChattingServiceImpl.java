@@ -13,6 +13,6 @@ public class ChattingServiceImpl implements ChattingService {
     public String startChatting(Integer aId, Integer bId) {
         Logger.basicLogger("start game : " + aId + " " + bId);
         WebSocketServer.startChatting(aId, bId);
-        return "start game!";
+        return "start chatting!";
     }
 }

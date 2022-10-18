@@ -6,11 +6,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.oj.onlinejudge.mapper.SolutionMapper;
 import com.oj.onlinejudge.mapper.UserMapper;
-import com.oj.onlinejudge.pojo.Problem;
 import com.oj.onlinejudge.pojo.Solution;
-import com.oj.onlinejudge.pojo.Submission;
 import com.oj.onlinejudge.pojo.User;
-import com.oj.onlinejudge.service.impl.GenericFilterService;
+import com.oj.onlinejudge.service.impl.GenericOjFilter;
 import com.oj.onlinejudge.service.problems.solution.SolutionListService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 @Service
-public class SolutionListServiceImpl implements SolutionListService, GenericFilterService {
+public class SolutionListServiceImpl extends GenericOjFilter implements SolutionListService{
 
     @Autowired
     private SolutionMapper solutionMapper;
