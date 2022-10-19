@@ -62,7 +62,7 @@ public class SubmissionListListServiceImpl implements SubmissionListService, Gen
 
         Set<Integer> base = new HashSet<>(getFullSubmissionList());
         if (enableUserFilter) {
-            base.retainAll(getProblemListByColumn("userKey", userName));
+            base.retainAll(getProblemListByColumn("userName", userName));
         }
         if (enableResultFilter) {
             base.retainAll(getProblemListByColumn("result", userName));
@@ -82,7 +82,7 @@ public class SubmissionListListServiceImpl implements SubmissionListService, Gen
             System.out.println("Final set: " + base);
 
             for (int key : base) {
-                masterWrapper.eq("submission", key).or();
+                masterWrapper.eq("submissionKey", key).or();
             }
             List<Submission> submissions = submissionMapper.selectPage(submissionIPage, masterWrapper).getRecords();
 
@@ -134,7 +134,7 @@ public class SubmissionListListServiceImpl implements SubmissionListService, Gen
         }
 
         ret.put("problemCount", submissionList.size());
-        ret.put("totalPages", submissionMapper.selectCount(null));
+        ret.put("totalPages", submissionMapper.selectCount(submissionsWrapper));
         ret.put("perPage", entriesPerPage);
         ret.put("problemList", submissionList);
 
