@@ -19,6 +19,7 @@ public class SubmissionController {
                                      @RequestParam String result,
                                      @RequestParam String lang,
                                      @RequestParam Integer page) {
+
         return submissionListService.masterSubmissionListGetter(problemId, userName, result, lang, page);
     }
 }
