@@ -9,6 +9,7 @@ export default{
         token: "",
         is_login: false,
         pulling_info: true,
+        isChatOpen: false,
     },
     getters: {},
     mutations:{

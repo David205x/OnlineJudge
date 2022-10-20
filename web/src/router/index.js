@@ -9,7 +9,7 @@ import store from '@/store/index'
 import ProfileOverview from "@/views/user/profile/ProfileOverview";
 import ProblemResultView from "@/components/problem/ProblemResultView";
 import ProblemResultView2 from "@/components/problem/ProblemResultView2";
-import ChattingRoom from "@/components/chatting/ChattingRoom";
+import ChattingView from "@/views/chatting/ChattingView";
 const routes = [
   {
     path: "/",
@@ -93,8 +93,8 @@ const routes = [
   },
   {
     path: "/chatting/chattingroom/",
-    name: "problem_result_2",
-    component: ChattingRoom,
+    name: "chatting_list",
+    component: ChattingView,
     meta:{
       requestAuth: false
     }
