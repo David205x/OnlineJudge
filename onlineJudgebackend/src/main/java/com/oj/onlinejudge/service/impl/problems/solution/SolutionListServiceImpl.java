@@ -34,7 +34,7 @@ public class SolutionListServiceImpl extends GenericOjFilter implements Solution
         solution.put("userKey", s.getUserkey());
         solution.put("userName", s.getUsername());
         solution.put("date", s.getTime());
-        String contentOverview =  s.getContent().substring(0, 13) + "...";
+        String contentOverview =  s.getContent().length() > 16 ? s.getContent().substring(0, 16) + "..." : s.getContent();
         solution.put("contentOverview", contentOverview);
 
         return solution;
@@ -64,9 +64,10 @@ public class SolutionListServiceImpl extends GenericOjFilter implements Solution
 
         IPage<Solution> solutionIPage = new Page<>(page, entriesPerPage);
 
-        QueryWrapper<Solution> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderByAsc("solutionKey");
-        List<Solution> solutions = solutionMapper.selectPage(solutionIPage, queryWrapper).getRecords();
+        QueryWrapper<Solution> solutionWrapper = new QueryWrapper<>();
+        solutionWrapper.eq("problemkey", problemKey);
+        solutionWrapper.orderByAsc("solutionKey");
+        List<Solution> solutions = solutionMapper.selectPage(solutionIPage, solutionWrapper).getRecords();
 
         JSONObject ret = new JSONObject();
         ArrayList<JSONObject> problemList = new ArrayList<>();
@@ -76,7 +77,7 @@ public class SolutionListServiceImpl extends GenericOjFilter implements Solution
         }
 
         ret.put("solutionsCount", solutions.size());
-        ret.put("totalPages", solutionMapper.selectCount(null));
+        ret.put("totalPages", solutionMapper.selectCount(solutionWrapper));
         ret.put("perPage", entriesPerPage);
         ret.put("solutionList", problemList);
 

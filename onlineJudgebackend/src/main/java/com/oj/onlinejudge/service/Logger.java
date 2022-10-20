@@ -23,6 +23,12 @@ public class Logger {
         return;
     }
 
+    public static void basicLogger(String caller, String info) {
+        timesCalled++;
+        stream.println("[" + format.format(new Date(System.currentTimeMillis())) + "] " + "[" + caller + "] " + info);
+        return;
+    }
+
     public static void placeholderLogger() {
         timesCalled++;
         StringBuilder logger = new StringBuilder("[" + format.format(new Date(System.currentTimeMillis())) + "] ");

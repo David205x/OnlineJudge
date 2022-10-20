@@ -43,4 +43,8 @@ public class GenericOjFilter {
         }
         return queryBuilder.toString();
     }
+
+    public String sqlOrderBuilder(String criterion, int order) {
+        return "ORDER BY " + criterion + (order == 0 ? " DESC" : " ASC");
+    }
 }
