@@ -71,7 +71,8 @@
             <span class="badge bg-warning">{{submissionOverview.result}}</span>
           </td>-->
           <td>{{submissionOverview.result}}</td>
-          <td>{{submissionOverview.timeUsed}}</td>
+          <td v-if="submissionOverview.timeUsed <= 0">---</td>
+          <td v-if="submissionOverview.timeUsed > 0">{{submissionOverview.timeUsed}}</td>
           <td>{{submissionOverview.lang}}</td>
           <td>{{submissionOverview.date}}</td>
         </tr>

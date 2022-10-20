@@ -24,9 +24,8 @@ public class ProblemListServiceImpl extends GenericOjFilter implements ProblemLi
     @Autowired
     private SubmissionMapper submissionMapper;
     private final int entriesPerPage = 8;
-    private final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
 
-    public JSONObject problemInfoExtractor(Problem p) {
+    private JSONObject problemInfoExtractor(Problem p) {
 
         JSONObject problem = new JSONObject();
         problem.put("problemKey", p.getProblemkey());
