@@ -79,7 +79,7 @@ public class SubmissionListServiceImpl extends GenericOjFilter implements Submis
         String sql = sqlQueryBuilder(criteria, restrictions, values);
 
         masterWrapper.apply(sql);
-        masterWrapper.orderByAsc("submissionKey");
+        masterWrapper.orderByDesc("time");
         List<Submission> submissions = submissionMapper.selectPage(submissionIPage, masterWrapper).getRecords();
 
         for (Submission s : submissions) {
@@ -117,6 +117,7 @@ public class SubmissionListServiceImpl extends GenericOjFilter implements Submis
 
         QueryWrapper<Submission> submissionsWrapper = new QueryWrapper<>();
         submissionsWrapper.eq("problemkey", Integer.parseInt(problemKey));
+        submissionsWrapper.orderByDesc("time");
         List<Submission> submissions = submissionMapper.selectPage(submissionIPage, submissionsWrapper).getRecords();
 
         JSONObject ret = new JSONObject();
