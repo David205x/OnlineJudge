@@ -24,7 +24,6 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
     private String submissionUUID;
     private String targetProblem;
     private SampleWrapper sw;
-    private final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
     private List<String> relatedFiles = new ArrayList<>();
     private Map<String, String> paths = new HashMap<>();
 
@@ -50,10 +49,6 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
 
     }
 
-    public String tempLogger(String info) {
-        return "[" + format.format(new Date(System.currentTimeMillis())) + "] " + info;
-    }
-
     @Override
     public Map<String, String> compileAndRunFile(String debugInfo) throws IOException, InterruptedException, SQLException {
 
@@ -77,7 +72,7 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
             }
             sw.wrapOutputSamples();
             relatedFiles.add(paths.get("sampleOutputFile"));
-            Logger.basicLogger("Samples files loaded.");
+            // Logger.basicLogger("Samples files loaded.");
         } else {
             Logger.basicLogger("Debugging mode enabled.");
         }
@@ -89,7 +84,7 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
         relatedFiles.add(paths.get("submissionMainFile"));
         submittedCode.readAll();
         String srcCode = submittedCode.getAll();
-        Logger.basicLogger("Submission source extracted.");
+        // Logger.basicLogger("Submission source extracted.");
 
         // Step 3. BAKE THE SUBMISSION SOURCE FILE
         final String extraHeaders = "#include<cstdlib>\n#include<cmath>\n#include<Windows.h>\n";
@@ -115,7 +110,7 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
             return prePacket;
         }
         relatedFiles.add(paths.get("proceededMainFile"));
-        Logger.basicLogger("Source code baked.");
+        // Logger.basicLogger("Source code baked.");
 
         // Step 4. COMPILE
         Process compileProcess = null;
@@ -173,7 +168,7 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
                         prePacket.put("RuntimeStatus", "IOSamplesError");
                         return prePacket;
                     }
-                    Logger.basicLogger("Code running on testpoint #" + (curtp + 1));
+                    // Logger.basicLogger("Code running on testpoint #" + (curtp + 1));
                 } else { // Debugger
                     if (curtp != 0) { // Debugger only runs once.
                         return prePacket;
@@ -186,7 +181,7 @@ public class CppChecker extends CodeParserImpl implements GenericChecker {
                         prePacket.put("RuntimeStatus", "IOSamplesError");
                         return prePacket;
                     }
-                    Logger.basicLogger("Code running on debugging mode.");
+                    // Logger.basicLogger("Code running on debugging mode.");
                 }
 
                 try {

@@ -69,7 +69,7 @@ public class PythonChecker extends CodeParserImpl implements GenericChecker {
             }
             sw.wrapOutputSamples();
             relatedFiles.add(paths.get("sampleOutputFile"));
-            Logger.basicLogger("Samples files loaded.");
+            // Logger.basicLogger("Samples files loaded.");
         } else {
             Logger.basicLogger("Debugging mode enabled.");
         }
@@ -84,7 +84,7 @@ public class PythonChecker extends CodeParserImpl implements GenericChecker {
         relatedFiles.add(paths.get("submissionMainFile"));
         submittedCode.readAll();
         String srcCode = submittedCode.getAll();
-        Logger.basicLogger("Submission source extracted.");
+        // Logger.basicLogger("Submission source extracted.");
 
         // Step 3. BAKE THE SUBMISSION SOURCE FILE
         final String extraHeaders = "import sys\nimport os\n";
@@ -106,7 +106,7 @@ public class PythonChecker extends CodeParserImpl implements GenericChecker {
             return prePacket;
         }
         relatedFiles.add(paths.get("proceededMainFile"));
-        Logger.basicLogger("Source code baked.");
+        // Logger.basicLogger("Source code baked.");
 
         // Step 4. PYTHON DOESNT NEED TO COMPILE
 
@@ -159,7 +159,7 @@ public class PythonChecker extends CodeParserImpl implements GenericChecker {
                     prePacket.put("RuntimeStatus", "IOSamplesError");
                     return prePacket;
                 }
-                Logger.basicLogger("Code running on testpoint #" + (curtp + 1));
+                // Logger.basicLogger("Code running on testpoint #" + (curtp + 1));
             } else { // Debugger
                 if (curtp != 0) { // Debugger only runs once.
                     return prePacket;
@@ -172,7 +172,7 @@ public class PythonChecker extends CodeParserImpl implements GenericChecker {
                     prePacket.put("RuntimeStatus", "IOSamplesError");
                     return prePacket;
                 }
-                Logger.basicLogger("Code running on debugging mode.");
+                // Logger.basicLogger("Code running on debugging mode.");
             }
 
             try {
