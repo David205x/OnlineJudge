@@ -115,6 +115,7 @@ export default{
       })
     }
     const search = () =>{
+      
       $.ajax({
         url: "http://127.0.0.1:3000/problem/details/" + t + "/sublist/",
         type: 'post',
@@ -132,6 +133,7 @@ export default{
           total_problems = resp.totalPages;
           per_num = resp.perPage;
           console.log(resp);
+          current_page = 1;
           update_pages()
         },
         error(resp) {

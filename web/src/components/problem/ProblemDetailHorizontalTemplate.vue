@@ -131,7 +131,7 @@ export default{
   },
 
   setup(){
-    let language_selected = ref('c_cpp');
+    let language_selected = ref('cpp');
     let spinner_cog = ref(0);
     let submission_status = ref('?');
     let debugInfo = ref("");
