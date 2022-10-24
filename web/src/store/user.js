@@ -105,7 +105,7 @@ export default{
         sendSubmission(context, data){
             console.log(context);
             $.ajax({
-                url: "http://127.0.0.1:3000/user/submission/getinfo/",
+                url: "http://127.0.0.1:3000/user/submission/offersub/",
                 type: 'POST',
                 data: {
                     userKey: data.userKey,
@@ -113,10 +113,25 @@ export default{
                     language: data.language,
                     debugInfo: data.debugInfo,
                     targetProblem: data.targetProblem,
+                    SUUID: data.SUUID,
                 },
-                // headers: {
-                //     Authorization: "Bearer " + context.state.token,
-                // },
+                success(resp) {
+                    console.log(this.data)
+                    data.success(resp)
+                },
+                error() {
+                    console.log(this.data)
+                }
+            });
+        },
+        sendPollRequest(context, data){
+            console.log(context);
+            $.ajax({
+                url: "http://127.0.0.1:3000/user/submission/pollret/",
+                type: 'POST',
+                data: {
+                    SUUID: data.SUUID,
+                },
                 success(resp) {
                     console.log(this.data)
                     data.success(resp)

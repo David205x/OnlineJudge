@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,24 +28,51 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
     private SubmissionMapper submissionMapper;
     @Autowired
     private UserMapper userMapper;
+    private Map<String, String> params = new HashMap<>();
 
     @Override
-    public Map<String, String> GetSubmission(String userKey, String code, String language, String debugInfo, String targetProblem) throws IOException {
+    public String getSUUID() {return params.get("SID");}
+
+    @Override
+    public GetSubmissionServiceImpl getSubmission(String userKey,
+                                                  String code,
+                                                  String language,
+                                                  String debugInfo,
+                                                  String targetProblem,
+                                                  String SID) {
+        params.put("userKey", userKey);
+        params.put("code", code);
+        params.put("language", language);
+        params.put("debugInfo", debugInfo);
+        params.put("targetProblem", targetProblem);
+        params.put("SID", SID);
+        return this;
+    }
+
+    @Override
+    public Map<String, String> callChecker() throws IOException {
 
         Logger.titleLogger("SUBMISSION");
 
         String root = System.getenv("BJUT_OJ_HOME");
         StringBuilder fileNameBuilder = new StringBuilder(root + "\\files\\");
 
-        SubmissionUUIDGen gen = new SubmissionUUIDGen(userKey);
-        final String submissionUUID = gen.uuidGen();
-        Logger.basicLogger("SID: " + submissionUUID + " | Language: " + language);
+        String userKey = params.get("userKey");
+        String code = params.get("code");
+        String language = params.get("language");
+        String debugInfo = params.get("debugInfo");
+        String targetProblem = params.get("targetProblem");
+        String SID = params.get("SID");
+
+        String jSID = SID.replace("-", "_");
+
+        Logger.basicLogger("Checker", "SID: " + SID + " | Language: " + language);
 
         switch (language) {
-            case "c": fileNameBuilder.append(submissionUUID).append("_main.c"); break;
-            case "cpp": fileNameBuilder.append(submissionUUID).append("_main.cpp"); break;
-            case "java": fileNameBuilder.append("Main_").append(submissionUUID).append(".java"); break;
-            case "python": fileNameBuilder.append("Main_").append(submissionUUID).append(".py"); break;
+            case "c": fileNameBuilder.append(SID).append("_main.c"); break;
+            case "cpp": fileNameBuilder.append(SID).append("_main.cpp"); break;
+            case "java": fileNameBuilder.append("Main_").append(jSID).append(".java"); break;
+            case "python": fileNameBuilder.append("Main_").append(SID).append(".py"); break;
             default: {
                 break;
             }
@@ -59,7 +87,7 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
             return null;
         }
         if("c".equals(language)){
-            CCheckerCore c = new CCheckerCore(submissionUUID, debugInfo, targetProblem);
+            CCheckerCore c = new CCheckerCore(SID, debugInfo, targetProblem);
             try {
                 ret = c.checkSubmission();
             } catch (Exception e) {
@@ -68,7 +96,7 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
             }
         }
         if("cpp".equals(language)){
-            CppCheckerCore cpp = new CppCheckerCore(submissionUUID, debugInfo, targetProblem);
+            CppCheckerCore cpp = new CppCheckerCore(SID, debugInfo, targetProblem);
             try {
                 ret = cpp.checkSubmission();
             } catch (Exception e) {
@@ -77,7 +105,7 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
             }
         }
         if("java".equals(language)){
-            JavaCheckerCore j = new JavaCheckerCore(submissionUUID, debugInfo, targetProblem);
+            JavaCheckerCore j = new JavaCheckerCore(jSID, debugInfo, targetProblem);
             try {
                 ret = j.checkSubmission();
             } catch (Exception e) {
@@ -86,7 +114,7 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
             }
         }
         if("python".equals(language)){
-            PythonCheckerCore p = new PythonCheckerCore(submissionUUID, debugInfo, targetProblem);
+            PythonCheckerCore p = new PythonCheckerCore(SID, debugInfo, targetProblem);
             try {
                 ret = p.checkSubmission();
             } catch (Exception e) {
@@ -96,6 +124,9 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
         }
 
         if (ret != null) {
+
+            ret.put("SID", SID);
+
             if (!userKey.isEmpty() && ret.get("TimeElapsed") != null) {
                 String status = ret.get("SubmissionStatus");
 
@@ -115,10 +146,9 @@ public class GetSubmissionServiceImpl implements GetSubmissionService {
                             language)
                     );
                 }
-                Logger.basicLogger("Submission status: " + ret.get("SubmissionStatus"));
+                Logger.basicLogger("Checker", "Submission status: " + ret.get("SubmissionStatus"));
             }
         }
-        Logger.placeholderLogger();
 
         return ret;
     }

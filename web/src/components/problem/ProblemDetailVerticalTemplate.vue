@@ -195,13 +195,25 @@ export default{
         submission_status.value = 'Finished'
       }
       else {
-          
+          const UUID = crypto.randomUUID();
           store.dispatch("sendSubmission", {
             userKey: store.state.user.id,
             content: code.content,
             language: language_selected.value,
             debugInfo: debugInfo_value,
             targetProblem: store.state.problem.problemKey,
+            SUUID: UUID,
+            success(resp) {
+              console.log(resp);
+              // submission_status.value = resp.SubmissionStatus;
+              // store.commit("updataDebugOutcome", resp.debugOutcome)
+            },
+            error() {
+              console.log("?");
+            }
+        });
+        store.dispatch("sendPollRequest", {
+            SUUID: UUID,
             success(resp) {
               console.log(resp);
               submission_status.value = resp.SubmissionStatus;

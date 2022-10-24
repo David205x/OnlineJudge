@@ -1,43 +1,74 @@
 package com.oj.onlinejudge.service.checker.utils.queues;
 
+import com.oj.onlinejudge.service.Logger;
+import com.oj.onlinejudge.service.impl.user.submission.GetSubmissionServiceImpl;
 import net.minidev.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.*;
 
 public class QueueManager {
 
     private static final Integer maxQueueSize = 1024;
 
-    private static BlockingQueue<JSONObject> blockingQueue;
-
+    private static BlockingQueue<GetSubmissionServiceImpl> blockingQueue;
+    private static Map<String, Map<String, String>> resultPool;
     private static final ExecutorService threadPool = Executors.newCachedThreadPool();
 
-    public static BlockingQueue<JSONObject> getBlockingQueue() {
+    private static int threadCount = 0;
+    private static int curThread = 0;
+    private static final int maxThreadCount = 16;
+
+    public static void initResultPool() {
+        resultPool = new HashMap<>();
+    }
+
+    public static void initBlockingQueue() {
+        blockingQueue = new LinkedBlockingQueue<>(maxQueueSize);
+    }
+
+    public static Map<String, Map<String, String>> getResultPool() {
+        return resultPool == null ? new HashMap<>() : resultPool;
+    }
+
+    public static BlockingQueue<GetSubmissionServiceImpl> getBlockingQueue() {
         return blockingQueue == null ? new LinkedBlockingQueue<>(maxQueueSize) : blockingQueue;
     }
 
-    public static void requireCheckerTask(JSONObject task) throws InterruptedException {
+    public static void requestCheckerTask(GetSubmissionServiceImpl task) throws InterruptedException {
 
-        // if target queue defined in submission controller exists
         if (blockingQueue != null) {
-            if (blockingQueue.offer(task)) {
-                // start a new submission handler thread if none at present
-                if (!QueueLocks.isSubmissionHandlerRunningFlag()) {
-                    SubmissionHandler checkerThread = new SubmissionHandler(blockingQueue);
+            if (!QueueLocks.isSubmissionHandlerRunningFlag()) {
+
+                // TODO: Make thread distribution dynamic later.
+                while(threadCount < maxThreadCount) {
+                    SubmissionHandler checkerThread = new SubmissionHandler(blockingQueue, resultPool, threadCount);
+                    threadCount++;
                     threadPool.execute(checkerThread);
-                    QueueLocks.setSubmissionHandlerRunningFlag(true);
                 }
-            } else {
-                // 10 attempts to offer the current submission to the queue
-                for (int i = 0; i < 10; i++) {
-                    if (blockingQueue.offer(task, 10, TimeUnit.SECONDS)) {
-                        break;
-                    }
-                    Thread.sleep(20);
+                QueueLocks.setSubmissionHandlerRunningFlag(true);
+            }
+            for (int i = 0; i < 10; i++) {
+                if (blockingQueue.offer(task, 10, TimeUnit.MILLISECONDS)) {
+                    curThread = (curThread + 1) % maxThreadCount;
+                    break;
                 }
+                Thread.sleep(10);
             }
         } else {
             // TODO: QUEUE IS FULL OR NOT FUCTIONING, DO SOMETHING LATER
+        }
+    }
+
+    public static Map<String, String> pollCheckerTask(String SID) throws InterruptedException {
+
+        if (resultPool != null && !resultPool.isEmpty()) {
+            Map<String, String> ret =  resultPool.get(SID);
+            resultPool.remove(SID);
+            return ret;
+        } else {
+            return null;
         }
     }
 }
