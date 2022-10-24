@@ -40,8 +40,6 @@ public class QueueManager {
 
         if (blockingQueue != null) {
             if (!QueueLocks.isSubmissionHandlerRunningFlag()) {
-
-                // TODO: Make thread distribution dynamic later.
                 while(threadCount < maxThreadCount) {
                     SubmissionHandler checkerThread = new SubmissionHandler(blockingQueue, resultPool, threadCount);
                     threadCount++;
@@ -57,7 +55,7 @@ public class QueueManager {
                 Thread.sleep(10);
             }
         } else {
-            // TODO: QUEUE IS FULL OR NOT FUCTIONING, DO SOMETHING LATER
+            Logger.basicLogger("QueueManager", "Queue is currently full!");
         }
     }
 

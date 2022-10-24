@@ -60,6 +60,10 @@ public class SubmissionListServiceImpl extends GenericOjFilter implements Submis
         ArrayList<Integer> restrictions = new ArrayList<>();
         ArrayList<String> values = new ArrayList<>();
 
+        criteria.add("problemKey");
+        restrictions.add(0);
+        values.add(problemKey);
+
         if (enableUserFilter) {
             criteria.add("userName");
             restrictions.add(1);

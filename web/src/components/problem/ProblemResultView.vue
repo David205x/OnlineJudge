@@ -132,6 +132,7 @@ export default{
           total_problems = resp.totalPages;
           per_num = resp.perPage;
           console.log(resp);
+          current_page = 1;
           update_pages()
         },
         error(resp) {
