@@ -17,8 +17,8 @@
                                      :to="{name: 'problem_twoView'}">题库</router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link :class="route_name == 'problem_details' ? 'nav-link active' : 'nav-link'"
-                                     :to="{name: 'problem_details', params: {id : 1}}">聊天</router-link>
+                        <router-link :class="route_name == 'chatting_list' ? 'nav-link active' : 'nav-link'"
+                                     :to="{name: 'chatting_list'}">聊天</router-link>
                     </li>
                     
                 </ul>

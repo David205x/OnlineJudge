@@ -127,6 +127,7 @@ public class SubmissionListServiceImpl extends GenericOjFilter implements Submis
             submissionList.add(submissionInfoExtractor(s));
         }
 
+
         ret.put("submissionCount", submissionList.size());
         ret.put("totalPages", submissionMapper.selectCount(submissionsWrapper));
         ret.put("perPage", entriesPerPage);

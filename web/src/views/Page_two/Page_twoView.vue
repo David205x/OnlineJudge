@@ -32,9 +32,9 @@
               <li class="page-item" @click="click_page(-2)">
                 <a class="page-link" href="#">前一页</a>
               </li>
-              <li :class="'page-item ' + page.is_active" v-for="page in pages" :key="page.number" @click="click_page(page.number)">
-                <a class="page-link" href="#">{{ page.number }}</a>
-              </li>
+                <li :class="'page-item ' + page.is_active && !$store.state.user.isChatOpen ? page.is_active : ''" v-for="page in pages" :key="page.number" @click="click_page(page.number)">
+                  <a class="page-link" href="#">{{ page.number }}</a>
+                </li>
               <li class="page-item" @click="click_page(-1)">
                 <a class="page-link" href="#">下一页</a>
               </li>
@@ -79,45 +79,19 @@
         </div>
         <div class="col-3">
           <div class="list-group">
-            <button @click="ProblemChange(0)" type="button" :class="state == 0 ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'" :aria-current="state == 0">
+            <button @click="ProblemChange(0)" type="button" :class="state == 0 && !$store.state.user.isChatOpen ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'" :aria-current="state == 0">
               全部题目
             </button>
-            <button @click="ProblemChange(1)" type="button" :class="state == 1 ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'" :aria-current="state == 1">
+            <button @click="ProblemChange(1)" type="button" :class="state == 1 && !$store.state.user.isChatOpen ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'" :aria-current="state == 1">
               已通过
             </button>
-            <button @click="ProblemChange(2)" type="button" :class="state == 2 ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'" :aria-current="state == 2">
+            <button @click="ProblemChange(2)" type="button" :class="state == 2 && !$store.state.user.isChatOpen ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'" :aria-current="state == 2">
               已尝试
             </button>
           </div>
-<!--          <div class="label2">-->
-<!--          <span>
-            根据题目标签筛选题目
-          </span>
-          </div>-->
-<!--          <select
-              style="  width: 30vh; "
-              class="select_problem"
-              onblur="size=0"
-              onmousedown="if(options.length>6){size=7}"
-              onchange="size=0"
-          >
-            <option value="volvo">文学集</option>
-            <option value="saab">哲学</option>
-            <option value="opel">雅思</option>
-            <option value="audi">大学网奥数大学网奥数</option>
-            <option value="volvo">文学集</option>
-            <option value="saab">哲学</option>
-            <option value="opel">雅思</option>
-            <option value="audi">大学网奥数</option>
-            <option value="audi">大学网奥数</option>
-            <option value="audi">大学网奥数</option>
-            <option value="audi">大学网奥数</option>
-          </select>-->
         </div>
       </div>
     </div>
-
-
   </ContentField>
 
 

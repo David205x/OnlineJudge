@@ -6,7 +6,7 @@
           <li class="page-item" @click="click_page(-2)">
             <a class="page-link" href="#">前一页</a>
           </li>
-          <li :class="'page-item ' + page.is_active" v-for="page in pages" :key="page.number" @click="click_page(page.number)">
+          <li :class="'page-item ' + page.is_active && !$store.state.user.isChatOpen ? page.is_active : ''" v-for="page in pages" :key="page.number" @click="click_page(page.number)">
             <a class="page-link" href="#">{{ page.number }}</a>
           </li>
           <li class="page-item" @click="click_page(-1)">
@@ -90,7 +90,7 @@ import {nextTick, ref} from 'vue'
 import $ from "jquery";
 
 export default{
-  components: {ContentField },
+  components: { ContentField },
   setup(){
     const initpage = () =>{
       router.push({name: "problem_result_2"});

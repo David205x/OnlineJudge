@@ -46,7 +46,7 @@
                             <p style="margin-top: 1vh">代码语言:</p>
                         </div>
                         <div class="col-4">
-                            <select class="form-select form-select-sm" style="width: 12vw" aria-label="Default select example" v-model=language_selected>
+                            <select class="form-select form-select-sm" aria-label="Default select example" v-model=language_selected>
                                 <option value="cpp" selected>C++</option>
                                 <option value="c">C</option>
                                 <option value="python">Python</option>
