@@ -34,8 +34,6 @@ public class WebSocketServer {
 
     public static RestTemplate restTemplate;
 
-    private final static String addUserUrl = "http://127.0.0.1:3001/user/add/";
-    private final static String removeUserUrl = "http://127.0.0.1:3001/user/remove/";
 
 
     @Autowired
@@ -56,6 +54,7 @@ public class WebSocketServer {
         this.user = userMapper.selectById(userId);
         if (this.user != null) {
             users.put(userId, this);
+            Logger.basicLogger(String.valueOf(userId));
             Logger.basicLogger("connected");
         } else {
             try {
@@ -77,24 +76,8 @@ public class WebSocketServer {
         }
     }
     public static void startChatting(Integer aId, Integer bId){
-        User a = userMapper.selectById(aId);
-        User b = userMapper.selectById(bId);
-
-    }
-    private void startMatching(Integer botId) {
-        Logger.basicLogger("startMatching");
-        MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
-//        data.add("user_id", this.user.getId().toString());
-//        data.add("rating", this.user.getRating().toString());
-//        data.add("bot_id", botId.toString());
-        //restTemplate.postForObject(addPlayerUrl, data, String.class);
-    }
-
-    private void stopMatching() {
-        Logger.basicLogger("stopMatching");
-        MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
-        data.add("user_id", this.user.getId().toString());
-        //restTemplate.postForObject(removePlayerUrl, data, String.class);
+        users.get(aId).sendMessage("b");
+        users.get(bId).sendMessage("a");
     }
 
 
@@ -103,7 +86,6 @@ public class WebSocketServer {
         // 从Client接收消息
         Logger.basicLogger("receive message");
         JSONObject data = JSONObject.parseObject(message);
-
     }
 
     public void sendMessage(String message) {

@@ -2,6 +2,7 @@ import { createStore } from 'vuex'
 import ModuleUser from './user'
 import ModuleProblem from './problem' // TODO: THIS IS A TEST FUNCTION, MAY GET REMOVED LATER
 import ModuleProblemList from './problemList'
+import ModuleChatting from './chatting'
 export default createStore({
   state: {
   },
@@ -14,6 +15,7 @@ export default createStore({
   modules: {
     user: ModuleUser,
     problem: ModuleProblem,
-    problemList: ModuleProblemList
+    problemList: ModuleProblemList,
+    chatting: ModuleChatting
   }
 })

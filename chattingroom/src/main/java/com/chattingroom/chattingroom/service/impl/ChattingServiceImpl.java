@@ -10,16 +10,23 @@ public class ChattingServiceImpl implements ChattingService {
 
     public final static MatchingPool matchingPool = new MatchingPool();
     @Override
-    public String addUser(Integer userId, Integer rating, Integer botId) {
+    public String addUser(Integer userId, String userName, String avatarUrl) {
         System.out.println("add player success");
-        matchingPool.addPlayer(userId, rating, botId);
+        matchingPool.addParticipant(userId, userName, avatarUrl);
         return "add player success";
     }
 
     @Override
     public String removeUser(Integer userId) {
         System.out.println("remove player success");
-        matchingPool.removePlayer(userId);
+        matchingPool.removeParticipant(userId);
         return "remove player success";
     }
+
+    @Override
+    public String directMessage(Integer senderId, Integer receiverId) {
+        return null;
+    }
+
+
 }

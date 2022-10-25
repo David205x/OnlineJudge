@@ -51,6 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/user/submission/offersub/",
                         "/user/submission/pollret/",
                         "/problems/overview/",
+                        "/chatting/start/",
                         "/chatting/start/"
                 ).permitAll()
                 .antMatchers(HttpMethod.OPTIONS).permitAll()

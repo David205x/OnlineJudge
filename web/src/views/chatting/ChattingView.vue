@@ -11,11 +11,14 @@
       </div>
       <div class="col-9">
       <MessaGe>
-
+        
+        
       </MessaGe>
       <TexT>
 
       </TexT>
+      {{His}}
+      <button class="btn btn-primary" @click="begin">发送</button>
     </div>
     </div>
   </ContentField>
@@ -27,7 +30,10 @@ import MessaGe from "@/views/chatting/components/MessaGe.vue";
 import TexT from "@/views/chatting/components/TexT.vue";
 import SearcH from "@/views/chatting/components/SearcH.vue";
 import ChatList from "@/views/chatting/components/ChatList.vue";
-
+import { useStore } from 'vuex'
+import { onMounted, onUnmounted } from 'vue'
+import { ref } from "vue"
+import $ from 'jquery'
 
 export default {
   components: {
@@ -37,7 +43,64 @@ export default {
     SearcH,
     ChatList,
   },
+  setup(){
+    const store = useStore();
+    
+    const socketUrl = `ws://127.0.0.1:3000/websocket/${store.state.user.token}/`;
+    let socket = null;
+    let His = ref();
+    onMounted(() => {
+          socket = new WebSocket(socketUrl);
+          socket.onopen = () => {
+              console.log("connected");
+              
+              store.commit("updateSocket", socket);  
+              console.log(store.state.chatting.socket)
+              store.state.chatting.socket.send(JSON.stringify({
+                    event: "chatting",
+              }));
+          }
+          socket.onmessage = msg => {
+              //const data = JSON.parse(msg.data);
+              console.log(msg.data)
+              His.value = msg.data
+              // if (data.event === "start-matching") {
+              //   console.log(data);
+              // } else if (data.event === "move") {
+              //     console.log(data);
+              // } else if (data.event === "result") {
+              //     console.log(data);
+              // }
+          }
+          socket.onclose = () => {
+              console.log("disconnected");
+          }
+      });
 
+    onUnmounted(() => {
+          socket.close();
+      })
+    const begin = () =>{
+        $.ajax({
+              url: "http://127.0.0.1:3000/chatting/start/",
+              type: 'post',
+              data:{
+                  a_id: 1,
+                  b_id: 2
+              },
+              success(resp) {
+                  console.log(resp)
+              },
+              error(resp) {
+                  console.log(resp)
+              }
+          });
+      }
+    return{
+      begin,
+      His
+    }
+  },
   methods:{
 
   },

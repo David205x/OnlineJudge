@@ -5,6 +5,8 @@
       <div class="send" @click="send()">
         <span>发送(enter)</span>
       </div>
+
+      
     </div>
   </ContentField>
 </template>
@@ -74,6 +76,7 @@ export default {
       activeNames: ['1']
     }
   },
+
   methods:{
     send:{
 
