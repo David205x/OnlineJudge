@@ -16,30 +16,30 @@ public class MatchingPool extends Thread{
 
     private static RestTemplate restTemplate;
 
-    private static List<Player> players = new ArrayList<>();
+    private static List<Participant> participants = new ArrayList<>();
 
     private ReentrantLock lock = new ReentrantLock();
 
-    private final static String startMatchingUrl = "http://127.0.0.1:3000/problem/details/problemid=1/";
-    public void addPlayer(Integer userId, Integer rating, Integer botId){
+    private final static String startMatchingUrl = "http://127.0.0.1:3000/chatting/start/";
+    public void addParticipant(Integer userId, String userName, String avatarUrl){
         lock.lock();
         try{
-            players.add(new Player(userId, rating, 0, botId));
+            participants.add(new Participant(userId, userName, avatarUrl));
         }finally {
             lock.unlock();
         }
     }
 
-    public void removePlayer(Integer userId){
+    public void removeParticipant(Integer userId){
         lock.lock();
         try{
-            List<Player> newPlayers = new ArrayList<>();
-            for(Player player : players){
-                if(!player.getUserId().equals(userId)){
-                    newPlayers.add(player);
+            List<Participant> newParticipants = new ArrayList<>();
+            for(Participant participant : participants){
+                if(!participant.getId().equals(userId)){
+                    newParticipants.add(participant);
                 }
             }
-            players = newPlayers;
+            participants = newParticipants;
         }finally {
             lock.unlock();
         }
@@ -50,47 +50,15 @@ public class MatchingPool extends Thread{
     public void setRestTemplate(RestTemplate restTemplate){
         MatchingPool.restTemplate = restTemplate;
     }
-    private void increaseWaitingTime() {
-        for (Player player : players) {
-            player.setWaitingTime(player.getWaitingTime() + 1);
-        }
-    }
-    private void matchPlayers(){
-        boolean[] used = new boolean[players.size()];
-        for(int i = 0; i < players.size(); i++){
-            if(used[i]) continue;
-            for(int j = i + 1; j < players.size(); j++){
-                if(used[j]) continue;
-                Player a = players.get(i), b = players.get(j);
-                if(checkMatched(a, b)) {
-                    used[i] = used[j] = true;
-                    sendResult(a, b);
-                    break;
-                }
-            }
-        }
-        List<Player> newPlayers = new ArrayList<>();
-        for(int i = 0; i < players.size(); i++){
-            if(!used[i]){
-                newPlayers.add(players.get(i));
-            }
-        }
-        players = newPlayers;
-    }
-    private boolean checkMatched(Player a, Player b){
-        int ratingDelta = Math.abs(a.getRating() - b.getRating());
-        int waitingTime = Math.min(a.getWaitingTime(), b.getWaitingTime());
-        return ratingDelta <= waitingTime * 10;
-    }
-    private void sendResult(Player a, Player b){
+
+
+    private void sendResult(Participant a, Participant b){
         System.out.println("send result: " + a + " " + b);
         MultiValueMap<String, String> data = new LinkedMultiValueMap<>();
-        data.add("a_id", a.getUserId().toString());
-        data.add("a_bot_id", a.getBotId().toString());
-        data.add("b_id", b.getUserId().toString());
-        data.add("b_bot_id", b.getBotId().toString());
+        data.add("test", "test");
         restTemplate.postForObject(startMatchingUrl, data, String.class);
     }
+
     @Override
     public void run() {
         while(true){
@@ -98,8 +66,6 @@ public class MatchingPool extends Thread{
                 Thread.sleep(1000);
                 lock.lock();
                 try{
-                    increaseWaitingTime();
-                    matchPlayers();
                 }finally {
                     lock.unlock();
                 }

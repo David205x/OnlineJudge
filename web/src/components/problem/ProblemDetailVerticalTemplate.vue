@@ -126,7 +126,7 @@ import 'md-editor-v3/lib/style.css';
 import MdEditor from 'md-editor-v3'
 import { nextTick } from 'vue'
 import $ from 'jquery'
-import { onMounted, onUnmounted } from 'vue'
+
 ace.config.set(
     "basePath",
     "https://cdn.jsdelivr.net/npm/ace-builds@" + require('ace-builds').version + "/src-noconflict/")
@@ -229,33 +229,7 @@ export default{
     const refresh = () =>{
       code.content = ""
     }
-    const socketUrl = `ws://127.0.0.1:3000/websocket/${store.state.user.token}/`;
-    let socket = null;
-    onMounted(() => {
-          socket = new WebSocket(socketUrl);
-          socket.onopen = () => {
-              console.log("connected");
-              //store.commit("updateSocket", socket);
-          }
-          socket.onmessage = msg => {
-              const data = JSON.parse(msg.data);
-
-              if (data.event === "start-matching") {
-                console.log(data);
-              } else if (data.event === "move") {
-                  console.log(data);
-              } else if (data.event === "result") {
-                  console.log(data);
-              }
-          }
-          socket.onclose = () => {
-              console.log("disconnected");
-          }
-      });
-
-      onUnmounted(() => {
-          socket.close();
-      })
+    
     return {
       spinner_cog,
       compiledMarkdown,

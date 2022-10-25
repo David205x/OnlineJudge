@@ -7,9 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Player {
-    private Integer userId;
-    private Integer rating;
-    private Integer waitingTime;
-    private Integer botId;
+public class Participant {
+    private Integer Id;
+    private String userName;
+    private String avatarUrl;
 }
