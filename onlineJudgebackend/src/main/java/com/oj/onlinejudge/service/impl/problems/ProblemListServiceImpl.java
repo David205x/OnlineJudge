@@ -224,6 +224,7 @@ public class ProblemListServiceImpl extends GenericOjFilter implements ProblemLi
                 queryWrapper.like("tag", tag);
             }
         }
+
         queryWrapper.orderByAsc("problemkey");
         List<Problem> problems = problemMapper.selectList(queryWrapper);
 

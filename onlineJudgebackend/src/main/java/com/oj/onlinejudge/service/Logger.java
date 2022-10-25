@@ -23,6 +23,11 @@ public class Logger {
         return;
     }
 
+    public static String timestampGen() {
+        timesCalled++;
+        return format.format(new Date(System.currentTimeMillis()));
+    }
+
     public static void basicLogger(String caller, String info) {
         timesCalled++;
         stream.println("[" + format.format(new Date(System.currentTimeMillis())) + "] " + "[" + caller + "] " + info);
