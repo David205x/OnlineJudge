@@ -168,7 +168,14 @@ public class ProblemListServiceImpl extends GenericOjFilter implements ProblemLi
 
         QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
         queryWrapper.orderByAsc("problemkey");
-        queryWrapper.like("problemkey", problemKey);
+        int pk = -1;
+        try{
+            pk = Integer.parseInt(problemKey);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return new HashSet<>();
+        }
+        queryWrapper.like("problemkey", pk);
         List<Problem> problems = problemMapper.selectList(queryWrapper);
 
         Set<Integer> ret = new HashSet<>();
