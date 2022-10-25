@@ -2,6 +2,8 @@ package com.oj.onlinejudge.service.impl.user.submission;
 
 import java.util.Date;
 
+// This class is deprecated and outdated.
+
 public class SubmissionUUIDGen {
 
     private Date date;
