@@ -2,20 +2,26 @@
   <ContentField>
     <div class="message">
       <header class="header">
-        <div class="friendname">{{/*selectedChat.user.name*/"wxx"}}</div>
+        <div class="friendname">{{store.state.chatting.recieverName}}</div>
       </header>
       <div class="message-wrapper" ref="list">
-        <ul v-if="selectedChat">
-          <li v-for="(item,i) in selectedChat.messages" class="message-item" :key="i">
-            <div class="time"><span>{{/*selectedChat.messages[i].date | time*/"2022.10.24"}}</span></div>
-            <div class="main" :class="{ self: item.self }">
-              <img class="avatar" width="36" height="36" :src="item.self ? user.img : selectedChat.user.img" />
-              <div class="content">
-                <div class="text" v-html="replaceFace(item.content)"></div>
-              </div>
-            </div>
-          </li>
-        </ul>
+
+          <div v-for="(item,i) in store.state.chatting.content" class="message-item" :key="i">
+            <div class="time" ><span>2022.10.24</span></div>
+            &nbsp;
+
+            <div style="float: left" v-if="store.state.user.id === item.receiverId">{{item.content}}</div>
+<!--            <div class="main" :class="{ self: item.self }">-->
+<!--              <img class="avatar" width="36" height="36" :src="item.self ? user.img : selectedChat.user.img" />-->
+<!--              <div class="content">-->
+<!--                <div class="text" v-html="replaceFace(item.content)"></div>-->
+<!--              </div>-->
+<!--            </div>-->
+            <div style="float: right" v-else>{{item.content}}</div>
+
+          </div>
+
+
       </div>
     </div>
 
@@ -25,6 +31,8 @@
 <script>
 import ContentField from "@/components/ContentField.vue";
 import { ref } from 'vue'
+import { useStore } from "vuex";
+
 export default {
   components: { ContentField },
   computed: {
@@ -32,10 +40,11 @@ export default {
   setup(){
     let selectedChat = ref([]);
     let user = ref([]);
-    
+    const store = useStore();
     return{
       selectedChat,
-      user
+      user,
+      store
     }
   },
   mounted() {

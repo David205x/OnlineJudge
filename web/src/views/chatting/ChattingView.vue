@@ -10,7 +10,6 @@
         </ChatList>
       </div>
       <div class="col-9">
-        {{His}}
       <MessaGe>
         
         
@@ -33,7 +32,6 @@ import SearcH from "@/views/chatting/components/SearcH.vue";
 import ChatList from "@/views/chatting/components/ChatList.vue";
 import { useStore } from 'vuex'
 import { onMounted, onUnmounted } from 'vue'
-import { ref } from "vue"
 import $ from 'jquery'
 
 export default {
@@ -49,15 +47,14 @@ export default {
     
     const socketUrl = `ws://127.0.0.1:3000/websocket/${store.state.user.token}/`;
     let socket = null;
-    let His = ref();
     onMounted(() => {
           socket = new WebSocket(socketUrl);
           socket.onopen = () => {
               store.commit("updateSocket", socket);     
           }
           socket.onmessage = msg => {
-              His.value = msg.data
-              store.commit("appendContent", His.value);
+
+              store.commit("appendContent", msg.data);
               console.log(store.state.chatting.content)
           }
           socket.onclose = () => {
@@ -86,7 +83,6 @@ export default {
       }
     return{
       begin,
-      His
     }
   },
   methods:{
