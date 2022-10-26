@@ -10,7 +10,7 @@ export default{
         is_login: false,
         pulling_info: true,
         isChatOpen: false,
-        friends: [{"userName" : "wxx", "userKey" : "1"}, {"userName" : "wxxx", "userKey" : "2"}]
+        friends: [{"userName" : "test", "userKey" : "3"}, {"userName" : "test1", "userKey" : "2"}, {"userName" : "test4", "userKey" : "1"}]
     },
     getters: {},
     mutations:{

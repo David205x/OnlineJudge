@@ -5,6 +5,7 @@ export default {
         receiverId: "",
         receiverName:"",
         content: [],
+        selected: "",
     },
     getters: {},
     mutations: {
@@ -20,6 +21,9 @@ export default {
         updateReceiver(state, data){
             state.receiverId = data.receiverId
             state.receiverName = data.receiverName
+        },
+        updateSelected(state, selected){
+            state.selected = selected
         },
         appendContent(state, content){
 
