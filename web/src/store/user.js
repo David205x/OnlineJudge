@@ -10,6 +10,7 @@ export default{
         is_login: false,
         pulling_info: true,
         isChatOpen: false,
+        friends: [{"userName" : "wxx", "userKey" : "1"}, {"userName" : "wxxx", "userKey" : "2"}]
     },
     getters: {},
     mutations:{
@@ -32,6 +33,15 @@ export default{
             state.token = "",
             state.is_login = false
         },
+        updateFriends(state, friends){
+            state.friends = friends
+        },
+        addFriend(state, friend){
+            state.friends.push(friend)
+        },
+        deleteFriend(state){
+            state.friends.pop()
+        }
     },
     actions:{
         login(context, data) {

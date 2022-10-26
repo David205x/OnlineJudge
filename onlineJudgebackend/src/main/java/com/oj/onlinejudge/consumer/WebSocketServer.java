@@ -145,8 +145,11 @@ public class WebSocketServer {
         receiverKey = Integer.parseInt((String) data.get("b_id"));
         System.out.println(senderKey + " " + receiverKey);
         if("singleMessage".equals(data.get("event"))){
-            sendSingleMessage(senderKey, receiverKey, (String)data.get("content"));
-            sendSingleMessage(receiverKey, senderKey, (String)data.get("content"));
+            JSONObject json = new JSONObject();
+            json.put("content", (String)data.get("content"));
+            json.put("receiverId", String.valueOf(receiverKey));
+            sendSingleMessage(senderKey, receiverKey, JSONObject.toJSONString(json));
+            sendSingleMessage(receiverKey, senderKey, JSONObject.toJSONString(json));
 
         }
     }
