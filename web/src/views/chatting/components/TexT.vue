@@ -2,8 +2,8 @@
   <ContentField>
     <div>
       <textarea class="form-control" id="validationTextarea" ref="text" v-model="content" @keyup="onKeyup"/>
-      <div class="send" @click="send()">
-        <span>发送(enter)</span>
+      <div class="send" >
+        <button class="btn btn-primary" @click="send()">发送(enter)</button>
       </div>
 
       
@@ -13,7 +13,7 @@
 
 <script>
 import ContentField from "@/components/ContentField.vue";
-
+import { useStore } from 'vuex'
 export default {
   components: {
     ContentField,
@@ -76,10 +76,20 @@ export default {
       activeNames: ['1']
     }
   },
-
+  setup(){
+    const store = useStore();
+    return{
+      store
+    }
+  },
   methods:{
-    send:{
-
+    send(){
+      this.store.state.chatting.socket.send(JSON.stringify({
+            event: "singleMessage",
+            a_id: '1',
+            b_id: '2',
+            content: this.content
+      }));
     }
   },
   computed: {

@@ -5,6 +5,7 @@ export default {
         receiverId: "",
         receiver_name: "",
         receiver_photo: "",
+        content: [],
     },
     getters: {},
     mutations: {
@@ -18,6 +19,13 @@ export default {
         updateStatus(state, status) {
             state.status = status;
         },
+        updateContent(state, content){
+            state.content = content;
+        },
+        appendContent(state, content){
+            console.log(content)
+            state.content.push(content);
+        }
     },
     actions: {},
     modules: {}
