@@ -24,19 +24,19 @@
 
 <script>
 import ContentField from "@/components/ContentField.vue";
-import { mapGetters, mapState } from 'vuex';
-
+import { ref } from 'vue'
 export default {
   components: { ContentField },
   computed: {
-    ...mapGetters([
-      'selectedChat',
-      'messages'
-    ]),
-    ...mapState([
-      'user',
-      'emojis'
-    ])
+  },
+  setup(){
+    let selectedChat = ref([]);
+    let user = ref([]);
+    
+    return{
+      selectedChat,
+      user
+    }
   },
   mounted() {
     //  在页面加载时让信息滚动到最下面

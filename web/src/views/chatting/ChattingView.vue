@@ -10,6 +10,7 @@
         </ChatList>
       </div>
       <div class="col-9">
+        {{His}}
       <MessaGe>
         
         
@@ -17,7 +18,7 @@
       <TexT>
 
       </TexT>
-      {{His}}
+      
       <button class="btn btn-primary" @click="begin">发送</button>
     </div>
     </div>
@@ -52,25 +53,12 @@ export default {
     onMounted(() => {
           socket = new WebSocket(socketUrl);
           socket.onopen = () => {
-              console.log("connected");
-              
-              store.commit("updateSocket", socket);  
-              console.log(store.state.chatting.socket)
-              store.state.chatting.socket.send(JSON.stringify({
-                    event: "chatting",
-              }));
+              store.commit("updateSocket", socket);     
           }
           socket.onmessage = msg => {
-              //const data = JSON.parse(msg.data);
-              console.log(msg.data)
               His.value = msg.data
-              // if (data.event === "start-matching") {
-              //   console.log(data);
-              // } else if (data.event === "move") {
-              //     console.log(data);
-              // } else if (data.event === "result") {
-              //     console.log(data);
-              // }
+              store.commit("appendContent", His.value);
+              console.log(store.state.chatting.content)
           }
           socket.onclose = () => {
               console.log("disconnected");

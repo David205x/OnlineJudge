@@ -29,7 +29,7 @@ public class StartChattingController {
     private final Map<Integer, Integer> queuedUpdateRequests = new HashMap<>();
 
     @PostMapping("/chatting/start/")
-    public String startGame(@RequestParam MultiValueMap<String, String> data) {
+    public String startChatting(@RequestParam MultiValueMap<String, String> data) {
 
         int senderKey, receiverKey;
         try {
