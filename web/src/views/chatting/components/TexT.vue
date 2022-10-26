@@ -87,7 +87,7 @@ export default {
       this.store.state.chatting.socket.send(JSON.stringify({
             event: "singleMessage",
             a_id: this.store.state.user.id,
-            b_id: String(-(this.store.state.user.id - '3')),
+            b_id: this.store.state.chatting.receiverId,
             content: this.content
       }));
     }

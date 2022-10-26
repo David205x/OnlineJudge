@@ -2,12 +2,12 @@
   <ContentField>
     <div>
       <!-- {{ searchedChatlist }} -->
-      <ul style="overflow: auto;height: 55vh">
-        <li
+      <div class="list-group" style="overflow: auto;height: 55vh">
+        <button
             v-for="(item, index) in store.state.user.friends"
             :key="index"
-            :class="index == 0 ? 'active' : ''"
-            @click="redSession(item)"
+            :class="index == store.state.chatting.selected ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'"
+            @click="redSession(item, index)"
 
         >
 
@@ -31,8 +31,8 @@
 <!--            &lt;!&ndash; <span class="time">{{ item.createtime | time }}</span> &ndash;&gt;-->
 <!--            <p class="lastmsg">{{ item.createtime }}</p>-->
 <!--          </div>-->{{item.userName }}
-        </li>
-      </ul>
+        </button>
+      </div>
     </div>
   </ContentField>
 </template>
@@ -47,12 +47,14 @@ export default {
   },
   setup(){
     const store = useStore();
-    const redSession = (item) =>{
+    const redSession = (item, index) =>{
+      console.log(item)
         store.commit("updateReceiver",{
           receiverId: item.userKey,
           receiverName: item.userName
-      })
-      console.log("??")
+        })
+        store.commit("updateSelected", index)
+      
     }
     return {
       store,

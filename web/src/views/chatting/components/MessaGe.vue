@@ -2,7 +2,7 @@
   <ContentField>
     <div class="message">
       <header class="header">
-        <div class="friendname">{{store.state.chatting.recieverName}}</div>
+        <div class="friendname">{{store.state.chatting.receiverName}}</div>
       </header>
       <div class="message-wrapper" ref="list">
 
