@@ -10,6 +10,14 @@
             @click="redSession(item, index)"
 
         >
+        <div>
+          <span>{{item.userName}} &nbsp;</span>
+        </div>
+        <div>
+          <img src="../../../assets/testp1.jpg" class="img-thumbnail" style="width:50px; height:50px; border-radius: 100px; webkit-border-radius: 100px; moz-border-radius: 100px;">
+        </div>
+        
+       
 
 
 <!--          <div class="list-left">-->
@@ -30,7 +38,7 @@
 <!--            <p class="name">{{ item.content }}</p>-->
 <!--            &lt;!&ndash; <span class="time">{{ item.createtime | time }}</span> &ndash;&gt;-->
 <!--            <p class="lastmsg">{{ item.createtime }}</p>-->
-<!--          </div>-->{{item.userName }}
+<!--          </div>-->
         </button>
       </div>
     </div>
@@ -47,13 +55,20 @@ export default {
   },
   setup(){
     const store = useStore();
+    let friends = localStorage.getItem("friends");
+    if(friends == null || friends == undefined || friends.length == 0){
+      localStorage.setItem("friends", JSON.stringify([{"userKey" : "1", "userName" : "test4"}, {"userKey" : "2", "userName" : "test1"}]))
+      store.commit("updateFriends")
+    }
     const redSession = (item, index) =>{
       console.log(item)
         store.commit("updateReceiver",{
           receiverId: item.userKey,
-          receiverName: item.userName
+          receiverName: item.userName,
+          senderId: store.state.user.id
         })
         store.commit("updateSelected", index)
+        console.log(store.state.chatting.content)
       
     }
     return {

@@ -56,7 +56,7 @@ public class ChattingServiceImpl implements ChattingService {
         }
 
         List<Chatting> chattings = chattingMapper.selectPage(chattingIPage, chattingWrapper).getRecords();
-        Collections.reverse(chattings);
+       // Collections.reverse(chattings);
 
         if (chattings.isEmpty()) {
             ret.put("chattingCount", -1);

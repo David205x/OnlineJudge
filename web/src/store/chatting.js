@@ -1,3 +1,5 @@
+import $ from "jquery"
+
 export default {
     state: {
         status: "matching", //matching 匹配 playing 对战
@@ -21,12 +23,30 @@ export default {
         updateReceiver(state, data){
             state.receiverId = data.receiverId
             state.receiverName = data.receiverName
+            $.ajax({
+                url: "http://127.0.0.1:3000/chatting/chattingroom/chathistory/",
+                type: 'post',
+                data:{
+                    senderKey : data.senderId,
+                    receiverKey : state.receiverId,
+                    page: 1
+                },
+                headers: {
+                    Authorization: "Bearer " + localStorage.getItem("jwt_token"),
+                },
+                success(resp) {
+                    console.log(resp)
+                    state.content = resp.chattingList
+                },
+                error(resp) {
+                    console.log(resp)
+                }
+            })
         },
         updateSelected(state, selected){
             state.selected = selected
         },
         appendContent(state, content){
-
             state.content.push(JSON.parse(content));
             console.log(JSON.parse(content))
         }

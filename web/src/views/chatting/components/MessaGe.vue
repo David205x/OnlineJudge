@@ -7,10 +7,9 @@
       <div class="message-wrapper" ref="list">
 
           <div v-for="(item,i) in store.state.chatting.content" class="message-item" :key="i">
-            <div class="time" ><span>2022.10.24</span></div>
+            <div class="time" ><span>{{ time(item.time) }}</span></div>
             &nbsp;
-
-            <div style="float: left" v-if="store.state.user.id === item.receiverId">{{item.content}}</div>
+            <div style="float: left" v-if="store.state.user.id == item.receiverkey">{{item.content}}</div>
 <!--            <div class="main" :class="{ self: item.self }">-->
 <!--              <img class="avatar" width="36" height="36" :src="item.self ? user.img : selectedChat.user.img" />-->
 <!--              <div class="content">-->
@@ -41,10 +40,22 @@ export default {
     let selectedChat = ref([]);
     let user = ref([]);
     const store = useStore();
+    const time = (date) => {
+      console.log('time的++',date);
+      if (typeof date === 'string') {
+        date = new Date(date);
+      }
+      if(date.getMinutes()<10){
+        return date.getHours() + ':0' +date.getMinutes();
+      }else{
+        return date.getHours() + ':' + date.getMinutes();
+      }
+    }
     return{
       selectedChat,
       user,
-      store
+      store,
+      time
     }
   },
   mounted() {
@@ -83,7 +94,7 @@ export default {
       }else{
         return date.getHours() + ':' + date.getMinutes();
       }
-    }
+    },
   }
 }
 </script>
