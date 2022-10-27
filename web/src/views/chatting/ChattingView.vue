@@ -70,8 +70,8 @@ export default {
               url: "http://127.0.0.1:3000/chatting/start/",
               type: 'post',
               data:{
-                  a_id: 1,
-                  b_id: 2
+                  a_id: store.state.user.id,
+                  b_id: store.state.chatting.receiverId,
               },
               success(resp) {
                   console.log(resp)
@@ -80,6 +80,7 @@ export default {
                   console.log(resp)
               }
           });
+        store.commit("updateFriends");
       }
     return{
       begin,

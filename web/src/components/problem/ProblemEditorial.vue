@@ -57,7 +57,6 @@ import $ from 'jquery'
         const md = ref();
         let r = window.location.href.match("problemId=.*/");
         let t = r[0].split("=")[1].split("/")[0]
-        //const store = useStore();
         const jwt_token = localStorage.getItem("jwt_token");
 
         const showTutorial = (solutionKey) =>{

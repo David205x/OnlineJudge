@@ -10,7 +10,7 @@ export default{
         is_login: false,
         pulling_info: true,
         isChatOpen: false,
-        friends: [{"userName" : "test", "userKey" : "3"}, {"userName" : "test1", "userKey" : "2"}, {"userName" : "test4", "userKey" : "1"}]
+        friends: []
     },
     getters: {},
     mutations:{
@@ -33,15 +33,26 @@ export default{
             state.token = "",
             state.is_login = false
         },
-        updateFriends(state, friends){
-            state.friends = friends
+        updateFriends(state){
+            state.friends = JSON.parse(localStorage.getItem("friends"));
         },
         addFriend(state, friend){
-            state.friends.push(friend)
+            let newFriend = []
+            let update = {}
+            let f = false;
+            for(let i = 0; i < state.friends.length; i++){
+                if(state.friends[i].userKey != friend.userKey){
+                    newFriend.push(state.friends[i])
+                }else {
+                    f = true;
+                    update = state.friends[i];
+                }
+            }
+            if(f)   newFriend.push(update)
+            else    state.friends.push(friend)
+            if(state.friends.length > 10) state.friends.slice(0, 1)
+            localStorage.setItem("friends", state.friends)
         },
-        deleteFriend(state){
-            state.friends.pop()
-        }
     },
     actions:{
         login(context, data) {
