@@ -125,7 +125,7 @@ import 'font-awesome/css/font-awesome.min.css';
 import 'md-editor-v3/lib/style.css';
 import MdEditor from 'md-editor-v3'
 import { nextTick } from 'vue'
-import $ from 'jquery'
+
 
 ace.config.set(
     "basePath",
@@ -147,22 +147,6 @@ export default{
     let debugInfo = ref("");
     let FS = ref(13);
     const store = useStore();
-      $.ajax({
-      url: "http://127.0.0.1:3000/chatting/start/",
-      type: 'post',
-      data:{
-        a_id : "1",
-        b_id : "1",
-      },
-      success(resp) {
-        console.log("成功")
-        console.log(resp)
-      },
-      error(resp) {
-        console.log("失败")
-        console.log(resp)
-      }
-    })
     
     const code = reactive({
       content: "",
@@ -212,7 +196,7 @@ export default{
               console.log("?");
             }
         });
-        store.dispatch("sendPollRequest", {
+          store.dispatch("sendPollRequest", {
             SUUID: UUID,
             success(resp) {
               console.log(resp);

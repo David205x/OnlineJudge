@@ -10,10 +10,16 @@ export default{
         is_login: false,
         pulling_info: true,
         isChatOpen: false,
-        friends: []
+        friends: [],
+        is_visit: -1,
+        visitUsername: "",
+        visitPhoto: "",
     },
     getters: {},
     mutations:{
+        updateVisit(state, data){
+          state.is_visit = data.userKey
+        },
         updateUser(state, user) {
             state.id = user.id;
             state.username = user.username;
@@ -55,6 +61,26 @@ export default{
         },
     },
     actions:{
+        getOthers(context, data){
+            $.ajax({
+                url: "http://127.0.0.1:3000/user/account/visit/",
+                type: 'get',
+                data:{
+                    userKey: data.userKey
+                },
+                headers: {
+                    Authorization: "Bearer " + context.state.token,
+                },
+                success(resp) {
+                    context.state.is_visit = resp.id;
+                    context.state.visitUsername = resp.username;
+                    context.state.visitPhoto = resp.photo;
+                },
+                error(resp) {
+                    console.log(resp);
+                }
+            });
+        },
         login(context, data) {
             $.ajax({
                 url: "http://127.0.0.1:3000/user/account/token/",
@@ -78,7 +104,7 @@ export default{
                 }
             });
         },
-        getinfo(context, data) {
+        getInfo(context, data) {
             $.ajax({
                 url: "http://127.0.0.1:3000/user/account/info/",
                 type: 'get',

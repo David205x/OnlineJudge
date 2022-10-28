@@ -16,6 +16,7 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -139,7 +140,8 @@ public class WebSocketServer {
     @OnMessage
     public void onMessage(String message, Session session) {
         JSONObject data = JSONObject.parseObject(message);
-        System.out.println(data);
+        //JSONObject.parseObject((String)data.get("content")).put("time", new Date());
+        System.out.println((String)data.get("content"));
         int senderKey, receiverKey;
         senderKey = Integer.parseInt((String) data.get("a_id")); // change these later
         receiverKey = Integer.parseInt((String) data.get("b_id"));
@@ -147,6 +149,7 @@ public class WebSocketServer {
         if("singleMessage".equals(data.get("event"))){
             JSONObject json = new JSONObject();
             json.put("content", (String)data.get("content"));
+            json.put("time", new Timestamp(System.currentTimeMillis()));
             json.put("receiverId", String.valueOf(receiverKey));
             sendSingleMessage(senderKey, receiverKey, JSONObject.toJSONString(json));
             sendSingleMessage(receiverKey, senderKey, JSONObject.toJSONString(json));

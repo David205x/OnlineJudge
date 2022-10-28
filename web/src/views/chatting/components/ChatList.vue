@@ -16,29 +16,6 @@
         <div>
           <img src="../../../assets/testp1.jpg" class="img-thumbnail" style="width:50px; height:50px; border-radius: 100px; webkit-border-radius: 100px; moz-border-radius: 100px;">
         </div>
-        
-       
-
-
-<!--          <div class="list-left">-->
-<!--            &lt;!&ndash; <img-->
-<!--              class="avatar"-->
-<!--              width="42"-->
-<!--              height="42"-->
-<!--              src="https://p1.ssl.qhimgs1.com/t01f1a752c5c6e75077.jpg"-->
-<!--            > &ndash;&gt;-->
-<!--            <el-badge v-if="item.is_read == 0 " :key="index" is-dot class="item">-->
-<!--              <el-avatar icon="el-icon-user-solid" />-->
-<!--            </el-badge>-->
-<!--            <el-avatar v-if="item.is_read == 1 " icon="el-icon-user-solid" />-->
-
-<!--            &lt;!&ndash; <el-avatar v-if="item.id != selectId"> 患者 </el-avatar> &ndash;&gt;-->
-<!--          </div>-->
-<!--          <div class="list-right">-->
-<!--            <p class="name">{{ item.content }}</p>-->
-<!--            &lt;!&ndash; <span class="time">{{ item.createtime | time }}</span> &ndash;&gt;-->
-<!--            <p class="lastmsg">{{ item.createtime }}</p>-->
-<!--          </div>-->
         </button>
       </div>
     </div>

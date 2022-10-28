@@ -77,7 +77,7 @@ export default{
         const jwt_token = localStorage.getItem("jwt_token");
         if(jwt_token){
             store.commit("updateToken", jwt_token);
-            store.dispatch("getinfo", {
+            store.dispatch("getInfo", {
                 success(){
                     store.commit("updatePullingInfo", false);
                     
@@ -97,7 +97,7 @@ export default{
                 username: username.value,
                 password: password.value,
                 success() {
-                    store.dispatch("getinfo", {
+                    store.dispatch("getInfo", {
                         success(){
                             console.log(store.state.user);
                             router.push({ name: "home" });

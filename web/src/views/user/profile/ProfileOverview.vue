@@ -10,6 +10,7 @@
                   <p class="text-center">Holy Username</p>
                   <p class="fw-light" style="font-size: 15px; margin-top: 0px">Mys Institution<br><br></p>
                   <button type="button" class="btn btn-secondary">Edit Profile</button>
+                  <button type="button" class="btn btn-secondary" @click="chat">Chat</button>
               </div>
           </div>
           <div class="col-1"></div>
@@ -99,6 +100,7 @@ import { CalendarHeatmap } from 'vue3-calendar-heatmap'
 import { useStore } from 'vuex'
 import { ref } from 'vue'
 import $ from 'jquery'
+import router from "@/router"
 export default {
   name: "ProfileDetailView",
   components: {
@@ -109,39 +111,56 @@ export default {
     const store = useStore();
     const jwt_token = localStorage.getItem("jwt_token");
     let submissionList = ref([]);
-    
+    const chat = () => {
+        router.push({name : "chatting_list"})
+        store.commit("addFriend", {
+            userKey : store.state.user.is_visit === -1 ? store.state.user.id : store.state.user.is_visit,
+            userName : store.state.user.is_visit === -1 ? store.state.user.username : store.state.user.visitUsername
+
+        })
+      }
     if(jwt_token){
         store.commit("updateToken", jwt_token);
-        store.dispatch("getinfo", {
+        store.dispatch("getInfo", {
             success(){
                 store.commit("updatePullingInfo", false);
-                $.ajax({
-                    url: "http://127.0.0.1:3000/user/submission/heatmap/",
-                    type: 'post',
-                    data:{
-                        userKey: store.state.user.id
-                    },
-                    headers: {
-                        Authorization: "Bearer " + jwt_token,
-                    },
-                    success(resp) {
-                        submissionList.value = resp.submissionList
-                    },
-                    error(resp) {
-                        console.log(resp);
-                    }
-                });
+                if(store.state.user.is_visit === -1){
+                    $.ajax({
+                        url: "http://127.0.0.1:3000/user/submission/heatmap/",
+                        type: 'post',
+                        data:{
+                            userKey: store.state.user.id
+                        },
+                        headers: {
+                            Authorization: "Bearer " + jwt_token,
+                        },
+                        success(resp) {
+                            submissionList.value = resp.submissionList
+                        },
+                        error(resp) {
+                            console.log(resp);
+                        }
+                    });
+                }
+                else {
+                    store.dispatch("getOthers", {
+                        userKey : store.state.user.is_visit
+                    })
+                }
+
             },
             error() {
                 store.commit("updatePullingInfo", false);
             }
         })
+
     }else {
         store.commit("updatePullingInfo", false);
     }
     
     return{
-        submissionList
+        submissionList,
+        chat
     }
   }
 }

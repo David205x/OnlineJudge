@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS `submission`;
 DROP TABLE IF EXISTS `io`;
 DROP TABLE IF EXISTS `problem`;
 DROP TABLE IF EXISTS `user`;
+DROP TABLE IF EXISTS `chating`;
 
 
 
@@ -49,6 +50,7 @@ CREATE TABLE `submission` (
 	`submissionKey`		INT				NOT NULL AUTO_INCREMENT COMMENT '提交记录编号',
 	`problemKey`		INT				NOT NULL 				COMMENT '题目编号',
 	`userKey`			INT 			NOT NULL				COMMENT '所属用户',
+	`userName`			VARCHAR(32)		NOT NULL				COMMENT '用户名',
 	`time`				TIMESTAMP		NOT NULL				COMMENT '提交时间',
 	`result`			VARCHAR(64)		NOT NULL				COMMENT '编译结果',
 	`runtime`			INT				NOT NULL				COMMENT '运行用时',
@@ -61,8 +63,23 @@ CREATE TABLE `solution` (
 	`solutionKey`		INT				NOT NULL AUTO_INCREMENT COMMENT '题解编号',
 	`problemKey`		INT				NOT NULL				COMMENT '对应题号',
 	`userKey`			INT				NOT NULL				COMMENT '贡献者编号',
+	`userName`			VARCHAR(32)		NOT NULL				COMMENT '用户名',
 	`time`				DATE			NOT NULL				COMMENT '提交时间',
+	`title`				VARCHAR(64)		NOT NULL				COMMENT '题解标题',
+	`overview`			VARCHAR(64)		NOT NULL				COMMENT '题解概要',
 	`content`			VARCHAR(2048)	NOT NULL				COMMENT '正文',
 
 	PRIMARY KEY (`solutionKey`)
+);
+
+CREATE TABLE `chatting` (
+	`chatKey`			INT				NOT NULL AUTO_INCREMENT ,
+	`senderKey`			INT				NOT NULL,
+	`senderName`		VARCHAR(32)		NOT NULL,				
+	`receiverKey`		INT				NOT NULL,				
+	`receiverName`		VARCHAR(32)		NOT NULL,
+	`content`			VARCHAR(1024)	NOT NULL,
+	`time`				TIMESTAMP		NOT NULL,
+
+	PRIMARY KEY (`chatKey`)
 )

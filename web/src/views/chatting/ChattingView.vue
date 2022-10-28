@@ -50,7 +50,8 @@ export default {
     onMounted(() => {
           socket = new WebSocket(socketUrl);
           socket.onopen = () => {
-              store.commit("updateSocket", socket);     
+              store.commit("updateSocket", socket);
+              console.log("connected")
           }
           socket.onmessage = msg => {
 

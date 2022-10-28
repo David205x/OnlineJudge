@@ -10,12 +10,6 @@
             <div class="time" ><span>{{ time(item.time) }}</span></div>
             &nbsp;
             <div style="float: left" v-if="store.state.user.id == item.receiverkey">{{item.content}}</div>
-<!--            <div class="main" :class="{ self: item.self }">-->
-<!--              <img class="avatar" width="36" height="36" :src="item.self ? user.img : selectedChat.user.img" />-->
-<!--              <div class="content">-->
-<!--                <div class="text" v-html="replaceFace(item.content)"></div>-->
-<!--              </div>-->
-<!--            </div>-->
             <div style="float: right" v-else>{{item.content}}</div>
 
           </div>
@@ -45,7 +39,7 @@ export default {
       if (typeof date === 'string') {
         date = new Date(date);
       }
-      if(date.getMinutes()<10){
+      if(date.getMinutes() < 10){
         return date.getHours() + ':0' +date.getMinutes();
       }else{
         return date.getHours() + ':' + date.getMinutes();
