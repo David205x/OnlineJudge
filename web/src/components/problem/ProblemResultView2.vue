@@ -113,7 +113,6 @@ export default{
     if(store.state.user.is_login){
       store.dispatch("getinfoInMainPage", {
         success(){
-          console.log(store.state.user);
         }
       })
     }

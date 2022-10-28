@@ -97,10 +97,12 @@ export default{
                 username: username.value,
                 password: password.value,
                 success() {
+                    
                     store.dispatch("getInfo", {
                         success(){
                             console.log(store.state.user);
                             router.push({ name: "home" });
+                            
                         }
                     })
                 },

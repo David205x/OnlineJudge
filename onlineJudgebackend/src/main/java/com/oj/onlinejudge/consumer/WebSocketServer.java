@@ -141,19 +141,21 @@ public class WebSocketServer {
     public void onMessage(String message, Session session) {
         JSONObject data = JSONObject.parseObject(message);
         //JSONObject.parseObject((String)data.get("content")).put("time", new Date());
-        System.out.println((String)data.get("content"));
+
         int senderKey, receiverKey;
         senderKey = Integer.parseInt((String) data.get("a_id")); // change these later
         receiverKey = Integer.parseInt((String) data.get("b_id"));
-        System.out.println(senderKey + " " + receiverKey);
         if("singleMessage".equals(data.get("event"))){
             JSONObject json = new JSONObject();
             json.put("content", (String)data.get("content"));
             json.put("time", new Timestamp(System.currentTimeMillis()));
-            json.put("receiverId", String.valueOf(receiverKey));
+            json.put("receiverkey", receiverKey);
+            json.put("receivername", (String)data.get("receivername"));
+            json.put("senderkey", senderKey);
+            json.put("sendername", (String)data.get("sendername"));
             sendSingleMessage(senderKey, receiverKey, JSONObject.toJSONString(json));
             sendSingleMessage(receiverKey, senderKey, JSONObject.toJSONString(json));
-
+            chatInsertion(senderKey, receiverKey, (String)data.getString("content"));
         }
     }
 

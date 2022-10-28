@@ -20,6 +20,11 @@ export default{
         updateVisit(state, data){
           state.is_visit = data.userKey
         },
+        udpateOthers(state, data){
+            state.is_visit = data.userKey,
+            state.visitUsername = data.visitUsername,
+            state.visitPhoto = data.visitPhoto;
+        },
         updateUser(state, user) {
             state.id = user.id;
             state.username = user.username;
@@ -54,13 +59,52 @@ export default{
                     update = state.friends[i];
                 }
             }
-            if(f)   newFriend.push(update)
+            if(f)   newFriend.push(update), state.friends = newFriend
             else    state.friends.push(friend)
             if(state.friends.length > 10) state.friends.slice(0, 1)
-            localStorage.setItem("friends", state.friends)
+            localStorage.setItem("friends", JSON.stringify(state.friends))
         },
     },
     actions:{
+        submitFriends(context, data){
+            $.ajax({
+                url: "http://127.0.0.1:3000/chatting/final/friends/",
+                type: 'post',
+                data: {
+                    userKey : data.userKey,
+                    userName : data.userName,
+                    friends : JSON.stringify(data.friends)
+                },
+                headers: {
+                    Authorization: "Bearer " + context.state.token,
+                },
+                success(resp) {
+                   console.log(resp)
+                },
+                error(resp) {
+                   console.log(resp)
+                }
+            });
+        },
+        refreshFriends(context, data){
+            $.ajax({
+                url: "http://127.0.0.1:3000/chatting/update/friends/",
+                type: 'post',
+                data: {
+                    receiverKey : data.receiverKey
+                },
+                headers: {
+                    Authorization: "Bearer " + context.state.token,
+                },
+                success(resp) {
+                   localStorage.setItem("friends", JSON.parse(resp))
+                   context.state.friends = JSON.parse(resp)
+                },
+                error(resp) {
+                   console.log(resp)
+                }
+            });
+        },
         getOthers(context, data){
             $.ajax({
                 url: "http://127.0.0.1:3000/user/account/visit/",
@@ -75,6 +119,7 @@ export default{
                     context.state.is_visit = resp.id;
                     context.state.visitUsername = resp.username;
                     context.state.visitPhoto = resp.photo;
+                    
                 },
                 error(resp) {
                     console.log(resp);
@@ -90,7 +135,6 @@ export default{
                     password: data.password,
                 },
                 success(resp) {
-                    console.log(data)
                     if (resp.error_message === "success") {
                         localStorage.setItem("jwt_token", resp.token);
                         context.commit("updateToken", resp.token);
@@ -98,6 +142,7 @@ export default{
                     } else {
                         data.error(resp);
                     }
+                    
                 },
                 error(resp) {
                     data.error(resp);
@@ -114,10 +159,11 @@ export default{
                 success(resp) {
                     if (resp.error_message === "success") {
                         context.commit("updateUser", {
-                            ...resp,
+                            id: resp.id,
+                            photo: resp.photo,
+                            username: resp.username,
                             is_login: true,
                         });
-
                         data.success(resp);
                     } else {
                         data.error(resp);
@@ -129,16 +175,14 @@ export default{
             });
         },
         getinfoInMainPage(context, data) {
-            console.log(context.state.token);
-            console.log(data);
             $.ajax({
                 url: "http://127.0.0.1:3000/index/info/",
                 type: 'post',
                 headers: {
                     Authorization: "Bearer " + context.state.token,
                 },
-                success(resp) {
-                    console.log(resp);
+                success() {
+                    data.success();
                 },
                 error(resp) {
                     console.log(resp);
@@ -150,10 +194,12 @@ export default{
             context.commit("logout");
         },
         sendSubmission(context, data){
-            console.log(context);
             $.ajax({
                 url: "http://127.0.0.1:3000/user/submission/offersub/",
                 type: 'POST',
+                headers: {
+                    Authorization: "Bearer " + context.state.token,
+                },
                 data: {
                     userKey: data.userKey,
                     code: data.content,
@@ -163,7 +209,6 @@ export default{
                     SUUID: data.SUUID,
                 },
                 success(resp) {
-                    console.log(this.data)
                     data.success(resp)
                 },
                 error() {
@@ -172,15 +217,16 @@ export default{
             });
         },
         sendPollRequest(context, data){
-            console.log(context);
             $.ajax({
                 url: "http://127.0.0.1:3000/user/submission/pollret/",
                 type: 'POST',
+                headers: {
+                    Authorization: "Bearer " + context.state.token,
+                },
                 data: {
                     SUUID: data.SUUID,
                 },
                 success(resp) {
-                    console.log(this.data)
                     data.success(resp)
                 },
                 error() {

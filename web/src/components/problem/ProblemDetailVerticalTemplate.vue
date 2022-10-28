@@ -173,7 +173,6 @@ export default{
     
 
     const submitcode = (debugInfo_value, is_debug) =>{
-      console.log(code.content)
       submission_status.value = "Waiting"
       if(is_debug && (debugInfo_value == null || debugInfo_value.length == 0 || debugInfo_value.replace(/\s*/g,"").length == 0)) {
         submission_status.value = 'Finished'
@@ -189,8 +188,6 @@ export default{
             SUUID: UUID,
             success(resp) {
               console.log(resp);
-              // submission_status.value = resp.SubmissionStatus;
-              // store.commit("updataDebugOutcome", resp.debugOutcome)
             },
             error() {
               console.log("?");
@@ -199,7 +196,6 @@ export default{
           store.dispatch("sendPollRequest", {
             SUUID: UUID,
             success(resp) {
-              console.log(resp);
               submission_status.value = resp.SubmissionStatus;
               store.commit("updataDebugOutcome", resp.debugOutcome)
             },
@@ -232,7 +228,6 @@ export default{
       return function (data,count) {
         if (data != undefined) {
           let arrTemp = [];
-          console.log(data)
           let i = 0;
           let j = 0;
           let tag = {};

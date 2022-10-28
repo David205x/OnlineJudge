@@ -88,8 +88,11 @@ export default {
             event: "singleMessage",
             a_id: this.store.state.user.id,
             b_id: this.store.state.chatting.receiverId,
+            sendername: this.store.state.user.username,
+            receivername: this.store.state.user.visitUsername,
             content: this.content
       }));
+  
     }
   },
   computed: {

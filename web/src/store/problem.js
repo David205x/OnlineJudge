@@ -35,16 +35,14 @@ export default{
     },
     actions:{
         showProblem(context, data) {
-            console.log( context)
             $.ajax({
-                url: "http://127.0.0.1:3000/problems/test/",
+                url: "http://127.0.0.1:3000/problems/show/",
                 type: 'post',
                 data:{
                     probKey: data.problemKey
                 },
                 success(resp) {
                     if (resp.problemBody !== undefined) {
-                        console.log(resp)
                         context.commit("updateProblem", {
                             problemDescription : resp.problemBody,
                             problemKey : resp.problemKey,

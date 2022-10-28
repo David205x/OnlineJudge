@@ -80,14 +80,6 @@ export default{
         const md2 = {
             context: "$x_i \\leq y_i$ 并且 $e = {x_i}^{10}$"
         }
-        store.dispatch("showProblem",{
-                success(){
-                    store.commit("updatePullingInfo", false);
-                },
-                error() {
-                    store.commit("updatePullingInfo", false);
-                }
-            })
         store.commit("updatePullingInfo", false);
         if(store.state.user.is_login){
             store.dispatch("getinfoInMainPage", {
@@ -108,7 +100,6 @@ export default{
         compiledMarkdown(){
             let Ht = marked.parse(this.md2.context);
             let j = JSON.stringify(Ht);
-            console.log(JSON.parse(j))
             return JSON.parse(j);
         }
         

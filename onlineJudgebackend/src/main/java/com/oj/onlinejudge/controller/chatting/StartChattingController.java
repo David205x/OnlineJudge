@@ -5,10 +5,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.oj.onlinejudge.mapper.ChattingMapper;
+import com.oj.onlinejudge.mapper.FriendsMapper;
 import com.oj.onlinejudge.pojo.Chatting;
+import com.oj.onlinejudge.pojo.Friends;
 import com.oj.onlinejudge.pojo.Problem;
 import com.oj.onlinejudge.service.Logger;
 import com.oj.onlinejudge.service.chatting.ChattingService;
+import com.oj.onlinejudge.service.friends.friendsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +26,13 @@ public class StartChattingController {
 
     @Autowired
     private ChattingService chattingService;
+
+    @Autowired
+    private friendsService friendsService;
+
+    @Autowired
+    private FriendsMapper friendsMapper;
+
     @Autowired
     private ChattingMapper chattingMapper;
 
@@ -41,8 +51,18 @@ public class StartChattingController {
         }
         return chattingService.startChatting(senderKey, receiverKey, queuedUpdateRequests);
     }
-
-    @PostMapping("chatting/chattingroom/chathistory")
+    @PostMapping("/chatting/update/friends/")
+    public String updateNewFriends(@RequestParam String receiverKey){
+        return friendsService.updateFriends(receiverKey);
+    }
+    @PostMapping("/chatting/final/friends/")
+    public JSONObject finalFriends(@RequestParam Map<String, String> data){
+        JSONObject json = new JSONObject();
+        json.put("error_message", "success");
+        friendsMapper.updateById(new Friends(Integer.parseInt(data.get("userKey")), data.get("userName"), data.get("friends")));
+        return json;
+    }
+    @PostMapping("/chatting/chattingroom/chathistory")
     public JSONObject getChattingHistory(@RequestParam Integer senderKey,
                                          @RequestParam Integer receiverKey,
                                          @RequestParam Integer page) throws InterruptedException {

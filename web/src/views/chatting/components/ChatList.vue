@@ -33,19 +33,22 @@ export default {
   setup(){
     const store = useStore();
     let friends = localStorage.getItem("friends");
-    if(friends == null || friends == undefined || friends.length == 0){
-      localStorage.setItem("friends", JSON.stringify([{"userKey" : "1", "userName" : "test4"}, {"userKey" : "2", "userName" : "test1"}]))
-      store.commit("updateFriends")
+  
+    if(friends == null || friends == undefined || friends.length == 0 || friends == "[object Object]"){
+      localStorage.setItem("friends", JSON.stringify([{"userKey" : "1", "userName" : "test4", "lastMessage" : "hello"}, {"userKey" : "2", "userName" : "test1", "lastMessage" : "hello"}]))
     }
+    store.commit("updateFriends")
     const redSession = (item, index) =>{
-      console.log(item)
+      
         store.commit("updateReceiver",{
           receiverId: item.userKey,
           receiverName: item.userName,
           senderId: store.state.user.id
         })
+        store.dispatch("getOthers",{
+          userKey : item.userKey,
+        })
         store.commit("updateSelected", index)
-        console.log(store.state.chatting.content)
       
     }
     return {
@@ -53,9 +56,7 @@ export default {
       redSession
     }
   },
-  methods:{
 
-  },
   computed: {
 
   },
