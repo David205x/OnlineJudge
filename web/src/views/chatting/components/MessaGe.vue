@@ -41,7 +41,6 @@ export default {
     let user = ref([]);
     const store = useStore();
     const time = (date) => {
-      console.log('time的++',date);
       if (typeof date === 'string') {
         date = new Date(date);
       }
@@ -85,7 +84,6 @@ export default {
   filters: {
     // 将日期过滤为 hour:minutes
     time (date) {
-      console.log('time的++',date);
       if (typeof date === 'string') {
         date = new Date(date);
       }

@@ -132,14 +132,6 @@ export default{
         const code = reactive({
             content: "",
         });
-        store.dispatch("showProblem", {
-            success(){
-                store.commit("updatePullingInfo", false);
-            },
-            error() {
-                store.commit("updatePullingInfo", false);
-            }
-        })
         const spinnerChangeCog = (data) =>{
             spinner_cog.value = data;
         }
@@ -150,7 +142,6 @@ export default{
                 content: code.content,
                 language: language_selected.value,
                 success(resp) {
-                    console.log(resp);
                     submission_status.value = resp.SubmissionStatus;
                 },
                 error() {

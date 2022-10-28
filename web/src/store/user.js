@@ -64,7 +64,6 @@ export default{
                     password: data.password,
                 },
                 success(resp) {
-                    console.log(data)
                     if (resp.error_message === "success") {
                         localStorage.setItem("jwt_token", resp.token);
                         context.commit("updateToken", resp.token);
@@ -103,16 +102,14 @@ export default{
             });
         },
         getinfoInMainPage(context, data) {
-            console.log(context.state.token);
-            console.log(data);
             $.ajax({
                 url: "http://127.0.0.1:3000/index/info/",
                 type: 'post',
                 headers: {
                     Authorization: "Bearer " + context.state.token,
                 },
-                success(resp) {
-                    console.log(resp);
+                success() {
+                    data.success();
                 },
                 error(resp) {
                     console.log(resp);
@@ -124,10 +121,12 @@ export default{
             context.commit("logout");
         },
         sendSubmission(context, data){
-            console.log(context);
             $.ajax({
                 url: "http://127.0.0.1:3000/user/submission/offersub/",
                 type: 'POST',
+                headers: {
+                    Authorization: "Bearer " + context.state.token,
+                },
                 data: {
                     userKey: data.userKey,
                     code: data.content,
@@ -137,7 +136,6 @@ export default{
                     SUUID: data.SUUID,
                 },
                 success(resp) {
-                    console.log(this.data)
                     data.success(resp)
                 },
                 error() {
@@ -146,15 +144,16 @@ export default{
             });
         },
         sendPollRequest(context, data){
-            console.log(context);
             $.ajax({
                 url: "http://127.0.0.1:3000/user/submission/pollret/",
                 type: 'POST',
+                headers: {
+                    Authorization: "Bearer " + context.state.token,
+                },
                 data: {
                     SUUID: data.SUUID,
                 },
                 success(resp) {
-                    console.log(this.data)
                     data.success(resp)
                 },
                 error() {

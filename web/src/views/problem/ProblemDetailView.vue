@@ -86,7 +86,6 @@ import "../../assets/font/font.css"
         store.dispatch("showProblem", {
             problemKey : t,
             success(){
-                // problemName.value = "##### " + store.state.problem.problemKey + ". " + store.state.problem.problemName
                 problemName.value = store.state.problem.problemKey + ". " + store.state.problem.problemName
                 store.commit("updatePullingInfo", false);
             },
@@ -100,8 +99,7 @@ import "../../assets/font/font.css"
         const switchLayout = () => {
             layout.value = -layout.value;
         }
-       
-        console.log(problemName.value)
+    
          return {
             f,
             onChange,

@@ -18,7 +18,7 @@ public class ProblemFilterController {
     @Autowired
     private ProblemListService problemListService;
 
-    @PostMapping("/problems/test/")
+    @PostMapping("/problems/show/")
     public Map<String, String> showProblem(@RequestParam String probKey) {
         return problemDetailService.getProblemDetails(Integer.parseInt(probKey));
     }

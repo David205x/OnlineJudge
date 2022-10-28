@@ -55,7 +55,6 @@ export default {
           socket.onmessage = msg => {
 
               store.commit("appendContent", msg.data);
-              console.log(store.state.chatting.content)
           }
           socket.onclose = () => {
               console.log("disconnected");
@@ -73,8 +72,7 @@ export default {
                   a_id: store.state.user.id,
                   b_id: store.state.chatting.receiverId,
               },
-              success(resp) {
-                  console.log(resp)
+              success() {
               },
               error(resp) {
                   console.log(resp)

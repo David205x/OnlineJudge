@@ -35,7 +35,6 @@ export default {
                     Authorization: "Bearer " + localStorage.getItem("jwt_token"),
                 },
                 success(resp) {
-                    console.log(resp)
                     state.content = resp.chattingList
                 },
                 error(resp) {
@@ -48,7 +47,6 @@ export default {
         },
         appendContent(state, content){
             state.content.push(JSON.parse(content));
-            console.log(JSON.parse(content))
         }
     },
     actions: {},

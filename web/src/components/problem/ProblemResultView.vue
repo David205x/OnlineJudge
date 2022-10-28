@@ -110,7 +110,7 @@ export default{
     if(store.state.user.is_login){
       store.dispatch("getinfoInMainPage", {
         success(){
-          console.log(store.state.user);
+          
         }
       })
     }
@@ -132,7 +132,6 @@ export default{
           SubmissionOverview.value = resp.submissionList;
           total_problems = resp.totalPages;
           per_num = resp.perPage;
-          console.log(resp);
           current_page = 1;
           update_pages()
         },
@@ -145,7 +144,6 @@ export default{
       document.onkeydown = function(e){
         var ev = document.all ? window.event : e;
         if(ev.keyCode==13) {
-          console.log(searchUsername.value)
           search()
           return false;
         }
@@ -199,7 +197,6 @@ export default{
           SubmissionOverview.value = resp.submissionList;
           total_problems = resp.totalPages;
           per_num = resp.perPage;
-          console.log(resp);
           update_pages()
         },
         error(resp) {
@@ -226,7 +223,6 @@ export default{
       return function (data,count) {
         if (data != undefined) {
           let arrTemp = [];
-          console.log(data)
           let i = 0;
           let tag = {};
           for (tag in data) {

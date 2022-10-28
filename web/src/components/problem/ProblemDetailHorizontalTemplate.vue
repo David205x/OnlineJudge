@@ -161,7 +161,6 @@ export default{
     }
 
       const submitcode = (debugInfo_value, is_debug) =>{
-          console.log(code.content)
           submission_status.value = "Waiting"
           if(is_debug && (debugInfo_value == null || debugInfo_value.length == 0 || debugInfo_value.replace(/\s*/g,"").length == 0)){
               submission_status.value = 'Finished'
@@ -175,12 +174,11 @@ export default{
                   debugInfo: debugInfo_value,
                   targetProblem: store.state.problem.problemKey,
                   success(resp) {
-                      console.log(resp);
                       submission_status.value = resp.SubmissionStatus;
                       store.commit("updataDebugOutcome", resp.debugOutcome)
                   },
-                  error() {
-                      console.log("?");
+                  error(resp) {
+                      console.log(resp);
                   }
               });
           }

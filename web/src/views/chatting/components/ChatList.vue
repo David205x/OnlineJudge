@@ -61,7 +61,6 @@ export default {
       store.commit("updateFriends")
     }
     const redSession = (item, index) =>{
-      console.log(item)
         store.commit("updateReceiver",{
           receiverId: item.userKey,
           receiverName: item.userName,
