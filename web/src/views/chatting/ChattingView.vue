@@ -5,83 +5,214 @@
         <SearcH>
 
         </SearcH>
-        <ChatList>
-
-        </ChatList>
+        <ContentField>
+        <div>
+          <div class="list-group" style="overflow: auto;height: 55vh">
+            <button
+                v-for="(item, index) in store.state.user.friends"
+                :key="index"
+                :class="index == store.state.chatting.selected ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'"
+                @click="redSession(item, index)"
+            >
+            <div>
+              <img src="../../assets/testp1.jpg" class="img-thumbnail" style="width:50px; height:50px; border-radius: 100px; webkit-border-radius: 100px; moz-border-radius: 100px;">
+              &nbsp;
+              <span>{{item.userName}}</span>
+            </div>
+            </button>
+          </div>
+        </div>
+      </ContentField>
       </div>
-      <div class="col-9">
-      <MessaGe>
-        
-        
-      </MessaGe>
-      <TexT>
-
-      </TexT>
-      
-      <button class="btn btn-primary" @click="begin">发送</button>
-    </div>
+        <div class="col-9">
+          <div class="message">
+            <header class="header">
+              <div class="friendname">{{store.state.chatting.receiverName}}</div>
+            </header>
+            <div class="message-wrapper" ref="list" id="list">
+              <div class="container">  
+                <div v-for="(item,i) in store.state.chatting.content" class="message-item" :key="i"  id="list">
+                  <div class="row">
+                    <div class="col"></div>
+                    <div class="col">
+                      <div class="time"><span>{{ time(item.time) }}</span></div>
+                    </div>
+                    <div class="col"></div>
+                  </div>
+                  <div  v-if="store.state.user.id == item.receiverkey">
+                    <div class="row">
+                      <div class="col" style="text-align: left">
+                        <img src="../../assets/testp1.jpg" class="img-thumbnail" style="width:50px; height:50px; border-radius: 100px; webkit-border-radius: 100px; moz-border-radius: 100px;">
+                        {{item.content}}
+                      </div>
+                      <div class="col"></div>
+                      <div class="col"></div>
+                    </div> 
+                  </div>
+                  <div v-else>
+                    <div class="row">
+                      <div class="col"></div>
+                      <div class="col"></div>
+                      <div class="col" style="text-align: right">
+                        {{item.content}}
+                        <img src="../../assets/testp1.jpg" class="img-thumbnail" style="width:50px; height:50px; border-radius: 100px; webkit-border-radius: 100px; moz-border-radius: 100px;">
+                      </div>
+                    </div> 
+                    
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        <div>
+          <textarea class="form-control" id="validationTextarea" ref="text" v-model="content" @keyup="onKeyup"/>
+          <div class="send" >
+            <button class="btn btn-primary" @click="send()">发送(enter)</button>
+          </div>
+        </div>
+        </div>
     </div>
   </ContentField>
 </template>
 
 <script>
 import ContentField from "@/components/ContentField.vue";
-import MessaGe from "@/views/chatting/components/MessaGe.vue";
-import TexT from "@/views/chatting/components/TexT.vue";
 import SearcH from "@/views/chatting/components/SearcH.vue";
-import ChatList from "@/views/chatting/components/ChatList.vue";
 import { useStore } from 'vuex'
-import { onMounted, onUnmounted } from 'vue'
-import $ from 'jquery'
+import { onMounted, onUnmounted, nextTick } from 'vue'
+// import $ from 'jquery'
+import { ref } from 'vue'
 
 export default {
   components: {
     ContentField,
-    MessaGe,
-    TexT,
     SearcH,
-    ChatList,
   },
   setup(){
     const store = useStore();
-    
+    let selectedChat = ref([]);
+    let user = ref([]);
+    let content = ref('');
     const socketUrl = `ws://127.0.0.1:3000/websocket/${store.state.user.token}/`;
     let socket = null;
-    onMounted(() => {
-          socket = new WebSocket(socketUrl);
-          socket.onopen = () => {
-              store.commit("updateSocket", socket);     
-          }
-          socket.onmessage = msg => {
+    let friends = localStorage.getItem("friends");
+    localStorage.setItem("friends", JSON.stringify([{"userKey" : "1", "userName" : "test4"}, {"userKey" : "2", "userName" : "test1"}]))
 
-              store.commit("appendContent", msg.data);
-          }
-          socket.onclose = () => {
-              console.log("disconnected");
-          }
-      });
+    if(friends == null || friends == undefined || friends.length == 0 || friends == "[object Object]"){
+      localStorage.setItem("friends", JSON.stringify([{"userKey" : "1", "userName" : "test4"}, {"userKey" : "2", "userName" : "test1"}]))
+    }
+    store.commit("updateFriends")
+    const messages = () =>{
+      nextTick(() =>{
+        let list = document.getElementById("list")
+        list.scrollTop =  list.scrollHeight
+      })
+    }
+    const redSession = (item, index) =>{
+      store.commit("updateReceiver",{
+        receiverId: item.userKey,
+        receiverName: item.userName,
+        senderId: store.state.user.id,
+        success(){
+          messages()
+        }
+      })
+      store.dispatch("getOthers",{
+        userKey : item.userKey,
+        
+      })
+      store.commit("updateSelected", index)       
+    }
+    const jwt_token = localStorage.getItem("jwt_token");
+      if(jwt_token){
+          store.commit("updateToken", jwt_token);
+          store.dispatch("getInfo", {
+              success(){
+                  nextTick(()=>{
+                    store.dispatch("refreshFriends", {
+                      receiverKey : store.state.user.id
+                    })
+                  })
+                  store.commit("updatePullingInfo", false);
+              },
+              error() {
+                  store.commit("updatePullingInfo", false);
+              }
+          })
+      }else {
+          store.commit("updatePullingInfo", false);
+      }
+    onMounted(() => {
+      socket = new WebSocket(socketUrl);
+      socket.onopen = () => {
+          store.commit("updateSocket", socket);
+          console.log("connected")
+      }
+      socket.onmessage = msg => {
+          store.commit("appendContent", msg.data);
+          messages()    
+      }
+      socket.onclose = () => {
+          console.log("disconnected");
+      }
+    });
 
     onUnmounted(() => {
-          socket.close();
+      store.dispatch("submitFriends", {
+        userKey : store.state.user.id,
+        userName : store.state.user.username,
+        frineds : store.state.friends,
       })
-    const begin = () =>{
-        $.ajax({
-              url: "http://127.0.0.1:3000/chatting/start/",
-              type: 'post',
-              data:{
-                  a_id: store.state.user.id,
-                  b_id: store.state.chatting.receiverId,
-              },
-              success() {
-              },
-              error(resp) {
-                  console.log(resp)
-              }
-          });
-        store.commit("updateFriends");
+      socket.close();
+    })
+    // 入参 fmt-格式 date-日期
+    const dateFormat = (fmt, date) => {
+      let ret;
+      const opt = {
+          "Y+": date.getFullYear().toString(),        // 年
+          "m+": (date.getMonth() + 1).toString(),     // 月
+          "d+": date.getDate().toString(),            // 日
+          "H+": date.getHours().toString(),           // 时
+          "M+": date.getMinutes().toString(),         // 分
+          "S+": date.getSeconds().toString()          // 秒
+          // 有其他格式化字符需求可以继续添加，必须转化成字符串
+      };
+      for (let k in opt) {
+          ret = new RegExp("(" + k + ")").exec(fmt);
+          if (ret) {
+              fmt = fmt.replace(ret[1], (ret[1].length == 1) ? (opt[k]) : (opt[k].padStart(ret[1].length, "0")))
+          }
       }
+      return fmt;
+    }
+
+    const time = (date) => {
+      date = new Date(date);
+      return dateFormat("YYYY-mm-dd HH:MM", date)
+    }
+    const send = () => {
+      store.state.chatting.socket.send(JSON.stringify({
+            event: "singleMessage",
+            a_id: store.state.user.id,
+            b_id: store.state.chatting.receiverId,
+            sendername: store.state.user.username,
+            receivername: store.state.user.visitUsername,
+            content: content.value
+      }));
+      nextTick(() =>{
+        content.value = ''
+      })
+     
+    }
     return{
-      begin,
+      store,
+      selectedChat,
+      user,
+      time,
+      redSession,
+      messages,
+      content,
+      send
     }
   },
   methods:{
@@ -96,7 +227,77 @@ export default {
 </script>
 
 <style scoped>
-/*.text {
+.message{
+  width: 100%;
+  height: 450px;}
+.header{
+  height: 60px;
+  padding: 28px 0 0 30px;
+  box-sizing: border-box;
+  border-bottom: 1px solid #e7e7e7;}
+.friendname{
+  font-size: 18px}
+
+.message-wrapper{
+  min-height: 390px;
+  max-height: 390px;
+  padding: 10px 15px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  border-bottom: 1px solid #e7e7e7;}
+.message{
+  margin-bottom: 15px}
+.time{
+  width: 100%;
+  font-size: 12px;
+  margin: 7px auto;
+  text-align: center;
+}
+span{
+  display: inline-block;
+  padding: 4px 6px;
+  color: rgb(73, 66, 66);
+  border-radius: 3px;
+  background-color: #dcdcdc;}
+.main{}
+.avatar{
+  float: left;
+  margin-left: 15px;
+  border-radius: 3px;}
+.content{
+  display: inline-block;
+  margin-left: 10px;
+  position: relative;
+  padding: 6px 10px;
+  max-width: 330px;
+  min-height: 36px;
+  line-height: 24px;
+  box-sizing: border-box;
+  font-size: 14px;
+  text-align: left;
+  word-break: break-all;
+  background-color: #fafafa;
+  border-radius: 4px;}
+.before{
+  content: " ";
+  position: absolute;
+  top: 12px;
+  right: 100%;
+  border: 6px solid transparent;
+  border-right-color: #fafafa;}
+.self{
+  text-align: right}
+.avatar{
+  float: right;
+  margin:0 15px;}
+.content{
+  background-color: #b2e281}
+before{
+  right: -12px;
+  vertical-align: middle;
+  border-right-color: transparent;
+  border-left-color: #b2e281;}
+  /*.text {
   position: relative;
   height: 25%;
   background: #fff;
@@ -264,3 +465,4 @@ export default {
   }
 }*/
 </style>
+

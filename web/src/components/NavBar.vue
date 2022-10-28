@@ -28,7 +28,7 @@
                             {{ $store.state.user.username }}
                         </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="#">功能1</a></li>
+                        <li><a class="dropdown-item"  @click="visitMyPage">个人主页</a></li>
                         <li><a class="dropdown-item" href="#">功能2</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="#" @click="logout">退出</a></li>
@@ -68,9 +68,17 @@ export default {
             store.commit("updatePullingInfo", false);
             router.push({name: "user_account_login"});
         }
+        const visitMyPage = () =>{
+            store.commit("updateVisit", {
+                userKey : -1
+            })
+            router.push({name: "profile_overview"});
+            location.reload(false);
+        }
         return {
             route_name,
             logout,
+            visitMyPage,
         }
     }
 }

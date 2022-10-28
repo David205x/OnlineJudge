@@ -36,6 +36,8 @@ export default {
                 },
                 success(resp) {
                     state.content = resp.chattingList
+
+                    data.success()
                 },
                 error(resp) {
                     console.log(resp)

@@ -10,10 +10,21 @@ export default{
         is_login: false,
         pulling_info: true,
         isChatOpen: false,
-        friends: []
+        friends: [],
+        is_visit: -1,
+        visitUsername: "",
+        visitPhoto: "",
     },
     getters: {},
     mutations:{
+        updateVisit(state, data){
+          state.is_visit = data.userKey
+        },
+        udpateOthers(state, data){
+            state.is_visit = data.userKey,
+            state.visitUsername = data.visitUsername,
+            state.visitPhoto = data.visitPhoto;
+        },
         updateUser(state, user) {
             state.id = user.id;
             state.username = user.username;
@@ -48,13 +59,73 @@ export default{
                     update = state.friends[i];
                 }
             }
-            if(f)   newFriend.push(update)
+            if(f)   newFriend.push(update), state.friends = newFriend
             else    state.friends.push(friend)
             if(state.friends.length > 10) state.friends.slice(0, 1)
-            localStorage.setItem("friends", state.friends)
+            localStorage.setItem("friends", JSON.stringify(state.friends))
         },
     },
     actions:{
+        submitFriends(context, data){
+            $.ajax({
+                url: "http://127.0.0.1:3000/chatting/final/friends/",
+                type: 'post',
+                data: {
+                    userKey : data.userKey,
+                    userName : data.userName,
+                    friends : JSON.stringify(data.friends)
+                },
+                headers: {
+                    Authorization: "Bearer " + context.state.token,
+                },
+                success(resp) {
+                   console.log(resp)
+                },
+                error(resp) {
+                   console.log(resp)
+                }
+            });
+        },
+        refreshFriends(context, data){
+            $.ajax({
+                url: "http://127.0.0.1:3000/chatting/update/friends/",
+                type: 'post',
+                data: {
+                    receiverKey : data.receiverKey
+                },
+                headers: {
+                    Authorization: "Bearer " + context.state.token,
+                },
+                success(resp) {
+                   localStorage.setItem("friends", JSON.parse(resp))
+                   context.state.friends = JSON.parse(resp)
+                },
+                error(resp) {
+                   console.log(resp)
+                }
+            });
+        },
+        getOthers(context, data){
+            $.ajax({
+                url: "http://127.0.0.1:3000/user/account/visit/",
+                type: 'get',
+                data:{
+                    userKey: data.userKey
+                },
+                headers: {
+                    Authorization: "Bearer " + context.state.token,
+                },
+                success(resp) {
+                    context.state.is_visit = resp.id;
+                    context.state.visitUsername = resp.username;
+                    context.state.visitPhoto = resp.photo;
+                    
+                },
+                error(resp) {
+                    console.log(resp);
+                }
+            });
+        },
         login(context, data) {
             $.ajax({
                 url: "http://127.0.0.1:3000/user/account/token/",
@@ -71,13 +142,14 @@ export default{
                     } else {
                         data.error(resp);
                     }
+                    
                 },
                 error(resp) {
                     data.error(resp);
                 }
             });
         },
-        getinfo(context, data) {
+        getInfo(context, data) {
             $.ajax({
                 url: "http://127.0.0.1:3000/user/account/info/",
                 type: 'get',
@@ -87,10 +159,11 @@ export default{
                 success(resp) {
                     if (resp.error_message === "success") {
                         context.commit("updateUser", {
-                            ...resp,
+                            id: resp.id,
+                            photo: resp.photo,
+                            username: resp.username,
                             is_login: true,
                         });
-
                         data.success(resp);
                     } else {
                         data.error(resp);

@@ -26,6 +26,7 @@ public class SubmissionListServiceImpl extends GenericOjFilter implements Submis
 
         JSONObject submission = new JSONObject();
         submission.put("submissionKey", s.getSubmissionkey());
+        submission.put("userKey", s.getUserkey());
         submission.put("userName", s.getUsername());
         submission.put("result", s.getResult());
         submission.put("timeUsed", s.getRuntime());

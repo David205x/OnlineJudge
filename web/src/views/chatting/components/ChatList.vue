@@ -16,29 +16,6 @@
         <div>
           <img src="../../../assets/testp1.jpg" class="img-thumbnail" style="width:50px; height:50px; border-radius: 100px; webkit-border-radius: 100px; moz-border-radius: 100px;">
         </div>
-        
-       
-
-
-<!--          <div class="list-left">-->
-<!--            &lt;!&ndash; <img-->
-<!--              class="avatar"-->
-<!--              width="42"-->
-<!--              height="42"-->
-<!--              src="https://p1.ssl.qhimgs1.com/t01f1a752c5c6e75077.jpg"-->
-<!--            > &ndash;&gt;-->
-<!--            <el-badge v-if="item.is_read == 0 " :key="index" is-dot class="item">-->
-<!--              <el-avatar icon="el-icon-user-solid" />-->
-<!--            </el-badge>-->
-<!--            <el-avatar v-if="item.is_read == 1 " icon="el-icon-user-solid" />-->
-
-<!--            &lt;!&ndash; <el-avatar v-if="item.id != selectId"> 患者 </el-avatar> &ndash;&gt;-->
-<!--          </div>-->
-<!--          <div class="list-right">-->
-<!--            <p class="name">{{ item.content }}</p>-->
-<!--            &lt;!&ndash; <span class="time">{{ item.createtime | time }}</span> &ndash;&gt;-->
-<!--            <p class="lastmsg">{{ item.createtime }}</p>-->
-<!--          </div>-->
         </button>
       </div>
     </div>
@@ -56,18 +33,22 @@ export default {
   setup(){
     const store = useStore();
     let friends = localStorage.getItem("friends");
-    if(friends == null || friends == undefined || friends.length == 0){
-      localStorage.setItem("friends", JSON.stringify([{"userKey" : "1", "userName" : "test4"}, {"userKey" : "2", "userName" : "test1"}]))
-      store.commit("updateFriends")
+  
+    if(friends == null || friends == undefined || friends.length == 0 || friends == "[object Object]"){
+      localStorage.setItem("friends", JSON.stringify([{"userKey" : "1", "userName" : "test4", "lastMessage" : "hello"}, {"userKey" : "2", "userName" : "test1", "lastMessage" : "hello"}]))
     }
+    store.commit("updateFriends")
     const redSession = (item, index) =>{
+      
         store.commit("updateReceiver",{
           receiverId: item.userKey,
           receiverName: item.userName,
           senderId: store.state.user.id
         })
+        store.dispatch("getOthers",{
+          userKey : item.userKey,
+        })
         store.commit("updateSelected", index)
-        console.log(store.state.chatting.content)
       
     }
     return {
@@ -75,9 +56,7 @@ export default {
       redSession
     }
   },
-  methods:{
 
-  },
   computed: {
 
   },

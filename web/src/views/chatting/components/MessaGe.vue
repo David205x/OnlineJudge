@@ -6,16 +6,10 @@
       </header>
       <div class="message-wrapper" ref="list">
 
-          <div v-for="(item,i) in store.state.chatting.content" class="message-item" :key="i">
+          <div v-for="(item,i) in store.state.chatting.content" class="message-item" :key="i"  id="list">
             <div class="time" ><span>{{ time(item.time) }}</span></div>
             &nbsp;
             <div style="float: left" v-if="store.state.user.id == item.receiverkey">{{item.content}}</div>
-<!--            <div class="main" :class="{ self: item.self }">-->
-<!--              <img class="avatar" width="36" height="36" :src="item.self ? user.img : selectedChat.user.img" />-->
-<!--              <div class="content">-->
-<!--                <div class="text" v-html="replaceFace(item.content)"></div>-->
-<!--              </div>-->
-<!--            </div>-->
             <div style="float: right" v-else>{{item.content}}</div>
 
           </div>
@@ -40,11 +34,10 @@ export default {
     let selectedChat = ref([]);
     let user = ref([]);
     const store = useStore();
+    
     const time = (date) => {
-      if (typeof date === 'string') {
-        date = new Date(date);
-      }
-      if(date.getMinutes()<10){
+      date = new Date(date);
+      if(date.getMinutes() < 10){
         return date.getHours() + ':0' +date.getMinutes();
       }else{
         return date.getHours() + ':' + date.getMinutes();
@@ -54,46 +47,9 @@ export default {
       selectedChat,
       user,
       store,
-      time
+      time,
     }
   },
-  mounted() {
-    //  在页面加载时让信息滚动到最下面
-    setTimeout(() => this.$refs.list.scrollTop = this.$refs.list.scrollHeight, 0)
-  },
-  watch: {
-    // 发送信息后,让信息滚动到最下面
-    messages() {
-      setTimeout(() => this.$refs.list.scrollTop = this.$refs.list.scrollHeight, 0)
-    }
-  },
-  methods: {
-    //  在发送信息之后，将输入的内容中属于表情的部分替换成emoji图片标签
-    //  再经过v-html 渲染成真正的图片
-    replaceFace (con) {
-      if(con.includes('/:')) {
-        var emojis=this.emojis;
-        for(var i=0;i<emojis.length;i++){
-          con = con.replace(emojis[i].reg, '<img src="static/emoji/' + emojis[i].file +'"  alt="" style="vertical-align: middle; width: 24px; height: 24px" />');
-        }
-        return con;
-      }
-      return con;
-    }
-  },
-  filters: {
-    // 将日期过滤为 hour:minutes
-    time (date) {
-      if (typeof date === 'string') {
-        date = new Date(date);
-      }
-      if(date.getMinutes()<10){
-        return date.getHours() + ':0' +date.getMinutes();
-      }else{
-        return date.getHours() + ':' + date.getMinutes();
-      }
-    },
-  }
 }
 </script>
 

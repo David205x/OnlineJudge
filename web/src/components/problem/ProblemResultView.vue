@@ -24,10 +24,6 @@
             用户名<br>
             <input v-model="searchUsername" type="text" id="un" name="un" class="search_text" style="width:100%" @input="search()">
           </th>
-<!--          <th class="prob sorting_disabled" rowspan="1" colspan="1" style="text-align: center">
-            Prob<br>
-            <input type="text" id="probunm" name="probunm" class="search_text" style="width:100%">
-          </th>-->
           <th class="status sorting_disabled" rowspan="1" colspan="1" style="text-align: center">
             运行结果
             <br>
@@ -59,17 +55,7 @@
         <tbody>
         <tr v-for ="submissionOverview in SubmissionOverview" :key = "submissionOverview.submissionKey">
           <th scope="row">{{submissionOverview.submissionKey}}</th>
-<!--          <td @click="todetails(submissionOverview.username)">-->
-          <td>{{submissionOverview.userName}}</td>
-<!--          <td v-if="submissionOverview.result == 'Accepted'">
-            <span class="badge bg-success">{{submissionOverview.result}}</span>
-          </td>
-          <td v-if="submissionOverview.result == 'WrongAnswer'">
-            <span class="badge bg-danger">{{submissionOverview.result}}</span>
-          </td>
-          <td v-if="submissionOverview.result == 'Finished'">
-            <span class="badge bg-warning">{{submissionOverview.result}}</span>
-          </td>-->
+          <td @click="visitOther(submissionOverview)">{{submissionOverview.userName}}</td>
           <td>{{submissionOverview.result}}</td>
           <td v-if="submissionOverview.timeUsed <= 0">---</td>
           <td v-if="submissionOverview.timeUsed > 0">{{submissionOverview.timeUsed}}</td>
@@ -130,6 +116,7 @@ export default{
         },
         success(resp) {
           SubmissionOverview.value = resp.submissionList;
+          console.log(SubmissionOverview.value[0].userKey)
           total_problems = resp.totalPages;
           per_num = resp.perPage;
           current_page = 1;
@@ -179,7 +166,6 @@ export default{
       pages.value = new_pages
     }
     const pull_page = (page) =>{
-
       current_page = page;
       $.ajax({
         url: "http://127.0.0.1:3000/problem/details/" + t + "/sublist/",
@@ -205,7 +191,12 @@ export default{
       })
     }
     pull_page(current_page)
-
+    const visitOther = (user) =>{
+        store.commit("updateVisit", {
+            userKey : user.userKey,
+        })
+        router.push({name: "profile_overview"});
+    }
     return {
       logged,
       initpage,
@@ -216,6 +207,7 @@ export default{
       searchUsername,
       click_page,
       search,
+      visitOther,
     }
   },
   computed: {
