@@ -68,7 +68,7 @@ const routes = [
     }
   },
   {
-    path: "/profile/overview",
+    path: "/profile/overview/",
     name: "profile_overview",
     component: ProfileOverview,
     meta: {
@@ -76,7 +76,7 @@ const routes = [
     }
   },
   {
-    path: "/problem/problem_result",
+    path: "/problem/problem_result/",
     name: "problem_result",
     component: ProblemResultView,
     meta: {
@@ -84,7 +84,7 @@ const routes = [
     }
   },
   {
-    path: "/problem/problem_result_2",
+    path: "/problem/problem_result_2/",
     name: "problem_result_2",
     component: ProblemResultView2,
     meta: {

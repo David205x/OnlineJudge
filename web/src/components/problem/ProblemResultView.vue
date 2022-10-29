@@ -116,7 +116,6 @@ export default{
         },
         success(resp) {
           SubmissionOverview.value = resp.submissionList;
-          console.log(SubmissionOverview.value[0].userKey)
           total_problems = resp.totalPages;
           per_num = resp.perPage;
           current_page = 1;
@@ -192,6 +191,7 @@ export default{
     }
     pull_page(current_page)
     const visitOther = (user) =>{
+        
         store.commit("updateVisit", {
             userKey : user.userKey,
         })

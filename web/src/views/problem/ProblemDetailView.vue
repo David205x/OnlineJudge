@@ -95,6 +95,9 @@ import "../../assets/font/font.css"
         })
         const onChange = (data) =>{
             f.value = data;
+            if(f.value == 1){
+                location.reload()
+            }
         }
         const switchLayout = () => {
             layout.value = -layout.value;

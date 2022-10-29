@@ -30,8 +30,6 @@ public class StartChattingController {
     @Autowired
     private friendsService friendsService;
 
-    @Autowired
-    private FriendsMapper friendsMapper;
 
     @Autowired
     private ChattingMapper chattingMapper;
@@ -51,17 +49,30 @@ public class StartChattingController {
         }
         return chattingService.startChatting(senderKey, receiverKey, queuedUpdateRequests);
     }
+
     @PostMapping("/chatting/update/friends/")
-    public String updateNewFriends(@RequestParam String receiverKey){
-        return friendsService.updateFriends(receiverKey);
+    public String getFriends(@RequestParam String userKey){
+        return friendsService.getFriends(userKey);
     }
+
     @PostMapping("/chatting/final/friends/")
     public JSONObject finalFriends(@RequestParam Map<String, String> data){
         JSONObject json = new JSONObject();
-        json.put("error_message", "success");
-        friendsMapper.updateById(new Friends(Integer.parseInt(data.get("userKey")), data.get("userName"), data.get("friends")));
+
+        if (friendsService.updateFriends(data.get("FriendsInfo"), data.get("userKey"))) {
+            json.put("error_message", "success");
+        } else {
+            json.put("error_message", "error");
+        }
         return json;
     }
+
+    @PostMapping("/chatting/add/friend/")
+    public Map<String, String> addFriend(@RequestParam Map<String, String> data){
+        System.out.println(data);
+        return friendsService.addFriend(data.get("senderKey"), data.get("senderName"), data.get("receiverKey"));
+    }
+
     @PostMapping("/chatting/chattingroom/chathistory")
     public JSONObject getChattingHistory(@RequestParam Integer senderKey,
                                          @RequestParam Integer receiverKey,

@@ -100,9 +100,7 @@ export default{
                     
                     store.dispatch("getInfo", {
                         success(){
-                            console.log(store.state.user);
                             router.push({ name: "home" });
-                            
                         }
                     })
                 },

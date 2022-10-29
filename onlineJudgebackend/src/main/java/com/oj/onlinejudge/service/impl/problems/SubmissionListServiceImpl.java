@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.oj.onlinejudge.mapper.ProblemMapper;
 import com.oj.onlinejudge.mapper.SubmissionMapper;
 import com.oj.onlinejudge.pojo.Submission;
 import com.oj.onlinejudge.service.impl.GenericOjFilter;
@@ -19,6 +20,10 @@ public class SubmissionListServiceImpl extends GenericOjFilter implements Submis
 
     @Autowired
     private SubmissionMapper submissionMapper;
+
+    @Autowired
+    private ProblemMapper problemMapper;
+
     private final int entriesPerPage = 10;
     private final SimpleDateFormat submissionTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -142,11 +147,64 @@ public class SubmissionListServiceImpl extends GenericOjFilter implements Submis
     }
 
     @Override
+    public JSONObject masterSubmissionListGetterForOnes(String userKey, int page) {
+        QueryWrapper<Submission> queryWrapper = new QueryWrapper<>();
+        queryWrapper.orderByAsc("submissionKey");
+        queryWrapper.eq("userkey", userKey);
+        List<Submission> s = submissionMapper.selectList(queryWrapper);
+        Map<Integer, Integer> subTime = new HashMap<>();
+        Map<Integer, Submission> submissionMap = new HashMap<>();
+        for(Submission submission : s){
+            Integer subKey = submission.getProblemkey();
+            if(!subTime.containsKey(subKey)){
+                subTime.put(subKey, 0);
+            }
+            subTime.put(subKey, subTime.get(subKey) + 1);
+            if(submission.getResult().equals("Accepted")){
+                submissionMap.put(subKey, submission);
+            }
+        }
+        for(Submission submission : s){
+            Integer subKey = submission.getProblemkey();
+            if(!submissionMap.containsKey(subKey)) {
+                submissionMap.put(subKey, submission);
+            }
+        }
+        ArrayList<JSONObject> submissionList = new ArrayList<>();
+        int pos = (page - 1) * entriesPerPage;
+        int cnt = 0;
+        for (Integer key : submissionMap.keySet()) {
+            if(cnt < pos){
+                continue;
+            }else if(cnt >= pos + entriesPerPage){
+                continue;
+            }
+            cnt++;
+            JSONObject submission = new JSONObject();
+            Submission sub = submissionMap.get(key);
+            submission.put("result", sub.getResult());
+            submission.put("problemKey", sub.getProblemkey());
+            submission.put("problemName", problemMapper.selectById(sub.getProblemkey()).getProblemname());
+            submission.put("submitTime", subTime.get(key));
+            String[] tags = problemMapper.selectById(sub.getProblemkey()).getTag().split(" ");
+            submission.put("label", tags);
+            submissionList.add(submission);
+        }
+        JSONObject ret = new JSONObject();
+        ret.put("submissionList", submissionList);
+        ret.put("totalPages", (submissionMap.size() + entriesPerPage - 1) / entriesPerPage);
+        ret.put("perPage", entriesPerPage);
+        ret.put("error_message", "success");
+        return ret;
+    }
+
+    @Override
     public Set<Integer> getProblemListByColumn(String columnName, String value) {
 
         QueryWrapper<Submission> queryWrapper = new QueryWrapper<>();
         queryWrapper.orderByAsc("submissionKey");
         queryWrapper.like(columnName, value);
+
         List<Submission> submissions = submissionMapper.selectList(queryWrapper);
 
         Set<Integer> ret = new HashSet<>();

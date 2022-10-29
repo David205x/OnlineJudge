@@ -11,19 +11,16 @@ export default{
         pulling_info: true,
         isChatOpen: false,
         friends: [],
-        is_visit: -1,
-        visitUsername: "",
-        visitPhoto: "",
+        friends_update : [],
     },
     getters: {},
     mutations:{
         updateVisit(state, data){
-          state.is_visit = data.userKey
-        },
-        udpateOthers(state, data){
-            state.is_visit = data.userKey,
-            state.visitUsername = data.visitUsername,
-            state.visitPhoto = data.visitPhoto;
+            localStorage.setItem("is_visit", data.userKey)
+            if(data.userKey == -1){
+                localStorage.setItem("visitUsername", "")
+                localStorage.setItem("visitPhoto", "")  
+            }
         },
         updateUser(state, user) {
             state.id = user.id;
@@ -42,12 +39,16 @@ export default{
             state.username = "",
             state.photo = "",
             state.token = "",
-            state.is_login = false
+            state.is_login = false,
+            state.pulling_info = true,
+            state.isChatOpen = false,
+            state.friends = [],
+            state.friends_update = [],
+            localStorage.setItem("is_visit", -1)
+            localStorage.setItem("visitUsername", "")
+            localStorage.setItem("visitPhoto", "")
         },
-        updateFriends(state){
-            state.friends = JSON.parse(localStorage.getItem("friends"));
-        },
-        addFriend(state, friend){
+        addFriend(state, friend){       //维护好友队列，从其他用户主页进入聊天时执行
             let newFriend = []
             let update = {}
             let f = false;
@@ -62,50 +63,80 @@ export default{
             if(f)   newFriend.push(update), state.friends = newFriend
             else    state.friends.push(friend)
             if(state.friends.length > 10) state.friends.slice(0, 1)
-            localStorage.setItem("friends", JSON.stringify(state.friends))
         },
+        updateFriends(state, friend){   //更新新的接收者 点击发送会触发
+            for(let i = 0; i < state.friends_update.length; i++){
+                if(state.friends_update[i].userKey == friend.userKey){
+                    return;
+                }
+            }
+            state.friends_update.push(friend)
+        }
     },
     actions:{
-        submitFriends(context, data){
+        submitFriends(context, data){ //会话结束后上传数据，更新本用户信息
             $.ajax({
                 url: "http://127.0.0.1:3000/chatting/final/friends/",
                 type: 'post',
                 data: {
                     userKey : data.userKey,
-                    userName : data.userName,
-                    friends : JSON.stringify(data.friends)
+                    FriendsInfo : JSON.stringify({"userName" : data.userName, "Friends" : JSON.stringify(data.friends)})
                 },
                 headers: {
                     Authorization: "Bearer " + context.state.token,
                 },
-                success(resp) {
-                   console.log(resp)
+                success() {
                 },
                 error(resp) {
                    console.log(resp)
                 }
             });
         },
-        refreshFriends(context, data){
+        refreshFriends(context, data){ //获取后端的好友列表
             $.ajax({
                 url: "http://127.0.0.1:3000/chatting/update/friends/",
                 type: 'post',
                 data: {
-                    receiverKey : data.receiverKey
+                    userKey : data.userKey
                 },
                 headers: {
                     Authorization: "Bearer " + context.state.token,
                 },
                 success(resp) {
-                   localStorage.setItem("friends", JSON.parse(resp))
-                   context.state.friends = JSON.parse(resp)
+                    if(JSON.parse(resp)[0].error_message === "error"){
+                        return
+                    }
+                    context.state.friends = JSON.parse(resp)
                 },
                 error(resp) {
-                   console.log(resp)
+                    console.log(resp)
                 }
             });
         },
-        getOthers(context, data){
+        addFriends(context, data){ //会话结束后更新与本用户产生关联的用户
+            for(let i = 0; i < context.state.friends_update.length; i++){
+                $.ajax({
+                    url: "http://127.0.0.1:3000/chatting/add/friend/",
+                    type: 'post',
+                    data: {
+                        senderKey : data.senderKey,
+                        senderName : data.senderName,
+                        receiverKey : context.state.friends_update[i].userKey
+                    },
+                    headers: {
+                        Authorization: "Bearer " + context.state.token,
+                    },
+                    success() {
+                    },
+                    error(resp) {
+                       console.log(resp)
+                    }
+                });
+                
+            }
+            
+        },
+        getOthers(context, data){                       //进入他人主页时获取他人的部分信息
             $.ajax({
                 url: "http://127.0.0.1:3000/user/account/visit/",
                 type: 'get',
@@ -116,10 +147,9 @@ export default{
                     Authorization: "Bearer " + context.state.token,
                 },
                 success(resp) {
-                    context.state.is_visit = resp.id;
-                    context.state.visitUsername = resp.username;
-                    context.state.visitPhoto = resp.photo;
-                    
+                    localStorage.setItem("is_visit", resp.id)
+                    localStorage.setItem("visitUsername", resp.username)
+                    localStorage.setItem("visitPhoto", resp.photo)  
                 },
                 error(resp) {
                     console.log(resp);
@@ -174,7 +204,7 @@ export default{
                 }
             });
         },
-        getinfoInMainPage(context, data) {
+        getinfoInMainPage(context) {
             $.ajax({
                 url: "http://127.0.0.1:3000/index/info/",
                 type: 'post',
@@ -182,7 +212,6 @@ export default{
                     Authorization: "Bearer " + context.state.token,
                 },
                 success() {
-                    data.success();
                 },
                 error(resp) {
                     console.log(resp);
@@ -192,6 +221,7 @@ export default{
         logout(context) {
             localStorage.removeItem("jwt_token");
             context.commit("logout");
+            context.commit("chattingLogout");
         },
         sendSubmission(context, data){
             $.ajax({

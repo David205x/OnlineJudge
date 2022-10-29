@@ -6,7 +6,9 @@ import java.util.Set;
 
 public interface SubmissionListService {
 
+
     public JSONObject submissionListGetter(String problemKey, int page);
+    public JSONObject masterSubmissionListGetterForOnes(String userKey, int page);
     public JSONObject masterSubmissionListGetter(String problemKey,
                                                  String userName,
                                                  String result,
