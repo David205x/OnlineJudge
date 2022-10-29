@@ -22,4 +22,10 @@ public class SubmissionController {
 
         return submissionListService.masterSubmissionListGetter(problemId, userName, result, lang, page);
     }
+    @PostMapping("problem/details/sublist/")
+    public JSONObject submissionListForOnes(@RequestParam String userKey,
+                                            @RequestParam Integer page) {
+
+        return submissionListService.masterSubmissionListGetterForOnes(userKey, page);
+    }
 }

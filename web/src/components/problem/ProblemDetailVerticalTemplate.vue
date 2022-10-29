@@ -34,7 +34,7 @@
               <div class="col-3">标签</div>
               <div class="col-9" style="margin-left:3vw">
                 <table>
-                  <tr v-for="(row, index) in sliceList($store.state.problem.problemTags, 3)" :key="index">  
+                  <tr v-for="(row, index) in sliceList($store.state.problem.problemTags, 2)" :key="index">  
                     <td class="badge bg-primary" style="margin-right:1vh" v-for="(item, i) in row" :key="i">																																				
                        {{item}}
                     </td>
@@ -147,13 +147,12 @@ export default{
     let debugInfo = ref("");
     let FS = ref(13);
     const store = useStore();
-    
+
     const code = reactive({
       content: "",
     });
     
     nextTick(()=>{
-      
       document.getElementById("Vace").addEventListener('mousewheel', function(){
           if (event.ctrlKey === true || event.metaKey) {
               event.preventDefault();
@@ -186,8 +185,7 @@ export default{
             debugInfo: debugInfo_value,
             targetProblem: store.state.problem.problemKey,
             SUUID: UUID,
-            success(resp) {
-              console.log(resp);
+            success() {
             },
             error() {
               console.log("?");

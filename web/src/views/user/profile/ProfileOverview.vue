@@ -1,34 +1,60 @@
 <template>
   <ContentField>
-    <div class="container">
+    <div class="container" v-if="$store.state.user.pulling_info == false">
         <div class="row"> <!--   这他妈为啥是row  -->
-          <div class="col-2">
+          <div class="col-2" v-if="is_visit != -1">
               <div class="row">
-                  <img src="../../../assets/logo.png" class="rounded float-start" alt="../../../assets/logo.png">
+                  <img :src="visitPhoto" class="rounded float-start" :alt="visitPhoto">  
               </div>
               <div class="row" style="margin-top: 5vh">
-                  <p class="text-center">Holy Username</p>
+                  <p class="text-center">{{visitUsername}}</p>
                   <p class="fw-light" style="font-size: 15px; margin-top: 0px">Mys Institution<br><br></p>
                   <button type="button" class="btn btn-secondary">Edit Profile</button>
                   <button type="button" class="btn btn-secondary" @click="chat">Chat</button>
               </div>
+          </div>
+          <div class="col-2" v-if="is_visit == -1">
+            <div class="row">
+              <img src="../../../assets/logo.png" class="rounded float-start" alt="../../../assets/logo.png">
+            </div>
+            <div class="row" style="margin-top: 5vh">
+              <p class="text-center">{{$store.state.user.username}}</p>
+              <p class="fw-light" style="font-size: 15px; margin-top: 0px">Mys Institution<br><br></p>
+              <button type="button" class="btn btn-secondary">Edit Profile</button>
+            </div>
           </div>
           <div class="col-1"></div>
           <div class="col" style="font-size: 15px">
               <nav>
                   <div class="nav nav-tabs" id="nav-tab" role="tablist">
                       <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">信息概览</button>
-                      <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">我的提交</button>
-                      <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">我的题解</button>
+                      <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">
+                        <span v-if="is_visit.value == -1">我的提交</span>
+                        <span v-else>ta的提交</span>
+                      </button>
+                      <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">
+                        <span v-if="is_visit.value == -1">我的题解</span>
+                        <span v-else>ta的题解</span>
+                    </button>
                   </div>
               </nav>
               <br>
               <div class="tab-content" id="nav-tabContent">
                   <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
-                    <content-field style="font-size: 10px">
+                    <content-field v-if="is_visit == -1" style="font-size: 10px">
                         <calendar-heatmap
                             :values="submissionList"
-                            end-date="2022-10-20"
+                            :end-date="endDate"
+                            max="12"
+                            round="3"
+                            :range-color="['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39']"
+                            locale="right"
+                        />
+                    </content-field>
+                    <content-field v-else style="font-size: 10px">
+                        <calendar-heatmap
+                            :values="visitSubmissionList"
+                            :end-date="endDate"
                             max="12"
                             round="3"
                             :range-color="['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39']"
@@ -47,6 +73,19 @@
                               <li><a class="dropdown-item" href="#">Something else here</a></li>
                           </ul>
                       </div>
+                      <nav aria-label="...">
+                        <ul class="pagination" style="float: right;">
+                          <li class="page-item" @click="click_page(-2)">
+                            <a class="page-link" href="#">前一页</a>
+                          </li>
+                          <li :class="'page-item ' + page.is_active && !$store.state.user.isChatOpen ? page.is_active : ''" v-for="page in pages" :key="page.number" @click="click_page(page.number)">
+                            <a class="page-link" href="#">{{ page.number }}</a>
+                          </li>
+                          <li class="page-item" @click="click_page(-1)">
+                            <a class="page-link" href="#">下一页</a>
+                          </li>
+                        </ul>
+                      </nav>
                       <table class="table table-striped table-hover" style="margin-top: 2vh">
                         <thead>
                         <tr>
@@ -58,27 +97,18 @@
 
                         </tr>
                         </thead>
-                        <tbody>
+                        <tbody v-for="(item,i) in SubmissionListForOnes" :key="i">
                         <tr>
-                            <th scope="row">1</th>
-                            <td>what's this</td>
-                            <td style="color: #cf4e4e">Wrong Answer</td>
-                            <td>99</td>
-                            <td>#HARD</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">2</th>
-                          <td>a+b?</td>
-                          <td style="color: #42b983">Accepted</td>
-                          <td>1</td>
-                          <td>#NEWBIE</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">3</th>
-                          <td>你妹只因</td>
-                          <td style="color: blue">TimeLimitExceeded</td>
-                          <td>12</td>
-                          <td>#INFERNO</td>
+                            <th scope="row">{{item.problemKey}}</th>
+                            <td>{{item.problemName}}</td>
+                            <td style="color: #cf4e4e">{{item.result}}</td>
+                            <td>{{item.submitTime}}</td>
+                            <td >
+                                <span v-for="tag in sliceList(item.label, 3)" :key="tag">
+                                    <span class="badge bg-secondary"> {{tag}}</span>	
+                                    &nbsp;																																	
+                                  </span>
+                            </td>
                         </tr>
                         </tbody>
                       </table>
@@ -101,6 +131,7 @@ import { useStore } from 'vuex'
 import { ref } from 'vue'
 import $ from 'jquery'
 import router from "@/router"
+
 export default {
   name: "ProfileDetailView",
   components: {
@@ -108,23 +139,84 @@ export default {
     CalendarHeatmap
   },
   setup(){
+    
     const store = useStore();
     const jwt_token = localStorage.getItem("jwt_token");
+    
+    let date = new Date()
+    let endDate = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
     let submissionList = ref([]);
+    let visitSubmissionList = ref([]);
+    let is_visit = ref(-1);
+    let visitUsername = ref("");
+    let visitPhoto = ref("");
+    let pages = ref([]);
+    let SubmissionListForOnes = ref([]);
+    is_visit = ref(localStorage.getItem("is_visit"));
+    let current_page = 1;
+    let total_problems = 0;
+    let per_num = 1;
     const chat = () => {
         router.push({name : "chatting_list"})
         store.commit("addFriend", {
-            userKey : store.state.user.is_visit === -1 ? store.state.user.id : store.state.user.is_visit,
-            userName : store.state.user.is_visit === -1 ? store.state.user.username : store.state.user.visitUsername
-
+            userKey : is_visit.value == -1 ? store.state.user.id : is_visit.value,
+            userName : is_visit.value == -1 ? store.state.user.username : visitUsername
         })
       }
+    
+    const click_page = (page) =>{
+      if(page == -2) page = current_page - 1;
+      else if(page == -1) page = current_page + 1;
+      let max_pages = parseInt(Math.ceil(total_problems / per_num));
+
+      if(page >= 1 && page <= max_pages){
+        pull_page(page);
+      }
+    }
+
+    const update_pages = () =>{
+      let max_pages = parseInt(Math.ceil(total_problems / per_num));
+
+      let new_pages = [];
+
+      for(let i = current_page - 2; i <= current_page + 2; i++){
+        if(i >= 1 && i <= max_pages){
+          new_pages.push({
+            number: i,
+            is_active: i === current_page ? "active" : "",
+          });
+        }
+      }
+      pages.value = new_pages
+    }
+    const pull_page = (page) =>{
+      current_page = page;
+      $.ajax({
+        url: "http://127.0.0.1:3000/problem/details/sublist/",
+        type: 'post',
+        headers: {
+          Authorization: "Bearer " + store.state.user.token,
+        },
+        data:{
+          userKey: is_visit.value == -1 ? store.state.user.id : is_visit.value,
+          page: JSON.stringify(page),
+        },
+        success(resp) {
+          SubmissionListForOnes.value = resp.submissionList;
+          total_problems = resp.totalPages;
+          per_num = resp.perPage;
+          update_pages()
+        },
+        error(resp) {
+          console.log(resp)
+        }
+      })
+    }
     if(jwt_token){
         store.commit("updateToken", jwt_token);
         store.dispatch("getInfo", {
             success(){
-                store.commit("updatePullingInfo", false);
-                if(store.state.user.is_visit === -1){
+                if(is_visit.value == -1){
                     $.ajax({
                         url: "http://127.0.0.1:3000/user/submission/heatmap/",
                         type: 'post',
@@ -136,6 +228,8 @@ export default {
                         },
                         success(resp) {
                             submissionList.value = resp.submissionList
+                            pull_page(current_page)
+                            store.commit("updatePullingInfo", false);
                         },
                         error(resp) {
                             console.log(resp);
@@ -144,8 +238,28 @@ export default {
                 }
                 else {
                     store.dispatch("getOthers", {
-                        userKey : store.state.user.is_visit
+                        userKey : localStorage.getItem("is_visit")
                     })
+                    $.ajax({
+                        url: "http://127.0.0.1:3000/user/submission/heatmap/",
+                        type: 'post',
+                        data:{
+                            userKey: localStorage.getItem("is_visit")
+                        },
+                        headers: {
+                            Authorization: "Bearer " + jwt_token,
+                        },
+                        success(resp) { 
+                            visitSubmissionList.value = resp.submissionList
+                            visitUsername.value = localStorage.getItem("visitUsername");
+                            visitPhoto.value = localStorage.getItem("visitPhoto");
+                            pull_page(current_page)
+                            store.commit("updatePullingInfo", false);
+                        },
+                        error(resp) {
+                            console.log(resp);
+                        }
+                    });
                 }
 
             },
@@ -156,11 +270,38 @@ export default {
 
     }else {
         store.commit("updatePullingInfo", false);
+        pull_page(current_page)
     }
-    
+
     return{
         submissionList,
-        chat
+        visitSubmissionList,
+        chat,
+        endDate,
+        is_visit,
+        visitPhoto,
+        visitUsername,
+        click_page,
+        pages,
+        SubmissionListForOnes,
+    }
+  },
+  computed: {
+    sliceList() {
+      return function (data, count) {
+        if (data != undefined) {
+          let arrTemp = [];
+          let i = 0;
+          for (i in data) {
+            if (i >= count){
+              break;
+            }
+            arrTemp.push(data[i])
+          }
+          
+          return arrTemp
+        }
+      }
     }
   }
 }

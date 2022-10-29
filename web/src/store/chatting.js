@@ -2,15 +2,21 @@ import $ from "jquery"
 
 export default {
     state: {
-        status: "matching", //matching 匹配 playing 对战
         socket: null,
         receiverId: "",
         receiverName:"",
         content: [],
-        selected: "",
+        selected: -1,
     },
     getters: {},
     mutations: {
+        chattingLogout(state){
+            state.socket = null,
+            state.receiverId = "",
+            state.receiverName = "",
+            state.content = [],
+            state.selected = -1
+        },
         updateSocket(state, socket) {
             state.socket = socket;
         },
@@ -20,7 +26,7 @@ export default {
         updateContent(state, content){
             state.content = content;
         },
-        updateReceiver(state, data){
+        updateReceiver(state, data){   //获取好友的聊天记录，点击某个好友时执行
             state.receiverId = data.receiverId
             state.receiverName = data.receiverName
             $.ajax({
@@ -36,14 +42,15 @@ export default {
                 },
                 success(resp) {
                     state.content = resp.chattingList
-
                     data.success()
                 },
                 error(resp) {
                     console.log(resp)
                 }
             })
+
         },
+        
         updateSelected(state, selected){
             state.selected = selected
         },
@@ -51,6 +58,8 @@ export default {
             state.content.push(JSON.parse(content));
         }
     },
-    actions: {},
+    actions: {
+        
+    },
     modules: {}
 }

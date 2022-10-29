@@ -82,11 +82,7 @@ export default{
         }
         store.commit("updatePullingInfo", false);
         if(store.state.user.is_login){
-            store.dispatch("getinfoInMainPage", {
-                success(){
-                    console.log(store.state.user);
-                }
-            })
+            store.dispatch("getinfoInMainPage")
 
         }
         return {

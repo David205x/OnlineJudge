@@ -6,23 +6,23 @@
 
         </SearcH>
         <ContentField>
-        <div>
-          <div class="list-group" style="overflow: auto;height: 55vh">
-            <button
-                v-for="(item, index) in store.state.user.friends"
-                :key="index"
-                :class="index == store.state.chatting.selected ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'"
-                @click="redSession(item, index)"
-            >
-            <div>
-              <img src="../../assets/testp1.jpg" class="img-thumbnail" style="width:50px; height:50px; border-radius: 100px; webkit-border-radius: 100px; moz-border-radius: 100px;">
-              &nbsp;
-              <span>{{item.userName}}</span>
+          <div>
+            <div class="list-group" style="overflow: auto;height: 55vh">
+              <button
+                  v-for="(item, index) in store.state.user.friends"
+                  :key="index"
+                  :class="index == store.state.chatting.selected ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'"
+                  @click="redSession(item, index)"
+              >
+              <div>
+                <img src="../../assets/testp1.jpg" class="img-thumbnail" style="width:50px; height:50px; border-radius: 100px; webkit-border-radius: 100px; moz-border-radius: 100px;">
+                &nbsp;
+                <span>{{item.userName}}</span>
+              </div>
+              </button>
             </div>
-            </button>
           </div>
-        </div>
-      </ContentField>
+        </ContentField>
       </div>
         <div class="col-9">
           <div class="message">
@@ -95,13 +95,31 @@ export default {
     let content = ref('');
     const socketUrl = `ws://127.0.0.1:3000/websocket/${store.state.user.token}/`;
     let socket = null;
-    let friends = localStorage.getItem("friends");
-    localStorage.setItem("friends", JSON.stringify([{"userKey" : "1", "userName" : "test4"}, {"userKey" : "2", "userName" : "test1"}]))
-
-    if(friends == null || friends == undefined || friends.length == 0 || friends == "[object Object]"){
-      localStorage.setItem("friends", JSON.stringify([{"userKey" : "1", "userName" : "test4"}, {"userKey" : "2", "userName" : "test1"}]))
+    const jwt_token = localStorage.getItem("jwt_token");
+    if(jwt_token){
+        store.commit("updateToken", jwt_token);
+        store.dispatch("getInfo", {
+            success(){
+                nextTick(()=>{
+                  /**
+                   * 读取用户好友列表
+                   */
+                    store.dispatch("refreshFriends", {
+                      userKey : store.state.user.id
+                    })
+                  
+                })
+                store.commit("updatePullingInfo", false);
+            },
+            error() {
+                store.commit("updatePullingInfo", false);
+            }
+        })
+    }else {
+        store.commit("updatePullingInfo", false);
     }
-    store.commit("updateFriends")
+    
+    
     const messages = () =>{
       nextTick(() =>{
         let list = document.getElementById("list")
@@ -117,43 +135,19 @@ export default {
           messages()
         }
       })
-      store.dispatch("getOthers",{
-        userKey : item.userKey,
-        
-      })
       store.commit("updateSelected", index)       
     }
-    const jwt_token = localStorage.getItem("jwt_token");
-      if(jwt_token){
-          store.commit("updateToken", jwt_token);
-          store.dispatch("getInfo", {
-              success(){
-                  nextTick(()=>{
-                    store.dispatch("refreshFriends", {
-                      receiverKey : store.state.user.id
-                    })
-                  })
-                  store.commit("updatePullingInfo", false);
-              },
-              error() {
-                  store.commit("updatePullingInfo", false);
-              }
-          })
-      }else {
-          store.commit("updatePullingInfo", false);
-      }
+    
     onMounted(() => {
       socket = new WebSocket(socketUrl);
       socket.onopen = () => {
           store.commit("updateSocket", socket);
-          console.log("connected")
       }
       socket.onmessage = msg => {
           store.commit("appendContent", msg.data);
           messages()    
       }
       socket.onclose = () => {
-          console.log("disconnected");
       }
     });
 
@@ -161,7 +155,14 @@ export default {
       store.dispatch("submitFriends", {
         userKey : store.state.user.id,
         userName : store.state.user.username,
-        frineds : store.state.friends,
+        friends : store.state.user.friends,
+      })
+      /**
+       * 新接收者更新数据 
+       */
+      store.dispatch("addFriends", {
+        senderKey : store.state.user.id,
+        senderName : store.state.user.username
       })
       socket.close();
     })
@@ -185,12 +186,15 @@ export default {
       }
       return fmt;
     }
-
     const time = (date) => {
       date = new Date(date);
       return dateFormat("YYYY-mm-dd HH:MM", date)
     }
     const send = () => {
+      if(content.value == null || content.value == undefined || content.value == ""){
+        //提示不能为空
+        return;
+      }
       store.state.chatting.socket.send(JSON.stringify({
             event: "singleMessage",
             a_id: store.state.user.id,
@@ -199,10 +203,12 @@ export default {
             receivername: store.state.user.visitUsername,
             content: content.value
       }));
+      store.commit("updateFriends", {
+        userKey : store.state.chatting.receiverId,
+      })
       nextTick(() =>{
         content.value = ''
-      })
-     
+      }) 
     }
     return{
       store,
@@ -215,14 +221,6 @@ export default {
       send
     }
   },
-  methods:{
-
-  },
-  computed: {
-
-  },
-  watch: {
-  }
 }
 </script>
 

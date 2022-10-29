@@ -103,7 +103,7 @@ import ContentField from "@/components/ContentField.vue";
 import { useStore } from "vuex";
 import router from "@/router";
 import $ from "jquery";
-import { ref,nextTick} from 'vue';
+import { ref, nextTick } from 'vue';
 export default{
   components: { ContentField },
   setup(){
@@ -115,6 +115,9 @@ export default{
 
     const todetails = (index) =>{
       router.push({name: "problem_details", params: {id : index}});
+      setTimeout(() =>{
+                location.reload()
+            }, 0)
     }
     const store = useStore();
     const jwt_token = localStorage.getItem("jwt_token");
@@ -267,10 +270,7 @@ export default{
             }
             arrTemp.push(data[tag])
           }
-          while(i < count){
-            arrTemp.push('')
-            i++;
-          }
+          
           return arrTemp
         }
       }
