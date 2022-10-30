@@ -1,6 +1,6 @@
 <template>
   <ContentField>
-    <div class="row">
+    <div class="row" v-if="is_show">
       <div class="col-3">
         <SearcH>
 
@@ -8,18 +8,20 @@
         <ContentField>
           <div>
             <div class="list-group" style="overflow: auto;height: 55vh">
-              <button
-                  v-for="(item, index) in store.state.user.friends"
+              <div
+                  v-for="(item, index) in store.state.chatting.allContent"
                   :key="index"
                   :class="index == store.state.chatting.selected ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'"
-                  @click="redSession(item, index)"
+                  @click="redSession(friends[index], index)"
               >
               <div>
                 <img src="../../assets/testp1.jpg" class="img-thumbnail" style="width:50px; height:50px; border-radius: 100px; webkit-border-radius: 100px; moz-border-radius: 100px;">
                 &nbsp;
-                <span>{{item.userName}}</span>
+                <span>{{friends[index].userName}}</span>
+                <span style="border-radius: 100%">{{item.unreadNum}}</span>
+                <span>{{item.chattingList[item.chattingList.length - 1].content}}</span>
               </div>
-              </button>
+            </div>
             </div>
           </div>
         </ContentField>
@@ -57,8 +59,7 @@
                         {{item.content}}
                         <img src="../../assets/testp1.jpg" class="img-thumbnail" style="width:50px; height:50px; border-radius: 100px; webkit-border-radius: 100px; moz-border-radius: 100px;">
                       </div>
-                    </div> 
-                    
+                    </div>  
                   </div>
                 </div>
               </div>
@@ -83,6 +84,7 @@ import { onMounted, onUnmounted, nextTick } from 'vue'
 // import $ from 'jquery'
 import { ref } from 'vue'
 
+
 export default {
   components: {
     ContentField,
@@ -93,23 +95,41 @@ export default {
     let selectedChat = ref([]);
     let user = ref([]);
     let content = ref('');
+    let friends = ref([]);
+    let is_show = ref(false);
     const socketUrl = `ws://127.0.0.1:3000/websocket/${store.state.user.token}/`;
     let socket = null;
     const jwt_token = localStorage.getItem("jwt_token");
+    store.commit("updatePullingInfo", true); 
     if(jwt_token){
         store.commit("updateToken", jwt_token);
         store.dispatch("getInfo", {
             success(){
-                nextTick(()=>{
-                  /**
+                   /**
                    * 读取用户好友列表
                    */
-                    store.dispatch("refreshFriends", {
-                      userKey : store.state.user.id
+                   store.dispatch("refreshFriends", {
+                      userKey : store.state.user.id,
+                      success(){
+                        
+                        store.dispatch("updateAllReceiver",{
+                          senderKey : store.state.user.id,
+                          success(resp){
+                            
+                            store.commit("appendAllContent", {
+                              userKey : resp.userKey,
+                              content : resp.resp,
+                              friends : store.state.user.friends
+                            })
+                            friends.value = store.state.user.friends   
+                            setTimeout(() =>{
+                              is_show.value = true;
+                            }, 10) 
+                          }
+                        });
+                      }
                     })
-                  
-                })
-                store.commit("updatePullingInfo", false);
+                store.commit("updatePullingInfo", false);         
             },
             error() {
                 store.commit("updatePullingInfo", false);
@@ -128,14 +148,17 @@ export default {
     }
     const redSession = (item, index) =>{
       store.commit("updateReceiver",{
-        receiverId: item.userKey,
-        receiverName: item.userName,
-        senderId: store.state.user.id,
+        index : index,
+        receiverId : item.userKey,
+        receiverName : item.userName,
         success(){
+          friends.value = store.state.user.friends
+          store.commit("changeSequence", index)
+          store.commit("changeContentSequence", index);
           messages()
         }
       })
-      store.commit("updateSelected", index)       
+      store.commit("updateSelected", 0)
     }
     
     onMounted(() => {
@@ -190,15 +213,20 @@ export default {
       date = new Date(date);
       return dateFormat("YYYY-mm-dd HH:MM", date)
     }
+
     const send = () => {
+      if(store.state.chatting.receiverId == -1){
+        return
+      }
       if(content.value == null || content.value == undefined || content.value == ""){
         //提示不能为空
         return;
       }
+      console.log(store.state.chatting.receiverId)
       store.state.chatting.socket.send(JSON.stringify({
             event: "singleMessage",
-            a_id: store.state.user.id,
-            b_id: store.state.chatting.receiverId,
+            senderKey: store.state.user.id,
+            receiverKey: store.state.chatting.receiverId,
             sendername: store.state.user.username,
             receivername: store.state.user.visitUsername,
             content: content.value
@@ -218,9 +246,14 @@ export default {
       redSession,
       messages,
       content,
-      send
+      send,
+      friends,
+      is_show,
     }
   },
+  methods:{
+    
+  }
 }
 </script>
 

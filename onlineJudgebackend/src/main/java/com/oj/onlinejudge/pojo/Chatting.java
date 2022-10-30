@@ -20,4 +20,5 @@ public class Chatting {
     private String receivername;
     private String content;
     private Timestamp time;
+    private String state;
 }

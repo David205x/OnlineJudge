@@ -73,7 +73,7 @@ public class StartChattingController {
         return friendsService.addFriend(data.get("senderKey"), data.get("senderName"), data.get("receiverKey"));
     }
 
-    @PostMapping("/chatting/chattingroom/chathistory")
+    @PostMapping("/chatting/chattingroom/chathistory/")
     public JSONObject getChattingHistory(@RequestParam Integer senderKey,
                                          @RequestParam Integer receiverKey,
                                          @RequestParam Integer page) throws InterruptedException {
