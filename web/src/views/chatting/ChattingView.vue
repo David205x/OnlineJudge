@@ -1,12 +1,12 @@
 <template>
   <ContentField>
-    <div class="row" v-if="is_show">
+    <div class="row">
       <div class="col-3">
         <SearcH>
 
         </SearcH>
         <ContentField>
-          <div>
+          <div v-if="is_show">
             <div class="list-group" style="overflow: auto;height: 55vh">
               <div
                   v-for="(item, index) in store.state.chatting.allContent"
@@ -17,8 +17,11 @@
               <div>
                 <img src="../../assets/testp1.jpg" class="img-thumbnail" style="width:50px; height:50px; border-radius: 100px; webkit-border-radius: 100px; moz-border-radius: 100px;">
                 &nbsp;
+                <!-- friends[index].userName 对方用户名
+                     item.unreadNum 未读消息数
+                     item.chattingList[item.chattingList.length - 1].content 最后一条消息  -->
                 <span>{{friends[index].userName}}</span>
-                <span style="border-radius: 100%">{{item.unreadNum}}</span>
+                <span style="border-radius: 100%" v-if="item.unreadNum != 0 && item.chattingList[item.chattingList.length - 1].senderkey != $store.state.user.id">{{item.unreadNum}}</span>
                 <span>{{item.chattingList[item.chattingList.length - 1].content}}</span>
               </div>
             </div>
@@ -100,6 +103,13 @@ export default {
     const socketUrl = `ws://127.0.0.1:3000/websocket/${store.state.user.token}/`;
     let socket = null;
     const jwt_token = localStorage.getItem("jwt_token");
+    window.addEventListener('beforeunload', () =>{
+        store.dispatch("updateHis",{
+            ChattingInfo : store.state.chatting.allContent,
+            success(){
+            }
+          })
+    } );
     store.commit("updatePullingInfo", true); 
     if(jwt_token){
         store.commit("updateToken", jwt_token);
@@ -147,6 +157,7 @@ export default {
       })
     }
     const redSession = (item, index) =>{
+     
       store.commit("updateReceiver",{
         index : index,
         receiverId : item.userKey,
@@ -156,9 +167,17 @@ export default {
           store.commit("changeSequence", index)
           store.commit("changeContentSequence", index);
           messages()
+          store.commit("updateSelected", 0)
+          store.commit("updateState")
+          
+          store.dispatch("updateHis",{
+            ChattingInfo : store.state.chatting.allContent,
+            success(){
+            }
+          })
         }
       })
-      store.commit("updateSelected", 0)
+      
     }
     
     onMounted(() => {
@@ -167,7 +186,16 @@ export default {
           store.commit("updateSocket", socket);
       }
       socket.onmessage = msg => {
-          store.commit("appendContent", msg.data);
+        
+        store.commit("appendContent", {
+          data : msg.data,
+          success(){
+            console.log(store.state.chatting.content)
+            // store.dispatch("updateHis",{
+            //   ChattingInfo : [store.state.chatting.content],
+            // })
+          }
+        });
           messages()    
       }
       socket.onclose = () => {
@@ -187,6 +215,13 @@ export default {
         senderKey : store.state.user.id,
         senderName : store.state.user.username
       })
+      store.dispatch("updateHis",{
+        ChattingInfo : store.state.chatting.allContent,
+        success(){
+          store.commit("chattingLogout")
+        }
+      })
+      
       socket.close();
     })
     // 入参 fmt-格式 date-日期
@@ -222,13 +257,13 @@ export default {
         //提示不能为空
         return;
       }
-      console.log(store.state.chatting.receiverId)
+      
       store.state.chatting.socket.send(JSON.stringify({
             event: "singleMessage",
             senderKey: store.state.user.id,
             receiverKey: store.state.chatting.receiverId,
             sendername: store.state.user.username,
-            receivername: store.state.user.visitUsername,
+            receivername: store.state.chatting.receiverName,
             content: content.value
       }));
       store.commit("updateFriends", {

@@ -77,12 +77,12 @@ export default{
             if(state.friends.length > 10) state.friends = state.friends.slice(0, 10)
         },
         updateFriends(state, friend){   //更新新的接收者 点击发送会触发
-            if(state.friends_update.length + state.friends.length  + 1 > 10) return
             for(let i = 0; i < state.friends_update.length; i++){
                 if(state.friends_update[i].userKey == friend.userKey){
                     return;
                 }
             }
+            if(state.friends_update.length + state.friends.length  + 1 > 10) return
             for(let i = state.friends_update.length; i >= 1; i--){
                 state.friends_update[i] = state.friends_update[i - 1];
             }
@@ -90,6 +90,29 @@ export default{
         }
     },
     actions:{
+        updateHis(context, data){   //会话结束时更新所有的记录
+            for(let i = 0; i < data.ChattingInfo.length; i++){
+                for(let j = 0; j < data.ChattingInfo[i].chattingList.length; j++){
+                    $.ajax({
+                        url: "http://127.0.0.1:3000/chatting/update/history/",
+                        type: 'post',
+                        data:{
+                            ChattingInfo : JSON.stringify(data.ChattingInfo[i].chattingList[j])
+                        },
+                        headers: {
+                            Authorization: "Bearer " + context.state.token,
+                        },
+                        success() {
+                            data.success()
+                        },
+                        error(resp) {
+                            console.log(resp)
+                        }
+                    })
+                }
+            }
+            
+        },
         submitFriends(context, data){ //会话结束后上传数据，更新本用户信息
             $.ajax({
                 url: "http://127.0.0.1:3000/chatting/final/friends/",
@@ -133,7 +156,6 @@ export default{
             });
         },
         addFriends(context, data){ //会话结束后更新与本用户产生关联的用户
-            console.log(data.senderKey)
             for(let i = 0; i < context.state.friends_update.length; i++){
                 
                 $.ajax({

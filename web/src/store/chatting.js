@@ -37,7 +37,41 @@ export default {
             state.selected = selected
         },
         appendContent(state, content){
-            state.content.push(JSON.parse(content));
+            let cmp = JSON.parse(content.data)
+            let data = new Date(cmp.time)
+            cmp.time = data.getFullYear() + "-" + 
+            (data.getMonth() + 1) + "-" + data.getDate()
+             + "T" + (data.getHours() < 10 ? "0" + data.getHours() : data.getHours())
+              + ":" + (data.getMinutes() < 10 ? "0" + data.getMinutes() : data.getMinutes())  + ":";
+            if(data.getSeconds() < 10){
+                cmp.time += '0'   
+            }
+            cmp.time += data.getSeconds()   
+            for(let j = 0; j < state.allContent.length; j++){
+                for(let i = 0; i < state.allContent[j].chattingList.length; i++){
+                    if(state.allContent[j].chattingList[i].receiverkey == cmp.receiverkey
+                        && state.allContent[j].chattingList[i].senderkey == cmp.senderkey
+                        || state.allContent[j].chattingList[i].receiverkey == cmp.senderkey
+                        && state.allContent[j].chattingList[i].senderkey == cmp.receiverkey){
+                        if(j == state.selected){
+                            
+                            if(cmp.state == "unread")
+                                cmp.state = "read"
+                            state.content.push(cmp);
+                            state.allContent[j].chattingList = state.content
+                            state.allContent[j].unreadNum = 0;
+                            content.success()
+                        } 
+                        else { 
+                            state.allContent[j].chattingList.push(cmp)
+                            if(cmp.state == "unread")
+                                state.allContent[j].unreadNum++;
+                        }
+                        return
+                    }
+                }
+            }
+           
         },
         appendAllContent(state, data){
             let friends = data.friends;
@@ -56,12 +90,19 @@ export default {
             }
             state.allContent[0] = Cotent
         },
+        updateState(state){
+            for(let i = 0; i < state.allContent[0].chattingList.length; i++){
+                if(state.allContent[0].chattingList[i].state == "unread"){
+                    state.allContent[0].chattingList[i].state = "read";
+                    state.allContent[0].unreadNum = state.allContent[0].unreadNum > 0 ? state.allContent[0].unreadNum - 1 : 0;
+                }      
+            }
+        }
     },
     actions: {
         updateAllReceiver(context, data){
             
             for(let i = 0; i < context.rootState.user.friends.length; i++){
-                console.log(context.rootState.user.friends[i])
                 $.ajax({
                     url: "http://127.0.0.1:3000/chatting/chattingroom/chathistory/",
                     type: 'post',
@@ -75,7 +116,6 @@ export default {
                     },
                     success(resp) {
                         data.success({"resp" : resp, "userKey" : context.rootState.user.friends[i].userKey})
-                        console.log(resp)
                     },
                     error(resp) {
                         console.log(resp)
@@ -83,6 +123,7 @@ export default {
                 })
             }
         },
+
     },
     modules: {}
 }
