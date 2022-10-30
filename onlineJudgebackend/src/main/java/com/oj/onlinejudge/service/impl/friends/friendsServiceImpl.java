@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.lang.Integer.min;
+
 
 @Service
 public class friendsServiceImpl implements friendsService {
@@ -74,19 +76,21 @@ public class friendsServiceImpl implements friendsService {
         try{
             Friends friend = friendsMapper.selectById(userKey);
             JsonArray = JSONArray.parseArray(friend.getFriends());
-            if(JsonArray.size() == StrategyUtil.MAX_FRIENDS_NUM){
-                for(int i = 1; i < StrategyUtil.MAX_FRIENDS_NUM; i++) {
-                    JsonArray.add(i - 1, JsonArray.get(i));
-                }
-                JsonArray.remove(StrategyUtil.MAX_FRIENDS_NUM - 1);
-            }
+            int index = JsonArray.size();
             for(int i = 0; i < JsonArray.size(); i++){
                 JSONObject jsonObject = (JSONObject) JsonArray.get(i);
                 if(senderKey.equals(jsonObject.get("userKey"))){
                     JsonArray.remove(i);
+                    index = i;
                 }
             }
-            JsonArray.add(JsonArray.size(), json);
+            for(int i = min(min(index, JsonArray.size()), StrategyUtil.MAX_FRIENDS_NUM); i >= 1; i--) {
+                JsonArray.set(i, JsonArray.get(i - 1));
+            }
+            JsonArray.set(0, json);
+            if(JsonArray.size() == StrategyUtil.MAX_FRIENDS_NUM) {
+                JsonArray.remove(StrategyUtil.MAX_FRIENDS_NUM);
+            }
             friendsMapper.updateById(new Friends(Integer.parseInt(userKey), friend.getUsername(), JsonArray.toString()));
             resp.put("error_message", "success");
         }catch (NullPointerException e){
@@ -107,7 +111,6 @@ public class friendsServiceImpl implements friendsService {
             JSONObject json = new JSONObject();
             json.put("error_message", "error");
             JsonArray.add(0, json);
-
             return JsonArray.toString();
         }
         String str = friend.getFriends();

@@ -69,14 +69,15 @@ export default {
             router.push({name: "user_account_login"});
         }
         const visitMyPage = () =>{
+            store.commit("updateVisit", {
+                userKey : -1
+            })  
             router.push({name: "profile_overview"});
             setTimeout(() =>{
                 location.reload()
             }, 0)
             
-            store.commit("updateVisit", {
-                userKey : -1
-            })     
+               
             
         }
         return {

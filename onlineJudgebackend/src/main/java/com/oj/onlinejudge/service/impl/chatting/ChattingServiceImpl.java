@@ -7,7 +7,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.oj.onlinejudge.consumer.WebSocketServer;
 import com.oj.onlinejudge.mapper.ChattingMapper;
 import com.oj.onlinejudge.pojo.Chatting;
-import com.oj.onlinejudge.pojo.User;
 import com.oj.onlinejudge.service.Logger;
 import com.oj.onlinejudge.service.chatting.ChattingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,12 +61,19 @@ public class ChattingServiceImpl implements ChattingService {
             ret.put("chattingCount", -1);
             ret.put("totalPages", 0);
             ret.put("perPage", chatEntriesPerPage);
+            ret.put("unreadNum", 0);
             ret.put("chattingList", null);
         }
-
+        int cnt = 0;
+        for(Chatting c : chattings){
+            if(c.getState().equals("unread")){
+                cnt++;
+            }
+        }
         ret.put("chattingsCount", chattings.size());
         ret.put("totalPages", chattingMapper.selectCount(chattingWrapper));
         ret.put("perPage", chatEntriesPerPage);
+        ret.put("unreadNum", cnt);
         ret.put("chattingList", chattings);
 
         return ret;

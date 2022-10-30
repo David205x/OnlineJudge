@@ -8,6 +8,7 @@ import com.oj.onlinejudge.pojo.Chatting;
 import com.oj.onlinejudge.pojo.User;
 import com.oj.onlinejudge.service.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -92,7 +93,7 @@ public class WebSocketServer {
         return true;
     }
 
-    public static void chatInsertion(Integer senderKey, Integer receiverKey, String content) {
+    public static void chatInsertion(Integer senderKey, Integer receiverKey, String content, String state) {
         User sender = userMapper.selectById(senderKey);
         User receiver = userMapper.selectById(receiverKey);
 
@@ -103,7 +104,8 @@ public class WebSocketServer {
                         receiver.getId(),
                         receiver.getUsername(),
                         content,
-                        new Timestamp(System.currentTimeMillis())
+                        new Timestamp(System.currentTimeMillis()),
+                        state
                 )
         );
     }
@@ -114,7 +116,7 @@ public class WebSocketServer {
         final String contentBtoA = "At " + Logger.timestampGen() + " b sent a a message.";
 
         if (sendSingleMessage(senderKey, receiverKey, contentAtoB)) {
-            chatInsertion(senderKey, receiverKey, contentAtoB);
+            chatInsertion(senderKey, receiverKey, contentAtoB, "read");
         }
         else {
             Logger.basicLogger("Chatting", "Message fail to send.");
@@ -125,7 +127,7 @@ public class WebSocketServer {
 //        }
 
         if (sendSingleMessage(receiverKey, senderKey, contentBtoA)) {
-            chatInsertion(receiverKey, senderKey, contentBtoA);
+            chatInsertion(receiverKey, senderKey, contentBtoA, "read");
         } else {
             Logger.basicLogger("Chatting", "Message fail to send.");
         }
@@ -139,12 +141,13 @@ public class WebSocketServer {
 
     @OnMessage
     public void onMessage(String message, Session session) {
-        JSONObject data = JSONObject.parseObject(message);
-        //JSONObject.parseObject((String)data.get("content")).put("time", new Date());
 
+        JSONObject data = JSONObject.parseObject(message);
         int senderKey, receiverKey;
-        senderKey = Integer.parseInt((String) data.get("a_id")); // change these later
-        receiverKey = Integer.parseInt((String) data.get("b_id"));
+
+        senderKey = Integer.parseInt((String) data.get("senderKey"));
+        receiverKey = Integer.parseInt((String) data.get("receiverKey"));
+
         if("singleMessage".equals(data.get("event"))){
             JSONObject json = new JSONObject();
             json.put("content", (String)data.get("content"));
@@ -153,9 +156,9 @@ public class WebSocketServer {
             json.put("receivername", (String)data.get("receivername"));
             json.put("senderkey", senderKey);
             json.put("sendername", (String)data.get("sendername"));
+            String state = sendSingleMessage(receiverKey, senderKey, JSONObject.toJSONString(json)) ? "read" : "unread";
             sendSingleMessage(senderKey, receiverKey, JSONObject.toJSONString(json));
-            sendSingleMessage(receiverKey, senderKey, JSONObject.toJSONString(json));
-            chatInsertion(senderKey, receiverKey, (String)data.getString("content"));
+            chatInsertion(senderKey, receiverKey, (String)data.getString("content"), state);
         }
     }
 

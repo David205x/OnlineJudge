@@ -29,11 +29,11 @@
                   <div class="nav nav-tabs" id="nav-tab" role="tablist">
                       <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">信息概览</button>
                       <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">
-                        <span v-if="is_visit.value == -1">我的提交</span>
+                        <span v-if="is_visit == -1">我的提交</span>
                         <span v-else>ta的提交</span>
                       </button>
                       <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">
-                        <span v-if="is_visit.value == -1">我的题解</span>
+                        <span v-if="is_visit == -1">我的题解</span>
                         <span v-else>ta的题解</span>
                     </button>
                   </div>
@@ -159,8 +159,8 @@ export default {
     const chat = () => {
         router.push({name : "chatting_list"})
         store.commit("addFriend", {
-            userKey : is_visit.value == -1 ? store.state.user.id : is_visit.value,
-            userName : is_visit.value == -1 ? store.state.user.username : visitUsername
+            userName : is_visit.value == -1 ? store.state.user.username : visitUsername.value,
+            userKey : is_visit.value == -1 ? store.state.user.id : is_visit.value 
         })
       }
     
