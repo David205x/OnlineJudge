@@ -12,6 +12,7 @@ import com.oj.onlinejudge.service.chatting.ChattingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,6 +23,31 @@ public class ChattingServiceImpl implements ChattingService {
 
     @Autowired
     private ChattingMapper chattingMapper;
+
+    @Override
+    public String updateChattingState(String ChattingInfo) {
+        try{
+            JSONObject jsonObject = JSONObject.parseObject(ChattingInfo);
+            int f = chattingMapper.updateById(
+                    new Chatting(
+                            jsonObject.getInteger("chatkey"),
+                            jsonObject.getInteger("senderkey"),
+                            jsonObject.getString("sendername"),
+                            jsonObject.getInteger("receiverkey"),
+                            jsonObject.getString("receivername"),
+                            jsonObject.getString("content"),
+                            jsonObject.getTimestamp("time"),
+                            jsonObject.getString("state"))
+            );
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return "error";
+        }
+
+        return "success";
+    }
+
     @Override
     public String startChatting(Integer senderKey, Integer receiverKey, Map<Integer, Integer> monitor) {
         Logger.basicLogger("Chatting", "Starting chat between user#" + senderKey + " and user#" + receiverKey + ".");
@@ -51,6 +77,9 @@ public class ChattingServiceImpl implements ChattingService {
             chattingWrapper
                     .eq("senderKey", senderKey)
                     .eq("receiverKey", receiverKey)
+                    .or()
+                    .eq("senderKey", receiverKey)
+                    .eq("receiverKey", senderKey)
                     .orderByDesc("time");
         }
 

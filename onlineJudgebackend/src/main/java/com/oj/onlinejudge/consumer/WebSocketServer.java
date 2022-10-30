@@ -8,7 +8,6 @@ import com.oj.onlinejudge.pojo.Chatting;
 import com.oj.onlinejudge.pojo.User;
 import com.oj.onlinejudge.service.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -17,9 +16,8 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -93,21 +91,25 @@ public class WebSocketServer {
         return true;
     }
 
-    public static void chatInsertion(Integer senderKey, Integer receiverKey, String content, String state) {
+    public static Map<String, Object> chatInsertion(Integer senderKey, Integer receiverKey, String content, String state) {
         User sender = userMapper.selectById(senderKey);
         User receiver = userMapper.selectById(receiverKey);
-
-        chattingMapper.insert(new Chatting(
-                        null,
-                        sender.getId(),
-                        sender.getUsername(),
-                        receiver.getId(),
-                        receiver.getUsername(),
-                        content,
-                        new Timestamp(System.currentTimeMillis()),
-                        state
-                )
+        Map<String, Object> resp = new HashMap<>();
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        Chatting chatting = new Chatting(
+                null,
+                sender.getId(),
+                sender.getUsername(),
+                receiver.getId(),
+                receiver.getUsername(),
+                content,
+                timestamp,
+                state
         );
+        chattingMapper.insert(chatting);
+        resp.put("chatKey", chatting.getChatkey());
+        resp.put("time", timestamp);
+        return resp;
     }
 
     public static void startChatting(Integer senderKey, Integer receiverKey, Map<Integer, Integer> monitor){
@@ -149,16 +151,21 @@ public class WebSocketServer {
         receiverKey = Integer.parseInt((String) data.get("receiverKey"));
 
         if("singleMessage".equals(data.get("event"))){
+            String state = "unread";
+            Map<String, Object> resp = chatInsertion(senderKey, receiverKey, (String)data.getString("content"), state);
             JSONObject json = new JSONObject();
+            json.put("chatkey", resp.get("chatKey"));
             json.put("content", (String)data.get("content"));
-            json.put("time", new Timestamp(System.currentTimeMillis()));
+            json.put("time", (Timestamp) resp.get("time"));
             json.put("receiverkey", receiverKey);
             json.put("receivername", (String)data.get("receivername"));
             json.put("senderkey", senderKey);
             json.put("sendername", (String)data.get("sendername"));
-            String state = sendSingleMessage(receiverKey, senderKey, JSONObject.toJSONString(json)) ? "read" : "unread";
+            json.put("state", state);
             sendSingleMessage(senderKey, receiverKey, JSONObject.toJSONString(json));
-            chatInsertion(senderKey, receiverKey, (String)data.getString("content"), state);
+            sendSingleMessage(receiverKey, senderKey, JSONObject.toJSONString(json));
+
+
         }
     }
 

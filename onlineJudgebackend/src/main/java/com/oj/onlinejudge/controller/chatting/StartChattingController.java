@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.Timestamp;
 import java.util.*;
 
 @RestController
@@ -73,6 +74,12 @@ public class StartChattingController {
         return friendsService.addFriend(data.get("senderKey"), data.get("senderName"), data.get("receiverKey"));
     }
 
+    @PostMapping("/chatting/update/history/")
+    public String updateHis(@RequestParam String ChattingInfo) {
+
+        return chattingService.updateChattingState(ChattingInfo);
+    }
+
     @PostMapping("/chatting/chattingroom/chathistory/")
     public JSONObject getChattingHistory(@RequestParam Integer senderKey,
                                          @RequestParam Integer receiverKey,
@@ -100,7 +107,7 @@ public class StartChattingController {
 //        queuedUpdateRequests.remove(senderKey);
 
         // consider moving this function out of chattingService later.
-        return chattingService.getChattingHistory(senderKey, receiverKey, page, true);
+        return chattingService.getChattingHistory(senderKey, receiverKey, page, false);
     }
 
 }
