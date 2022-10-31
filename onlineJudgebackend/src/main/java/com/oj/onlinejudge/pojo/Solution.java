@@ -21,4 +21,6 @@ public class Solution {
     private String title;
     private String overview;
     private String content;
+
+    private String language;
 }

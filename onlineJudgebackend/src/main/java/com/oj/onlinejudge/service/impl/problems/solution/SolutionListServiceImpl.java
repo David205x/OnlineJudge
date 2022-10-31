@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.oj.onlinejudge.mapper.ProblemMapper;
 import com.oj.onlinejudge.mapper.SolutionMapper;
 import com.oj.onlinejudge.mapper.UserMapper;
 import com.oj.onlinejudge.pojo.Solution;
@@ -25,14 +26,20 @@ public class SolutionListServiceImpl extends GenericOjFilter implements Solution
     private SolutionMapper solutionMapper;
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private ProblemMapper problemMapper;
     private final int entriesPerPage = 8;
 
     private JSONObject solutionInfoExtractor(Solution s) {
 
         JSONObject solution = new JSONObject();
+
         solution.put("solutionKey", s.getSolutionkey());
         solution.put("userKey", s.getUserkey());
         solution.put("userName", s.getUsername());
+        solution.put("problemName", problemMapper.selectById(s.getProblemkey()).getProblemname());
+        solution.put("language", s.getLanguage());
         solution.put("date", s.getTime());
         String contentOverview =  s.getContent().length() > 16 ? s.getContent().substring(0, 16) + "..." : s.getContent();
         solution.put("contentOverview", contentOverview);
@@ -41,7 +48,7 @@ public class SolutionListServiceImpl extends GenericOjFilter implements Solution
     }
 
     @Override
-    public boolean addSolution(String problemKey, String userKey, String content) {
+    public boolean addSolution(String language, String problemKey, String userKey, String content) {
 
         QueryWrapper<User> userWrapper = new QueryWrapper<>();
         userWrapper.eq("id", Integer.parseInt(userKey));
@@ -55,8 +62,33 @@ public class SolutionListServiceImpl extends GenericOjFilter implements Solution
                 new Date(System.currentTimeMillis()),
                 "",
                 "",
-                content)
+                content,
+                language)
         ) != 0;
+    }
+
+    @Override
+    public JSONObject solutionListGetterForOnes(String userKey, Integer page) {
+        IPage<Solution> solutionIPage = new Page<>(page, entriesPerPage);
+
+        QueryWrapper<Solution> solutionWrapper = new QueryWrapper<>();
+        solutionWrapper.eq("userKey", userKey);
+        solutionWrapper.orderByDesc("solutionKey");
+        List<Solution> solutions = solutionMapper.selectPage(solutionIPage, solutionWrapper).getRecords();
+
+        JSONObject ret = new JSONObject();
+        ArrayList<JSONObject> problemList = new ArrayList<>();
+
+        for (Solution s : solutions) {
+            problemList.add(solutionInfoExtractor(s));
+        }
+
+        ret.put("solutionsCount", solutions.size());
+        ret.put("totalPages", solutionMapper.selectCount(solutionWrapper));
+        ret.put("perPage", entriesPerPage);
+        ret.put("solutionList", problemList);
+
+        return ret;
     }
 
     @Override
@@ -66,7 +98,7 @@ public class SolutionListServiceImpl extends GenericOjFilter implements Solution
 
         QueryWrapper<Solution> solutionWrapper = new QueryWrapper<>();
         solutionWrapper.eq("problemkey", problemKey);
-        solutionWrapper.orderByAsc("solutionKey");
+        solutionWrapper.orderByDesc("solutionKey");
         List<Solution> solutions = solutionMapper.selectPage(solutionIPage, solutionWrapper).getRecords();
 
         JSONObject ret = new JSONObject();

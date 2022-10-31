@@ -21,7 +21,7 @@ public class SelfSubmissionsServiceImpl extends GenericOjFilter implements SelfS
 
     @Autowired
     private SubmissionMapper submissionMapper;
-    private final int entriesPerPage = 12;
+    private final int entriesPerPage = 8;
     private final SimpleDateFormat submissionTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private JSONObject selfSubmissionInfoExtractor(Submission s) {

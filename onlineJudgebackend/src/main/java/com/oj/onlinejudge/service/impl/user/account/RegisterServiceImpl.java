@@ -1,7 +1,9 @@
 package com.oj.onlinejudge.service.impl.user.account;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.oj.onlinejudge.mapper.FriendsMapper;
 import com.oj.onlinejudge.mapper.UserMapper;
+import com.oj.onlinejudge.pojo.Friends;
 import com.oj.onlinejudge.pojo.User;
 import com.oj.onlinejudge.service.user.account.RegisterService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,8 @@ public class RegisterServiceImpl implements RegisterService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private FriendsMapper friendsMapper;
     @Override
     public Map<String, String> register(String username, String password, String confirmedPassword) {
         Map<String, String> map = new HashMap<>();
@@ -62,6 +66,7 @@ public class RegisterServiceImpl implements RegisterService {
         String avatarURI = "https://cdn.acwing.com/media/user/profile/photo/74595_lg_14adcae966.jpg";
         User user = new User(null, username, encodePassword, avatarURI);
         userMapper.insert(user);
+        friendsMapper.insert(new Friends(user.getId(), username, "[]"));
         map.put("error_message", "success");
         return map;
     }

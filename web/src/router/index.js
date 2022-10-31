@@ -10,6 +10,7 @@ import ProfileOverview from "@/views/user/profile/ProfileOverview";
 import ProblemResultView from "@/components/problem/ProblemResultView";
 import ProblemResultView2 from "@/components/problem/ProblemResultView2";
 import ChattingView from "@/views/chatting/ChattingView";
+import ProblemSolutionView from "@/components/problem/ProblemSolutionView";
 const routes = [
   {
     path: "/",
@@ -98,7 +99,15 @@ const routes = [
     meta:{
       requestAuth: false
     }
-  }
+  },
+  {
+    path: "/problem/problem_solution/",
+    name: "problem_solution",
+    component: ProblemSolutionView,
+    meta:{
+      requestAuth: false
+    }
+  },
 ]
 
 const router = createRouter({

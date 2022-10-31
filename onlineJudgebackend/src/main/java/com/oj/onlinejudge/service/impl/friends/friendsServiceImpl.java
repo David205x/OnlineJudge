@@ -34,7 +34,9 @@ public class friendsServiceImpl implements friendsService {
     public boolean updateFriends(String JsonFriendsInfo, String userKey) {
         try{
             JSONObject json = JSONObject.parseObject(JsonFriendsInfo);
-
+            System.out.println(Integer.parseInt(userKey));
+            System.out.println((String)json.get("userName"));
+            System.out.println((String)json.get("Friends"));
             int f = friendsMapper.updateById(
                     new Friends(
                             Integer.parseInt(userKey),
@@ -67,13 +69,14 @@ public class friendsServiceImpl implements friendsService {
      * @return 最新的好友放在最后面
      */
     @Override
-    public Map<String, String> addFriend(String senderKey, String senderName ,String userKey) {
+    public Map<String, String> addFriend(String senderKey, String senderName, String userKey) {
         JSONObject json = new JSONObject();
         json.put("userKey", senderKey);
         json.put("userName", senderName);
         JSONArray JsonArray;
         Map<String, String> resp = new HashMap<>();
         try{
+            System.out.println(userKey);
             Friends friend = friendsMapper.selectById(userKey);
             JsonArray = JSONArray.parseArray(friend.getFriends());
             int index = JsonArray.size();

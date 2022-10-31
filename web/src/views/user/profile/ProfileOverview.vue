@@ -28,11 +28,11 @@
               <nav>
                   <div class="nav nav-tabs" id="nav-tab" role="tablist">
                       <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">信息概览</button>
-                      <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">
+                      <button @click="tab(1)" class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">
                         <span v-if="is_visit == -1">我的提交</span>
                         <span v-else>ta的提交</span>
                       </button>
-                      <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">
+                      <button @click="tab(2)" class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false">
                         <span v-if="is_visit == -1">我的题解</span>
                         <span v-else>ta的题解</span>
                     </button>
@@ -105,8 +105,8 @@
                             <td>{{item.submitTime}}</td>
                             <td >
                                 <span v-for="tag in sliceList(item.label, 3)" :key="tag">
-                                    <span class="badge bg-secondary"> {{tag}}</span>	
-                                    &nbsp;																																	
+                                    <span class="badge bg-secondary"> {{tag}}</span>
+                                    &nbsp;
                                   </span>
                             </td>
                         </tr>
@@ -114,7 +114,53 @@
                       </table>
                   </div>
                   <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
-                      郭瑞不过日剧
+                    <nav aria-label="...">
+                      <ul class="pagination" style="float: right;">
+                        <li class="page-item" @click="click_page(-2)">
+                          <a class="page-link" href="#">前一页</a>
+                        </li>
+                        <li :class="'page-item ' + page.is_active && !$store.state.user.isChatOpen ? page.is_active : ''" v-for="page in pages" :key="page.number" @click="click_page(page.number)">
+                          <a class="page-link" href="#">{{ page.number }}</a>
+                        </li>
+                        <li class="page-item" @click="click_page(-1)">
+                          <a class="page-link" href="#">下一页</a>
+                        </li>
+                      </ul>
+                    </nav>
+                    <table class="table table-striped table-hover" style="margin-top: 2vh">
+                      <thead>
+                      <tr>
+                        <th scope="col">题目名称</th>
+                        <th scope="col">题解语言</th>
+                        <th scope="col">题解时间</th>
+                        <th scope="col" style="text-align: center">操作</th>
+
+                      </tr>
+                      </thead>
+                      <tbody v-for="(item,i) in SubmissionListForOnes" :key="i">
+                      <tr>
+                        <th scope="row">{{item.problemName}}</th>
+                        <td style="color: #cf4e4e">{{item.language}}</td>
+                        <td>{{item.date}}</td>
+                        <td>
+                          <div class="col" style="text-align: center">
+                            <button class="btn btn-primary">
+                                查看
+                            </button>
+                            &nbsp;
+                            <button class="btn btn-primary">
+                                修改
+                            </button>
+                            &nbsp;
+                            <button class="btn btn-primary">
+                                删除
+                            </button>
+
+                          </div>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
                   </div>
               </div>
 
@@ -156,12 +202,17 @@ export default {
     let current_page = 1;
     let total_problems = 0;
     let per_num = 1;
+    let whichTab = ref(1)
     const chat = () => {
-        router.push({name : "chatting_list"})
+      console.log(is_visit.value)
+
+      console.log(store.state.user.username)
+      console.log(visitUsername.value)
         store.commit("addFriend", {
             userName : is_visit.value == -1 ? store.state.user.username : visitUsername.value,
             userKey : is_visit.value == -1 ? store.state.user.id : is_visit.value 
         })
+      router.push({name : "chatting_list"})
       }
     
     const click_page = (page) =>{
@@ -173,10 +224,13 @@ export default {
         pull_page(page);
       }
     }
-
+    const tab = (num) =>{
+      whichTab.value = num;
+      pull_page(1)
+    }
     const update_pages = () =>{
       let max_pages = parseInt(Math.ceil(total_problems / per_num));
-
+      console.log(max_pages)
       let new_pages = [];
 
       for(let i = current_page - 2; i <= current_page + 2; i++){
@@ -191,26 +245,53 @@ export default {
     }
     const pull_page = (page) =>{
       current_page = page;
-      $.ajax({
-        url: "http://127.0.0.1:3000/problem/details/sublist/",
-        type: 'post',
-        headers: {
-          Authorization: "Bearer " + store.state.user.token,
-        },
-        data:{
-          userKey: is_visit.value == -1 ? store.state.user.id : is_visit.value,
-          page: JSON.stringify(page),
-        },
-        success(resp) {
-          SubmissionListForOnes.value = resp.submissionList;
-          total_problems = resp.totalPages;
-          per_num = resp.perPage;
-          update_pages()
-        },
-        error(resp) {
-          console.log(resp)
-        }
-      })
+      if(whichTab.value == 1){
+        $.ajax({
+          url: "http://127.0.0.1:3000/problem/details/sublist/",
+          type: 'post',
+          headers: {
+            Authorization: "Bearer " + store.state.user.token,
+          },
+          data:{
+            userKey: is_visit.value == -1 ? store.state.user.id : is_visit.value,
+            page: JSON.stringify(page),
+          },
+          success(resp) {
+            SubmissionListForOnes.value = resp.submissionList;
+            total_problems = resp.totalPages;
+            per_num = resp.perPage;
+            console.log(resp)
+            update_pages()
+          },
+          error(resp) {
+            console.log(resp)
+          }
+        })
+      }else{
+        $.ajax({
+          url: "http://127.0.0.1:3000/problem/details/" + store.state.user.id +"/ones/solutionlist/",
+          type: 'post',
+          headers: {
+            Authorization: "Bearer " + store.state.user.token,
+          },
+          data:{
+            userKey: is_visit.value == -1 ? store.state.user.id : is_visit.value,
+            page: JSON.stringify(page),
+          },
+          success(resp) {
+            SubmissionListForOnes.value = resp.solutionList;
+            total_problems = resp.totalPages;
+            per_num = resp.perPage;
+            console.log(resp)
+            update_pages()
+          },
+          error(resp) {
+            console.log(resp)
+          }
+        })
+      }
+
+
     }
     if(jwt_token){
         store.commit("updateToken", jwt_token);
@@ -284,6 +365,8 @@ export default {
         click_page,
         pages,
         SubmissionListForOnes,
+        whichTab,
+        tab,
     }
   },
   computed: {

@@ -27,8 +27,14 @@ public class ChattingServiceImpl implements ChattingService {
     @Override
     public String updateChattingState(String ChattingInfo) {
         try{
-            JSONObject jsonObject = JSONObject.parseObject(ChattingInfo);
-            int f = chattingMapper.updateById(
+            JSONObject jsonObject1 = JSONObject.parseObject(ChattingInfo);
+            JSONObject jsonObject = jsonObject1.getJSONObject("content");
+            Chatting chatting = chattingMapper.selectById(jsonObject.getInteger("chatkey"));
+            System.out.println(jsonObject);
+            if(chatting.getSenderkey().equals(jsonObject1.getInteger("userkey"))){
+                return "success";
+            }
+            chattingMapper.updateById(
                     new Chatting(
                             jsonObject.getInteger("chatkey"),
                             jsonObject.getInteger("senderkey"),
@@ -37,7 +43,7 @@ public class ChattingServiceImpl implements ChattingService {
                             jsonObject.getString("receivername"),
                             jsonObject.getString("content"),
                             jsonObject.getTimestamp("time"),
-                            jsonObject.getString("state"))
+                            "read")
             );
 
         }catch (Exception e){
