@@ -24,7 +24,7 @@ public class SubmissionListServiceImpl extends GenericOjFilter implements Submis
     @Autowired
     private ProblemMapper problemMapper;
 
-    private final int entriesPerPage = 10;
+    private final int entriesPerPage = 12;
     private final SimpleDateFormat submissionTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private JSONObject submissionInfoExtractor(Submission s) {
@@ -172,14 +172,14 @@ public class SubmissionListServiceImpl extends GenericOjFilter implements Submis
         }
         ArrayList<JSONObject> submissionList = new ArrayList<>();
         int pos = (page - 1) * entriesPerPage;
-        int cnt = 0;
+        int cnt = -1;
         for (Integer key : submissionMap.keySet()) {
+            cnt++;
             if(cnt < pos){
                 continue;
             }else if(cnt >= pos + entriesPerPage){
-                continue;
+                break;
             }
-            cnt++;
             JSONObject submission = new JSONObject();
             Submission sub = submissionMap.get(key);
             submission.put("result", sub.getResult());
@@ -190,9 +190,12 @@ public class SubmissionListServiceImpl extends GenericOjFilter implements Submis
             submission.put("label", tags);
             submissionList.add(submission);
         }
+        QueryWrapper<Submission> queryWrapper1 = new QueryWrapper<>();
+        queryWrapper1.select("distinct problemKey");
+        queryWrapper1.eq("userkey", userKey);
         JSONObject ret = new JSONObject();
         ret.put("submissionList", submissionList);
-        ret.put("totalPages", (submissionMap.size() + entriesPerPage - 1) / entriesPerPage);
+        ret.put("totalPages", submissionMapper.selectCount(queryWrapper1));
         ret.put("perPage", entriesPerPage);
         ret.put("error_message", "success");
         return ret;

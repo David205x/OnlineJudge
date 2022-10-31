@@ -18,14 +18,18 @@ public class SolutionController {
     @Autowired
     private SolutionDetailService solutionDetailService;
 
+    @PostMapping("problem/details/{userKey}/ones/solutionlist/")
+    private JSONObject solutionListForOnes(@PathVariable String userKey, @RequestParam Integer page) {
+        return solutionListService.solutionListGetterForOnes(userKey, page);
+    }
     @PostMapping("problem/details/{problemId}/solutionlist")
     private JSONObject solutionList(@PathVariable String problemId, @RequestParam Integer page) {
         return solutionListService.solutionListGetter(problemId, page);
     }
 
     @PostMapping("problem/details/{problemId}/addsolution")
-    private boolean addSolution(@PathVariable String problemId, @RequestParam String userKey, @RequestParam String content) {
-        return solutionListService.addSolution(problemId, userKey, content);
+    private boolean addSolution(@PathVariable String problemId, @RequestParam String language, @RequestParam String userKey, @RequestParam String content) {
+        return solutionListService.addSolution(language, problemId, userKey, content);
     }
 
     @PostMapping("problem/details/{problemId}/{solutionId}")

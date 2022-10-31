@@ -23,7 +23,7 @@ public class ProblemListServiceImpl extends GenericOjFilter implements ProblemLi
     private ProblemMapper problemMapper;
     @Autowired
     private SubmissionMapper submissionMapper;
-    private final int entriesPerPage = 8;
+    private final int entriesPerPage = 10;
 
     private JSONObject problemInfoExtractor(Problem p) {
 

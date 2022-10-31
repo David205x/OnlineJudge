@@ -22,7 +22,7 @@
                      item.chattingList[item.chattingList.length - 1].content 最后一条消息  -->
                 <span>{{friends[index].userName}}</span>
                 <span style="border-radius: 100%" v-if="item.unreadNum != 0 && item.chattingList[item.chattingList.length - 1].senderkey != $store.state.user.id">{{item.unreadNum}}</span>
-                <span>{{item.chattingList[item.chattingList.length - 1].content}}</span>
+                <span v-if="item.chattingList[item.chattingList.length - 1]">{{item.chattingList[item.chattingList.length - 1].content}}</span>
               </div>
             </div>
             </div>
@@ -104,11 +104,25 @@ export default {
     let socket = null;
     const jwt_token = localStorage.getItem("jwt_token");
     window.addEventListener('beforeunload', () =>{
-        store.dispatch("updateHis",{
+      store.dispatch("submitFriends", {
+        userKey : store.state.user.id,
+        userName : store.state.user.username,
+        friends : store.state.user.friends,
+      })
+      /**
+       * 新接收者更新数据
+       */
+      store.dispatch("addFriends", {
+        senderKey : store.state.user.id,
+        senderName : store.state.user.username
+      })
+      store.dispatch("updateHis",{
             ChattingInfo : store.state.chatting.allContent,
+            userkey : store.state.user.id,
             success(){
+              store.commit("chattingLogout")
             }
-          })
+      })
     } );
     store.commit("updatePullingInfo", true); 
     if(jwt_token){
@@ -120,12 +134,14 @@ export default {
                    */
                    store.dispatch("refreshFriends", {
                       userKey : store.state.user.id,
+                      friends: store.state.user.friends,
                       success(){
-                        
+
                         store.dispatch("updateAllReceiver",{
                           senderKey : store.state.user.id,
+                          friends: store.state.user.friends,
                           success(resp){
-                            
+                            console.log(store.state.user.friends)
                             store.commit("appendAllContent", {
                               userKey : resp.userKey,
                               content : resp.resp,
@@ -169,9 +185,9 @@ export default {
           messages()
           store.commit("updateSelected", 0)
           store.commit("updateState")
-          
+          console.log(store.state.chatting.allContent)
           store.dispatch("updateHis",{
-            ChattingInfo : store.state.chatting.allContent,
+            ChattingInfo : {"userkey" : store.state.user.id, "content" : store.state.chatting.allContent},
             success(){
             }
           })
@@ -216,7 +232,7 @@ export default {
         senderName : store.state.user.username
       })
       store.dispatch("updateHis",{
-        ChattingInfo : store.state.chatting.allContent,
+        ChattingInfo : {"userkey" : store.state.user.id, "content" : store.state.chatting.allContent},
         success(){
           store.commit("chattingLogout")
         }

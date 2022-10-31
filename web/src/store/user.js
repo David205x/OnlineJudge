@@ -60,6 +60,11 @@ export default{
             let newFriend = []
             let update = {}
             let f = false;
+
+            if(state.friends.length == 0){
+                state.friends.push(friend)
+                return
+            }
             for(let i = 0; i < state.friends.length; i++){
                 if(state.friends[i].userKey != friend.userKey){
                     newFriend.push(state.friends[i])
@@ -97,7 +102,7 @@ export default{
                         url: "http://127.0.0.1:3000/chatting/update/history/",
                         type: 'post',
                         data:{
-                            ChattingInfo : JSON.stringify(data.ChattingInfo[i].chattingList[j])
+                            ChattingInfo : JSON.stringify({ "userkey" : data.userkey, "content" : JSON.stringify(data.ChattingInfo[i].chattingList[j])})
                         },
                         headers: {
                             Authorization: "Bearer " + context.state.token,
@@ -132,6 +137,7 @@ export default{
             });
         },
         refreshFriends(context, data){ //获取后端的好友列表
+            console.log(context.state.token)
             $.ajax({
                 url: "http://127.0.0.1:3000/chatting/update/friends/",
                 type: 'post',
@@ -147,7 +153,17 @@ export default{
                         data.success() 
                         return
                     }
-                    context.state.friends = JSON.parse(resp)
+                    console.log(JSON.parse(resp))
+                    if(context.state.friends == undefined){
+                        context.state.friends = JSON.parse(resp)
+                    }else{
+                        let newFriends = JSON.parse(resp)
+                        for(let i = 0; i < newFriends.length; i++){
+                            context.state.friends.push(newFriends[i])
+                        }
+
+                    }
+
                     data.success()
                 },
                 error(resp) {
@@ -156,6 +172,7 @@ export default{
             });
         },
         addFriends(context, data){ //会话结束后更新与本用户产生关联的用户
+            console.log(context.state.friends)
             for(let i = 0; i < context.state.friends_update.length; i++){
                 
                 $.ajax({
@@ -176,6 +193,27 @@ export default{
                     }
                 });
                 
+            }
+            for(let i = 0; i < context.state.friends.length; i++){
+
+                $.ajax({
+                    url: "http://127.0.0.1:3000/chatting/add/friend/",
+                    type: 'post',
+                    data: {
+                        senderKey : data.senderKey,
+                        senderName : data.senderName,
+                        receiverKey : context.state.friends[i].userKey
+                    },
+                    headers: {
+                        Authorization: "Bearer " + context.state.token,
+                    },
+                    success() {
+                    },
+                    error(resp) {
+                        console.log(resp)
+                    }
+                });
+
             }
             
         },

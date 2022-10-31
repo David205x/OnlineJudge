@@ -11,8 +11,11 @@
                 <button  :class="f == 2 ? 'nav-link active' : 'nav-link'" >题解</button>
             </li>
             <li class="nav-item" @click="onChange(3)">
-                <button  :class="f == 3 ? 'nav-link active' : 'nav-link'" >提交记录</button>
+                <button  :class="f == 3 ? 'nav-link active' : 'nav-link'" >写题解</button>
             </li>
+          <li class="nav-item" @click="onChange(4)">
+            <button  :class="f == 4 ? 'nav-link active' : 'nav-link'" >提交记录</button>
+          </li>
             <div class="form-check form-switch" style="margin-top: 1.5vh">
                 <input class="form-check-input" @click="switchLayout" type="checkbox" role="switch" id="flexSwitchCheckDefault">
                 <label class="form-check-label" for="flexSwitchCheckDefault">布局切换</label>
@@ -36,7 +39,13 @@
             </ProblemEditorial>
         </div>
         <div v-else-if="f == 3">
+          <ProblemEditorialEditor>
+
+          </ProblemEditorialEditor>
+        </div>
+        <div v-else-if="f == 4">
             <ProblemResultView>
+
             </ProblemResultView>
         </div>
      </ContentField>
@@ -52,6 +61,7 @@ import 'md-editor-v3/lib/style.css';
 import ProblemDetailHorizontalTemplate from "@/components/problem/ProblemDetailHorizontalTemplate";
 import ProblemDetailVerticalTemplate from "@/components/problem/ProblemDetailVerticalTemplate";
 import ProblemResultView from "@/components/problem/ProblemResultView";
+import ProblemEditorialEditor from "@/components/problem/ProblemEditorialEditor";
 import 'md-editor-v3/lib/style.css';
 import "../../assets/font/font.css"
  export default{
@@ -61,6 +71,7 @@ import "../../assets/font/font.css"
       ContentField, 
       ProblemResultView, 
       ProblemEditorial,
+      ProblemEditorialEditor,
     },
     setup(){  
         const store = useStore();

@@ -28,7 +28,9 @@ export default {
             state.content = content;
         },
         updateReceiver(state, data){   //获取好友的聊天记录，点击某个好友时执行
+            console.log(state.content)
             state.content = state.allContent[data.index].chattingList
+            console.log(state.content)
             state.receiverId = data.receiverId,
             state.receiverName = data.receiverName,
             data.success() 
@@ -37,6 +39,7 @@ export default {
             state.selected = selected
         },
         appendContent(state, content){
+
             let cmp = JSON.parse(content.data)
             let data = new Date(cmp.time)
             cmp.time = data.getFullYear() + "-" + 
@@ -48,13 +51,31 @@ export default {
             }
             cmp.time += data.getSeconds()   
             for(let j = 0; j < state.allContent.length; j++){
+                console.log(state.allContent[j].chattingList.length)
+                if(state.allContent[j].chattingList.length == 0){
+                    if(j == state.selected){
+                        console.log(state.content)
+                        if(cmp.state == "unread")
+                            cmp.state = "read"
+                        state.content.push(cmp);
+                        state.allContent[j].chattingList = state.content
+                        state.allContent[j].unreadNum = 0;
+                        content.success()
+                    }
+                    else {
+                        state.allContent[j].chattingList.push(cmp)
+                        if(cmp.state == "unread")
+                            state.allContent[j].unreadNum++;
+                    }
+                    return
+                }
                 for(let i = 0; i < state.allContent[j].chattingList.length; i++){
                     if(state.allContent[j].chattingList[i].receiverkey == cmp.receiverkey
                         && state.allContent[j].chattingList[i].senderkey == cmp.senderkey
                         || state.allContent[j].chattingList[i].receiverkey == cmp.senderkey
                         && state.allContent[j].chattingList[i].senderkey == cmp.receiverkey){
                         if(j == state.selected){
-                            
+                            console.log(state.content)
                             if(cmp.state == "unread")
                                 cmp.state = "read"
                             state.content.push(cmp);
@@ -101,14 +122,19 @@ export default {
     },
     actions: {
         updateAllReceiver(context, data){
-            
-            for(let i = 0; i < context.rootState.user.friends.length; i++){
+            console.log(context)
+            //console.log(data.friends.length)
+            if(data.friends == undefined){
+                return
+            }
+            for(let i = 0; i < data.friends.length; i++){
+                console.log(data.friends[i].userKey)
                 $.ajax({
                     url: "http://127.0.0.1:3000/chatting/chattingroom/chathistory/",
                     type: 'post',
                     data:{
                         senderKey : data.senderKey,
-                        receiverKey : context.rootState.user.friends[i].userKey,
+                        receiverKey : data.friends[i].userKey,
                         page: 1
                     },
                     headers: {
