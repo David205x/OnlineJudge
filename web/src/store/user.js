@@ -48,6 +48,15 @@ export default{
             localStorage.setItem("visitUsername", "")
             localStorage.setItem("visitPhoto", "")
         },
+        isMyFriend(state, data){
+            let f = false
+            for(let i = 0; i < state.friends.length; i++){
+                f = state.friends[i].userKey == data.senderkey
+                if(f) break;
+            }
+            
+            data.success(f);
+        },
         changeSequence(state, index){
             let friend = state.friends[index]
             
@@ -60,7 +69,7 @@ export default{
             let newFriend = []
             let update = {}
             let f = false;
-
+            
             if(state.friends.length == 0){
                 state.friends.push(friend)
                 return
@@ -73,7 +82,7 @@ export default{
                     update = state.friends[i];
                 }
             }
-            for(let i = 1; i <= newFriend.length; i++){
+            for(let i = newFriend.length; i >= 1; i--){
                 newFriend[i] = newFriend[i - 1]
             }
             if(f) newFriend[0] = update
@@ -96,13 +105,21 @@ export default{
     },
     actions:{
         updateHis(context, data){   //会话结束时更新所有的记录
+            if(data.ChattingInfo.length == 0){
+                data.success()
+                return
+            }
             for(let i = 0; i < data.ChattingInfo.length; i++){
+                if(data.ChattingInfo[i].chattingList == undefined || data.ChattingInfo[i].chattingList.length == 0){
+                    data.success()
+                    return
+                }
                 for(let j = 0; j < data.ChattingInfo[i].chattingList.length; j++){
                     $.ajax({
                         url: "http://127.0.0.1:3000/chatting/update/history/",
                         type: 'post',
                         data:{
-                            ChattingInfo : JSON.stringify({ "userkey" : data.userkey, "content" : JSON.stringify(data.ChattingInfo[i].chattingList[j])})
+                            ChattingInfo : JSON.stringify({ "userkey" : data.userKey, "content" : JSON.stringify(data.ChattingInfo[i].chattingList[j])})
                         },
                         headers: {
                             Authorization: "Bearer " + context.state.token,
@@ -130,6 +147,7 @@ export default{
                     Authorization: "Bearer " + context.state.token,
                 },
                 success() {
+                    data.success()
                 },
                 error(resp) {
                    console.log(resp)
@@ -137,7 +155,6 @@ export default{
             });
         },
         refreshFriends(context, data){ //获取后端的好友列表
-            console.log(context.state.token)
             $.ajax({
                 url: "http://127.0.0.1:3000/chatting/update/friends/",
                 type: 'post',
@@ -149,21 +166,27 @@ export default{
                 },
                 success(resp) {
                     if(JSON.parse(resp)[0].error_message === "error"){
-                        console.log(resp)
+
                         data.success() 
                         return
                     }
-                    console.log(JSON.parse(resp))
+                    
                     if(context.state.friends == undefined){
                         context.state.friends = JSON.parse(resp)
                     }else{
                         let newFriends = JSON.parse(resp)
                         for(let i = 0; i < newFriends.length; i++){
-                            context.state.friends.push(newFriends[i])
+                            let f = false;
+                            for(let j = 0; j < data.friends.length; j++){
+                                if(data.friends[j].userKey == newFriends[i].userKey){
+                                    f = true;
+                                    break;
+                                }
+                            }
+                            if(!f)  context.state.friends.push(newFriends[i])
                         }
 
                     }
-
                     data.success()
                 },
                 error(resp) {
@@ -171,8 +194,7 @@ export default{
                 }
             });
         },
-        addFriends(context, data){ //会话结束后更新与本用户产生关联的用户
-            console.log(context.state.friends)
+        addFriends(context, data){ //点击发送信息后更新与本用户产生关联的用户
             for(let i = 0; i < context.state.friends_update.length; i++){
                 
                 $.ajax({

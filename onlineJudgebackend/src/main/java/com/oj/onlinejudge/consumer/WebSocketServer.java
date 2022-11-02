@@ -1,5 +1,6 @@
 package com.oj.onlinejudge.consumer;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.oj.onlinejudge.consumer.util.JwtAuthentication;
 import com.oj.onlinejudge.mapper.ChattingMapper;
@@ -7,6 +8,7 @@ import com.oj.onlinejudge.mapper.UserMapper;
 import com.oj.onlinejudge.pojo.Chatting;
 import com.oj.onlinejudge.pojo.User;
 import com.oj.onlinejudge.service.Logger;
+import com.oj.onlinejudge.service.friends.friendsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -34,9 +36,16 @@ public class WebSocketServer {
     private Session session = null;
 
     private static ChattingMapper chattingMapper;
+
     public static UserMapper userMapper;
 
+    private static friendsService friendsService;
+
     public static RestTemplate restTemplate;
+
+    @Autowired
+    public void setFriendsService(friendsService friendsService){ WebSocketServer.friendsService = friendsService; }
+
 
     @Autowired
     public void setUserMapper(UserMapper userMapper) {
@@ -145,10 +154,14 @@ public class WebSocketServer {
     public void onMessage(String message, Session session) {
 
         JSONObject data = JSONObject.parseObject(message);
+        Logger.basicLogger(message);
+        if(data.get("event").equals("sessionEnd")){
+            return;
+        }
         int senderKey, receiverKey;
 
         senderKey = Integer.parseInt((String) data.get("senderKey"));
-        receiverKey = Integer.parseInt((String) data.get("receiverKey"));
+        receiverKey = data.getInteger("receiverKey");
 
         if("singleMessage".equals(data.get("event"))){
             String state = "unread";

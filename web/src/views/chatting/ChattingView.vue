@@ -6,13 +6,13 @@
 
         </SearcH>
         <ContentField>
-          <div v-if="is_show">
+          <div v-if="!$store.state.user.pulling_info">
             <div class="list-group" style="overflow: auto;height: 55vh">
               <div
-                  v-for="(item, index) in store.state.chatting.allContent"
+                  v-for="(item, index) in store.state.user.friends"
                   :key="index"
                   :class="index == store.state.chatting.selected ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'"
-                  @click="redSession(friends[index], index)"
+                  @click="redSession(item, index)"
               >
               <div>
                 <img src="../../assets/testp1.jpg" class="img-thumbnail" style="width:50px; height:50px; border-radius: 100px; webkit-border-radius: 100px; moz-border-radius: 100px;">
@@ -20,9 +20,24 @@
                 <!-- friends[index].userName 对方用户名
                      item.unreadNum 未读消息数
                      item.chattingList[item.chattingList.length - 1].content 最后一条消息  -->
-                <span>{{friends[index].userName}}</span>
-                <span style="border-radius: 100%" v-if="item.unreadNum != 0 && item.chattingList[item.chattingList.length - 1].senderkey != $store.state.user.id">{{item.unreadNum}}</span>
-                <span v-if="item.chattingList[item.chattingList.length - 1]">{{item.chattingList[item.chattingList.length - 1].content}}</span>
+                <span>{{item.userName}}</span>
+    
+                <div v-if="$store.state.chatting.allContent.length > index && $store.state.chatting.allContent[index] != undefined && $store.state.chatting.allContent[index].chattingList.length > 0">
+
+                  <span style="border-radius: 100%" 
+                          v-if="$store.state.chatting.allContent[index].unreadNum != 0 
+                          && $store.state.chatting.allContent[index].chattingList[store.state.chatting.allContent[index].chattingList.length - 1].senderkey != $store.state.user.id"
+                          >{{store.state.chatting.allContent[index].unreadNum}}
+                  </span>
+                  <span v-if="$store.state.chatting.allContent[index].chattingList
+                          [store.state.chatting.allContent[index].chattingList.length - 1].content"
+                          >{{
+                            store.state.chatting.allContent[index].chattingList
+                            [store.state.chatting.allContent[index].chattingList.length - 1]
+                            .content
+                          }}
+                  </span>
+                </div>
               </div>
             </div>
             </div>
@@ -71,7 +86,7 @@
         <div>
           <textarea class="form-control" id="validationTextarea" ref="text" v-model="content" @keyup="onKeyup"/>
           <div class="send" >
-            <button class="btn btn-primary" @click="send()">发送(enter)</button>
+            <button class="btn btn-primary" @click="send">发送(enter)</button>
           </div>
         </div>
         </div>
@@ -83,9 +98,10 @@
 import ContentField from "@/components/ContentField.vue";
 import SearcH from "@/views/chatting/components/SearcH.vue";
 import { useStore } from 'vuex'
-import { onMounted, onUnmounted, nextTick } from 'vue'
+import { nextTick, onUnmounted, onMounted } from 'vue'
 // import $ from 'jquery'
 import { ref } from 'vue'
+
 
 
 export default {
@@ -98,74 +114,36 @@ export default {
     let selectedChat = ref([]);
     let user = ref([]);
     let content = ref('');
-    let friends = ref([]);
-    let is_show = ref(false);
-    const socketUrl = `ws://127.0.0.1:3000/websocket/${store.state.user.token}/`;
-    let socket = null;
-    const jwt_token = localStorage.getItem("jwt_token");
-    window.addEventListener('beforeunload', () =>{
-      store.dispatch("submitFriends", {
-        userKey : store.state.user.id,
-        userName : store.state.user.username,
-        friends : store.state.user.friends,
-      })
-      /**
-       * 新接收者更新数据
-       */
-      store.dispatch("addFriends", {
-        senderKey : store.state.user.id,
-        senderName : store.state.user.username
-      })
-      store.dispatch("updateHis",{
-            ChattingInfo : store.state.chatting.allContent,
-            userkey : store.state.user.id,
-            success(){
-              store.commit("chattingLogout")
-            }
-      })
-    } );
-    store.commit("updatePullingInfo", true); 
-    if(jwt_token){
-        store.commit("updateToken", jwt_token);
-        store.dispatch("getInfo", {
-            success(){
-                   /**
-                   * 读取用户好友列表
-                   */
-                   store.dispatch("refreshFriends", {
-                      userKey : store.state.user.id,
-                      friends: store.state.user.friends,
-                      success(){
-
-                        store.dispatch("updateAllReceiver",{
-                          senderKey : store.state.user.id,
-                          friends: store.state.user.friends,
-                          success(resp){
-                            console.log(store.state.user.friends)
-                            store.commit("appendAllContent", {
-                              userKey : resp.userKey,
-                              content : resp.resp,
-                              friends : store.state.user.friends
-                            })
-                            friends.value = store.state.user.friends   
-                            setTimeout(() =>{
-                              is_show.value = true;
-                            }, 10) 
-                          }
-                        });
-                      }
-                    })
-                store.commit("updatePullingInfo", false);         
-            },
-            error() {
-                store.commit("updatePullingInfo", false);
-            }
-        })
-    }else {
-        store.commit("updatePullingInfo", false);
-    }
-    
-    
+    // window.addEventListener('beforeunload', () =>{
+    //   store.dispatch("submitFriends", {
+    //     userKey : store.state.user.id,
+    //     userName : store.state.user.username,
+    //     friends : store.state.user.friends,
+    //   })
+    //   /**
+    //    * 新接收者更新数据
+    //    */
+    //   store.dispatch("addFriends", {
+    //     senderKey : store.state.user.id,
+    //     senderName : store.state.user.username
+    //   })
+    //   store.dispatch("updateHis",{
+    //       ChattingInfo : store.state.chatting.allContent,
+    //       userkey : store.state.user.id,
+    //       success(){
+    //         store.commit("chattingLogout")
+    //       }
+    //   })
+    // });
+    onMounted(() =>{
+      store.commit("updateUnread", false)
+      store.commit("updateSelected", -1)
+      console.log(store.state.chatting.allContent)
+    })
+    onUnmounted(() =>{
+      store.commit("updateSelected", -1)
+      store.commit("updateContent", [])
+    })
     const messages = () =>{
       nextTick(() =>{
         let list = document.getElementById("list")
@@ -173,73 +151,29 @@ export default {
       })
     }
     const redSession = (item, index) =>{
-     
+      console.log("?")
       store.commit("updateReceiver",{
         index : index,
         receiverId : item.userKey,
         receiverName : item.userName,
         success(){
-          friends.value = store.state.user.friends
           store.commit("changeSequence", index)
           store.commit("changeContentSequence", index);
           messages()
           store.commit("updateSelected", 0)
           store.commit("updateState")
-          console.log(store.state.chatting.allContent)
-          store.dispatch("updateHis",{
-            ChattingInfo : {"userkey" : store.state.user.id, "content" : store.state.chatting.allContent},
-            success(){
-            }
-          })
+
+          // store.dispatch("updateHis",{
+          //   ChattingInfo : {"userkey" : store.state.user.id, "content" : store.state.chatting.allContent},
+          //   success(){
+          //   }
+          // })
         }
       })
       
     }
     
-    onMounted(() => {
-      socket = new WebSocket(socketUrl);
-      socket.onopen = () => {
-          store.commit("updateSocket", socket);
-      }
-      socket.onmessage = msg => {
-        
-        store.commit("appendContent", {
-          data : msg.data,
-          success(){
-            console.log(store.state.chatting.content)
-            // store.dispatch("updateHis",{
-            //   ChattingInfo : [store.state.chatting.content],
-            // })
-          }
-        });
-          messages()    
-      }
-      socket.onclose = () => {
-      }
-    });
-
-    onUnmounted(() => {
-      store.dispatch("submitFriends", {
-        userKey : store.state.user.id,
-        userName : store.state.user.username,
-        friends : store.state.user.friends,
-      })
-      /**
-       * 新接收者更新数据 
-       */
-      store.dispatch("addFriends", {
-        senderKey : store.state.user.id,
-        senderName : store.state.user.username
-      })
-      store.dispatch("updateHis",{
-        ChattingInfo : {"userkey" : store.state.user.id, "content" : store.state.chatting.allContent},
-        success(){
-          store.commit("chattingLogout")
-        }
-      })
-      
-      socket.close();
-    })
+    
     // 入参 fmt-格式 date-日期
     const dateFormat = (fmt, date) => {
       let ret;
@@ -261,12 +195,16 @@ export default {
       return fmt;
     }
     const time = (date) => {
+      
       date = new Date(date);
+  
       return dateFormat("YYYY-mm-dd HH:MM", date)
     }
 
     const send = () => {
+    
       if(store.state.chatting.receiverId == -1){
+        
         return
       }
       if(content.value == null || content.value == undefined || content.value == ""){
@@ -285,6 +223,14 @@ export default {
       store.commit("updateFriends", {
         userKey : store.state.chatting.receiverId,
       })
+      /**
+       * 新接收者更新数据 
+       */
+      store.dispatch("addFriends", {
+          senderKey : store.state.user.id,
+          senderName : store.state.user.username
+      })
+      
       nextTick(() =>{
         content.value = ''
       }) 
@@ -298,8 +244,6 @@ export default {
       messages,
       content,
       send,
-      friends,
-      is_show,
     }
   },
   methods:{

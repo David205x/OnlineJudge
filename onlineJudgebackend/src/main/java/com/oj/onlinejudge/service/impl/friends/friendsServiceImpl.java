@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.oj.onlinejudge.mapper.FriendsMapper;
 import com.oj.onlinejudge.pojo.Friends;
+import com.oj.onlinejudge.service.Logger;
 import com.oj.onlinejudge.service.friends.friendsService;
 import com.oj.onlinejudge.utils.StrategyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +35,6 @@ public class friendsServiceImpl implements friendsService {
     public boolean updateFriends(String JsonFriendsInfo, String userKey) {
         try{
             JSONObject json = JSONObject.parseObject(JsonFriendsInfo);
-            System.out.println(Integer.parseInt(userKey));
-            System.out.println((String)json.get("userName"));
-            System.out.println((String)json.get("Friends"));
             int f = friendsMapper.updateById(
                     new Friends(
                             Integer.parseInt(userKey),
@@ -76,8 +74,8 @@ public class friendsServiceImpl implements friendsService {
         JSONArray JsonArray;
         Map<String, String> resp = new HashMap<>();
         try{
-            System.out.println(userKey);
             Friends friend = friendsMapper.selectById(userKey);
+            Logger.basicLogger("Logger Event friends", friend.getFriends());
             JsonArray = JSONArray.parseArray(friend.getFriends());
             int index = JsonArray.size();
             for(int i = 0; i < JsonArray.size(); i++){
