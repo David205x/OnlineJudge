@@ -7,6 +7,7 @@ export default {
         content: [],
         allContent :[],
         selected: -1,
+        unread : false,
     },
     getters: {},
     mutations: {
@@ -28,9 +29,7 @@ export default {
             state.content = content;
         },
         updateReceiver(state, data){   //获取好友的聊天记录，点击某个好友时执行
-            console.log(state.content)
-            state.content = state.allContent[data.index].chattingList
-            console.log(state.content)
+            state.content = state.allContent[data.index].chattingList == null ? [] : state.allContent[data.index].chattingList
             state.receiverId = data.receiverId,
             state.receiverName = data.receiverName,
             data.success() 
@@ -38,36 +37,55 @@ export default {
         updateSelected(state, selected){
             state.selected = selected
         },
+        updateUnread(state, unread){
+            state.unread = unread
+        },
         appendContent(state, content){
-
+            state.unread = false
+            //如果不是在聊天界面的话就要额外执行未读信息功能
+            if(content.url != "http://localhost:8080/chatting/chattingroom/"){
+                console.log(content.url)
+            }
             let cmp = JSON.parse(content.data)
             let data = new Date(cmp.time)
             cmp.time = data.getFullYear() + "-" + 
             (data.getMonth() + 1) + "-" + data.getDate()
-             + "T" + (data.getHours() < 10 ? "0" + data.getHours() : data.getHours())
+             + " " + (data.getHours() < 10 ? "0" + data.getHours() : data.getHours())
               + ":" + (data.getMinutes() < 10 ? "0" + data.getMinutes() : data.getMinutes())  + ":";
             if(data.getSeconds() < 10){
                 cmp.time += '0'   
             }
-            cmp.time += data.getSeconds()   
+            cmp.time += data.getSeconds()  
+            console.log("state.allContent.length")
+            console.log(state.allContent.length)
             for(let j = 0; j < state.allContent.length; j++){
-                console.log(state.allContent[j].chattingList.length)
+                console.log("state.allContent[j].chattingList.length")
+                    console.log(state.allContent[j].chattingList.length)
                 if(state.allContent[j].chattingList.length == 0){
-                    if(j == state.selected){
-                        console.log(state.content)
-                        if(cmp.state == "unread")
-                            cmp.state = "read"
-                        state.content.push(cmp);
-                        state.allContent[j].chattingList = state.content
-                        state.allContent[j].unreadNum = 0;
-                        content.success()
+                    
+                    if(content.friends[j].userKey == cmp.receiverkey
+                    || content.friends[j].userKey == cmp.senderkey){
+                        if(j == state.selected){
+                            if(cmp.state == "unread")
+                                cmp.state = "read"
+                            state.content.push(cmp);
+                            state.allContent[j].chattingList = state.content
+                            state.allContent[j].unreadNum = 0;
+                            content.success()
+                        }
+                        else {
+                            state.allContent[j].chattingList.push(cmp)
+                            if(cmp.state == "unread"){
+                                if(content.url != "http://localhost:8080/chatting/chattingroom/"){
+                                    state.unread = true     
+                                }
+                                state.allContent[j].unreadNum++;
+                            }
+                            
+                        }
+                        return
                     }
-                    else {
-                        state.allContent[j].chattingList.push(cmp)
-                        if(cmp.state == "unread")
-                            state.allContent[j].unreadNum++;
-                    }
-                    return
+                    
                 }
                 for(let i = 0; i < state.allContent[j].chattingList.length; i++){
                     if(state.allContent[j].chattingList[i].receiverkey == cmp.receiverkey
@@ -75,7 +93,7 @@ export default {
                         || state.allContent[j].chattingList[i].receiverkey == cmp.senderkey
                         && state.allContent[j].chattingList[i].senderkey == cmp.receiverkey){
                         if(j == state.selected){
-                            console.log(state.content)
+                            console.log("condi1")
                             if(cmp.state == "unread")
                                 cmp.state = "read"
                             state.content.push(cmp);
@@ -84,9 +102,15 @@ export default {
                             content.success()
                         } 
                         else { 
+                            console.log("condi2")
                             state.allContent[j].chattingList.push(cmp)
-                            if(cmp.state == "unread")
+                            if(cmp.state == "unread"){
+                                if(content.url != "http://localhost:8080/chatting/chattingroom/"){
+                                    state.unread = true
+                                }
                                 state.allContent[j].unreadNum++;
+                            }
+                                
                         }
                         return
                     }
@@ -94,22 +118,44 @@ export default {
             }
            
         },
+        addEmptyContent(state){
+            let chattingList = []
+            let newAllContent =  state.allContent         
+            let newContent = {
+                "chattingList" : chattingList, 
+                "unreadNum" : 0, 
+                "chattingCount" : -1,
+                "totalPages" : 0, 
+                "perPage" : 10,
+            }
+            
+            
+            if(state.allContent.length == 0){
+                state.allContent.push(newContent)
+                return
+            }
+            for(let i = newAllContent.length; i >= 1; i--){
+                newAllContent[i] = newAllContent[i - 1]
+            }
+            newAllContent[0] = newContent
+            if(newAllContent.length > 10) newAllContent = newAllContent.slice(0, 10)
+            state.allContent = newAllContent
+        },
         appendAllContent(state, data){
             let friends = data.friends;
             for(let i = 0; i < friends.length; i++){
                 if(data.userKey == friends[i].userKey){
                     state.allContent[i] = data.content;
-                    return
                 }
             }
         },
         changeContentSequence(state, index){
-            let Cotent = state.allContent[index]
+            let Content = state.allContent[index]
             
             for(let i = index; i >= 1; i--){
                 state.allContent[i] = state.allContent[i - 1]
             }
-            state.allContent[0] = Cotent
+            state.allContent[0] = Content
         },
         updateState(state){
             for(let i = 0; i < state.allContent[0].chattingList.length; i++){
@@ -124,7 +170,8 @@ export default {
         updateAllReceiver(context, data){
             console.log(context)
             //console.log(data.friends.length)
-            if(data.friends == undefined){
+            if(data.friends == undefined || data.friends.length == 0){
+                data.error()
                 return
             }
             for(let i = 0; i < data.friends.length; i++){
@@ -142,9 +189,10 @@ export default {
                     },
                     success(resp) {
                         data.success({"resp" : resp, "userKey" : context.rootState.user.friends[i].userKey})
+                        
                     },
-                    error(resp) {
-                        console.log(resp)
+                    error() {
+                        data.error()
                     }
                 })
             }

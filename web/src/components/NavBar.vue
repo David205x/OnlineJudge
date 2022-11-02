@@ -18,7 +18,8 @@
                     </li>
                     <li class="nav-item">
                         <router-link :class="route_name == 'chatting_list' ? 'nav-link active' : 'nav-link'"
-                                     :to="{name: 'chatting_list'}">聊天</router-link>
+                                     :to="{name: 'chatting_list'}">聊天<span v-if="$store.state.chatting.unread">new</span></router-link>
+                                     
                     </li>
                     
                 </ul>
@@ -63,10 +64,25 @@ export default {
         const store = useStore();
         
         let route_name = computed(() => route.name)
+        
         const logout = () => {
-            store.dispatch("logout");
-            store.commit("updatePullingInfo", false);
-            router.push({name: "user_account_login"});
+            store.dispatch("submitFriends", {
+                userKey : store.state.user.id,
+                userName : store.state.user.username,
+                friends : store.state.user.friends,
+                success(){
+                    store.dispatch("updateHis",{
+                        userkey : store.state.user.id,
+                        ChattingInfo : store.state.chatting.allContent,
+                        success(){
+                            store.dispatch("logout");
+                            store.commit("updatePullingInfo", false);
+                            router.push({name: "user_account_login"});
+                        }
+                    })
+                }
+            })
+            
         }
         const visitMyPage = () =>{
             store.commit("updateVisit", {
@@ -77,12 +93,13 @@ export default {
                 location.reload()
             }, 0)
             
-               
+            
             
         }
         return {
             route_name,
             logout,
+            store,
             visitMyPage,
         }
     }

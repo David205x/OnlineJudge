@@ -10,7 +10,7 @@
                   <p class="text-center">{{visitUsername}}</p>
                   <p class="fw-light" style="font-size: 15px; margin-top: 0px">Mys Institution<br><br></p>
                   <button type="button" class="btn btn-secondary">Edit Profile</button>
-                  <button type="button" class="btn btn-secondary" @click="chat">Chat</button>
+                  <button type="button" class="btn btn-secondary" @click="chat" v-if="$store.state.user.id != is_visit">Chat</button>
               </div>
           </div>
           <div class="col-2" v-if="is_visit == -1">
@@ -204,16 +204,32 @@ export default {
     let per_num = 1;
     let whichTab = ref(1)
     const chat = () => {
-      console.log(is_visit.value)
+      store.commit("isMyFriend",{
+        senderkey : is_visit.value,
+        success(resp){
+          if(!resp){
 
-      console.log(store.state.user.username)
-      console.log(visitUsername.value)
-        store.commit("addFriend", {
-            userName : is_visit.value == -1 ? store.state.user.username : visitUsername.value,
-            userKey : is_visit.value == -1 ? store.state.user.id : is_visit.value 
-        })
-      router.push({name : "chatting_list"})
-      }
+            store.commit("addFriend", {
+              userName : is_visit.value == -1 ? store.state.user.username : visitUsername.value,
+              userKey : is_visit.value == -1 ? store.state.user.id : is_visit.value 
+            })
+            store.commit("addEmptyContent")
+          }
+          setTimeout(() =>{
+              router.push({name : "chatting_list"})
+          }, 10)
+          store.dispatch("submitFriends", {
+              userKey : store.state.user.id,
+              userName : store.state.user.username,
+              friends : store.state.user.friends,
+              success(){
+
+              }
+          })
+        }
+      })
+      
+    }
     
     const click_page = (page) =>{
       if(page == -2) page = current_page - 1;
@@ -230,7 +246,6 @@ export default {
     }
     const update_pages = () =>{
       let max_pages = parseInt(Math.ceil(total_problems / per_num));
-      console.log(max_pages)
       let new_pages = [];
 
       for(let i = current_page - 2; i <= current_page + 2; i++){
@@ -260,7 +275,6 @@ export default {
             SubmissionListForOnes.value = resp.submissionList;
             total_problems = resp.totalPages;
             per_num = resp.perPage;
-            console.log(resp)
             update_pages()
           },
           error(resp) {
@@ -269,7 +283,7 @@ export default {
         })
       }else{
         $.ajax({
-          url: "http://127.0.0.1:3000/problem/details/" + store.state.user.id +"/ones/solutionlist/",
+          url: "http://127.0.0.1:3000/problem/details/" + store.state.user.id + "/ones/solutionlist/",
           type: 'post',
           headers: {
             Authorization: "Bearer " + store.state.user.token,
@@ -282,7 +296,6 @@ export default {
             SubmissionListForOnes.value = resp.solutionList;
             total_problems = resp.totalPages;
             per_num = resp.perPage;
-            console.log(resp)
             update_pages()
           },
           error(resp) {

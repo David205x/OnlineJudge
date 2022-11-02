@@ -12,7 +12,7 @@ import com.oj.onlinejudge.service.chatting.ChattingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +30,6 @@ public class ChattingServiceImpl implements ChattingService {
             JSONObject jsonObject1 = JSONObject.parseObject(ChattingInfo);
             JSONObject jsonObject = jsonObject1.getJSONObject("content");
             Chatting chatting = chattingMapper.selectById(jsonObject.getInteger("chatkey"));
-            System.out.println(jsonObject);
             if(chatting.getSenderkey().equals(jsonObject1.getInteger("userkey"))){
                 return "success";
             }
@@ -43,7 +42,7 @@ public class ChattingServiceImpl implements ChattingService {
                             jsonObject.getString("receivername"),
                             jsonObject.getString("content"),
                             jsonObject.getTimestamp("time"),
-                            "read")
+                            jsonObject.getString("state"))
             );
 
         }catch (Exception e){

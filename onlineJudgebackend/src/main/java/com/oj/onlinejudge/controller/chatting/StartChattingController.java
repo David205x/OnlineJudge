@@ -70,7 +70,6 @@ public class StartChattingController {
 
     @PostMapping("/chatting/add/friend/")
     public Map<String, String> addFriend(@RequestParam Map<String, String> data){
-        System.out.println(data);
         return friendsService.addFriend(data.get("senderKey"), data.get("senderName"), data.get("receiverKey"));
     }
 
