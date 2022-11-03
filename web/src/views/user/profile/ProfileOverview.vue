@@ -129,7 +129,8 @@
                     </nav>
                     <table class="table table-striped table-hover" style="margin-top: 2vh">
                       <thead>
-                      <tr>
+                      <tr style="font-size: 17px">
+                        <th scope="col">题目编号</th>
                         <th scope="col">题目名称</th>
                         <th scope="col">题解语言</th>
                         <th scope="col">题解时间</th>
@@ -138,21 +139,23 @@
                       </tr>
                       </thead>
                       <tbody v-for="(item,i) in SubmissionListForOnes" :key="i">
-                      <tr>
+                      <tr style="font-size: 15px">
+
+                        <th scope="row">{{item.problemKey}}</th>
                         <th scope="row">{{item.problemName}}</th>
                         <td style="color: #cf4e4e">{{item.language}}</td>
                         <td>{{item.date}}</td>
                         <td>
-                          <div class="col" style="text-align: center">
-                            <button class="btn btn-primary">
+                          <div class="col" style="text-align:center;font-size: 15px">
+                            <button @click="ToSolution(item)" class="btn btn-primary">
                                 查看
                             </button>
                             &nbsp;
-                            <button class="btn btn-primary">
+                            <button @click="UpdateSolution(item)" class="btn btn-primary" >
                                 修改
                             </button>
                             &nbsp;
-                            <button class="btn btn-primary">
+                            <button @click="DeleteSolution(item)" class="btn btn-primary">
                                 删除
                             </button>
 
@@ -230,7 +233,55 @@ export default {
       })
       
     }
-    
+    const ToSolution =(item) =>{
+      console.log(item)
+
+      store.dispatch("showProblemSolutionDetails", {
+        problemKey : item.problemKey,
+        solutionKey : item.solutionKey,
+        success(){
+          store.dispatch("showProblem", {
+            problemKey : item.problemKey,
+            success(resp){
+
+              console.log(resp)
+              setTimeout(() =>{
+                router.push({name: "problem_solution", params:{solutionKey : item.solutionKey, problemKey : item.problemKey}});
+              }, 10)
+            }
+          })
+
+        }
+      })
+    }
+    const UpdateSolution =(item) =>{
+      store.dispatch("showProblemSolutionDetails", {
+        problemKey : item.problemKey,
+        solutionKey : item.solutionKey,
+        success(){
+          store.dispatch("showProblem", {
+            problemKey : item.problemKey,
+            success(resp){
+              console.log(resp)
+              setTimeout(() =>{
+                router.push({name: "problem_details", params:{ id : item.problemKey, solutionKey : item.solutionKey}});
+
+              }, 100)
+            }
+          })
+
+        }
+      })
+
+    }
+    const DeleteSolution =(item) =>{
+        store.dispatch("deleteProblemSolutionDetails", {
+          solutionKey: item.solutionKey,
+          success(){
+            window.location.reload()
+          }
+        })
+    }
     const click_page = (page) =>{
       if(page == -2) page = current_page - 1;
       else if(page == -1) page = current_page + 1;
@@ -380,6 +431,9 @@ export default {
         SubmissionListForOnes,
         whichTab,
         tab,
+        UpdateSolution,
+        ToSolution,
+        DeleteSolution,
     }
   },
   computed: {

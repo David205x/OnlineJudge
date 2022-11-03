@@ -94,7 +94,7 @@ export default {
                                     setTimeout(() =>{
                                         let list = document.getElementById("list")
                                         list.scrollTop =  list.scrollHeight
-                                    }, 0)
+                                    }, 10)
                                     // store.dispatch("updateHis",{
                                     //   ChattingInfo : [store.state.chatting.content],
                                     // })
@@ -146,12 +146,13 @@ export default {
                     socketUrl = `ws://127.0.0.1:3000/websocket/${store.state.user.token}/`;
                     //第一次无论进入那个页面都生成对应socket
                     socket = new WebSocket(socketUrl);
-                    store.commit("updateSocket", socket);
+
                    
                     refreshFriends()
                     otherOp()
                     //页面关闭或者刷新，就更新所有数据
                     exit(socket)
+                    store.commit("updateSocket", socket);
                     setTimeout(() =>{
                         store.commit("updatePullingInfo", false);
                     }, 50)
