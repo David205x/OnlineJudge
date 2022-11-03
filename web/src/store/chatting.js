@@ -12,6 +12,7 @@ export default {
     getters: {},
     mutations: {
         chattingLogout(state){
+            state.socket.close()
             state.socket = null,
             state.receiverId = "",
             state.receiverName = "",

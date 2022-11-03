@@ -52,11 +52,28 @@
           <th scope="col">提交时间<br></th>
         </tr>
         </thead>
-        <tbody>
-        <tr v-for ="submissionOverview in SubmissionOverview" :key = "submissionOverview.submissionKey">
+        <tbody style="font-weight: bold;">
+        <tr v-for ="submissionOverview in SubmissionOverview" :key = "submissionOverview.submissionKey " >
           <th scope="row">{{submissionOverview.submissionKey}}</th>
           <td @click="visitOther(submissionOverview)">{{submissionOverview.userName}}</td>
-          <td>{{submissionOverview.result}}</td>
+          <td v-if="submissionOverview.result === 'Accepted'">
+            <span class="badge bg-success" style="font-size: 13px">{{submissionOverview.result}}</span>
+          </td>
+          <td v-else-if="submissionOverview.result === 'WrongAnswer'">
+            <span class="badge bg-danger" style="font-size: 13px">{{submissionOverview.result}}</span>
+          </td>
+          <td v-else-if="submissionOverview.result === 'TimeLimitExceeded'">
+            <span class="badge bg-danger" style="font-size: 13px">{{submissionOverview.result}}</span>
+          </td>
+          <td v-else-if="submissionOverview.result === 'MemoryLimitExceeded'">
+            <span class="badge bg-danger" style="font-size: 13px">{{submissionOverview.result}}</span>
+          </td>
+          <td v-else-if="submissionOverview.result === 'CompileError'">
+            <span class="badge bg-danger" style="font-size: 13px">{{submissionOverview.result}}</span>
+          </td>
+          <td v-else-if="submissionOverview.result !== 'Accepted' || 'WrongAnswer' || 'TimeLimitExceeded' || 'MemoryLimitExceeded' || 'CompileError'">
+            <span class="badge bg-warning" style="font-size: 13px">{{submissionOverview.result}}</span>
+          </td>
           <td v-if="submissionOverview.timeUsed <= 0">---</td>
           <td v-if="submissionOverview.timeUsed > 0">{{submissionOverview.timeUsed}}</td>
           <td>{{submissionOverview.lang}}</td>

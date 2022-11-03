@@ -42,6 +42,7 @@ public class SolutionDetailServiceImpl implements SolutionDetailService {
         ret.put("userKey", s.getUserkey());
         ret.put("userName", s.getUsername());
         ret.put("date", s.getTime());
+        ret.put("language", s.getLanguage());
         ret.put("content", s.getContent());
 
         return ret;

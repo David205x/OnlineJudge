@@ -74,13 +74,33 @@ export default{
   },
 
   setup(){
-    let problem_selected = ref('one');
-    let language_selected = ref('cpp');
+
     let spinner_cog = ref(0);
     let submission_status = ref('?');
-    let md_problem = ref();
+
     let solution_content = ref('');
     const store = useStore();
+    let language_selected = ref(store.state.solution.language);
+    // language_selected.value =
+    let md_problem = ref('');
+    md_problem.value = store.state.solution.content;
+    let beforeProblemKey = window.location.href.match("problemId=.*/");
+
+    let beforeSolutionKey = window.location.href.match("solutionKey=.*/");
+
+    store.dispatch("showProblemSolutionDetails", {
+      problemKey :  beforeProblemKey[0].split("=")[1].split("/")[0],
+      solutionKey : beforeSolutionKey[0].split("=")[1].split("/")[0],
+      success(){
+        // language_selected.value = store.state.solution.language;
+        // md_problem = ref(store.state.solution.content);
+      }
+    })
+
+    // setTimeout(() =>{
+    //   language_selected = ref(store.state.solution.language);
+    //   md_problem = ref(store.state.solution.content);
+    // }, 1000)
     const code = reactive({
       content: "",
     });
@@ -106,6 +126,8 @@ export default{
       console.log(language_selected.value)
       console.log(store.state.user)
       console.log(store.state.problem.problemKey)
+      if(beforeSolutionKey[0].split("=")[1].split("/")[0] == ''){
+        console.log("111")
       $.ajax({
         url: "http://127.0.0.1:3000/problem/details/" + store.state.problem.problemKey + "/addsolution/",
         type: 'post',
@@ -121,6 +143,24 @@ export default{
           console.log(resp)
         }
       })
+      }
+      else{
+        console.log("222")
+        store.dispatch("updateProblemSolutionDetails", {
+          problemKey :  beforeProblemKey[0].split("=")[1].split("/")[0],
+          solutionKey : beforeSolutionKey[0].split("=")[1].split("/")[0],
+          language: language_selected.value,
+          userKey: store.state.user.id,
+          content: md_problem.value,
+          success(){
+            console.log(md_problem.value)
+            console.log(language_selected.value)
+            language_selected = ref(store.state.solution.language);
+            md_problem = ref(store.state.solution.content);
+          }
+        })
+      }
+
     }
 
     return {
@@ -131,7 +171,6 @@ export default{
       submission_status,
       refresh,
       md_problem,
-      problem_selected,
       language_selected,
       submit,
       solution_content

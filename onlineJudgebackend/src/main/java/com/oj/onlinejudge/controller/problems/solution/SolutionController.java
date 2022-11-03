@@ -3,6 +3,7 @@ package com.oj.onlinejudge.controller.problems.solution;
 import com.alibaba.fastjson.JSONObject;
 import com.oj.onlinejudge.service.problems.solution.SolutionDetailService;
 import com.oj.onlinejudge.service.problems.solution.SolutionListService;
+import jnr.ffi.annotations.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,13 +28,22 @@ public class SolutionController {
         return solutionListService.solutionListGetter(problemId, page);
     }
 
+    @PostMapping("problem/details/{problemId}/{solutionKey}/updatesolution")
+    private boolean updateSolution(@PathVariable String problemId, @PathVariable Integer solutionKey, @RequestParam String language, @RequestParam String userKey, @RequestParam String content) {
+        return solutionListService.updateSolution(solutionKey, language, problemId, userKey, content);
+    }
     @PostMapping("problem/details/{problemId}/addsolution")
     private boolean addSolution(@PathVariable String problemId, @RequestParam String language, @RequestParam String userKey, @RequestParam String content) {
         return solutionListService.addSolution(language, problemId, userKey, content);
     }
 
+    @PostMapping("problem/details/deletesolution")
+    private boolean addSolution( @RequestParam String solutionKey) {
+        return solutionListService.deleteSolution(solutionKey);
+    }
     @PostMapping("problem/details/{problemId}/{solutionId}")
     private JSONObject getSolution(@PathVariable String problemId, @PathVariable String solutionId) {
         return solutionDetailService.getSolutionDetails(solutionId);
     }
+
 }

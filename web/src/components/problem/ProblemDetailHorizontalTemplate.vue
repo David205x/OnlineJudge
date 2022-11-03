@@ -4,7 +4,7 @@
 
             <div class="row align-items-start">
 <!--            左栏-->
-                <div class="col-6">
+                <div class="col-6 left">
 <!--                题目属性-->
                     <ul class="list-group" style="margin: 0vh -2vh">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -39,7 +39,7 @@
                       </md-editor>
                 </div>
 <!--            右栏-->
-                <div class="col-6">
+                <div class="col-6 right">
 <!--                工具栏-->
                     <div class="row" style="margin-top: 1vh">
                         <div class="col-3" style="text-align: end">
@@ -253,11 +253,15 @@ span.loading{
     height: 80vh;
     overflow: hidden;
 }
-.col-6{
-    height: 100vh;
-    overflow: hidden;
+.col-6.left{
+    height: 80vh;
     overflow-y: scroll;
 }
+.col-6.right{
+  height: 80vh;
+  overflow-y: scroll;
+}
+
 .col-6.valid{
     overflow: hidden;
 }

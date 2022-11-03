@@ -3,7 +3,7 @@
         <div class="proName" style="margin-left: 1vw">
             <p class="fw-light" style="font-size: 45px">{{problemName}}</p>
         </div>
-        <ul class="nav nav-tabs">
+        <ul class="nav nav-tabs" v-if="solutionKey != '' ? f = 3 : f = f">
             <li class="nav-item" @click="onChange(1)">
                 <button  :class="f == 1 ? 'nav-link active' : 'nav-link'" >题目</button>       
             </li>
@@ -78,13 +78,24 @@ import "../../assets/font/font.css"
         let f = ref(1);
         let layout = ref(-1);
         let problemName = ref("");
-        let r = window.location.href.match("problemId=.*/");
-        let t = r[0].split("=")[1].split("/")[0]
+        let beforeProblemKey = window.location.href.match("problemId=.*/");
+        let problemKey = beforeProblemKey[0].split("=")[1].split("/")[0]
+        let beforeSolutionKey = window.location.href.match("solutionKey=.*/");
+        let solutionKey = ref(beforeSolutionKey[0].split("=")[1].split("/")[0])
+
         const jwt_token = localStorage.getItem("jwt_token");
         if(jwt_token){
             store.commit("updateToken", jwt_token);
             store.dispatch("getInfo", {
                 success(){
+                  if(solutionKey.value != ''){
+                    store.dispatch("showProblemSolutionDetails", {
+                      problemKey : this.problemKey,
+                      solutionKey : this.solutionKey,
+                      success(){}
+                    })
+                  }
+
                     store.commit("updatePullingInfo", false);
                 },
                 error() {
@@ -95,7 +106,7 @@ import "../../assets/font/font.css"
             store.commit("updatePullingInfo", false);
         }
         store.dispatch("showProblem", {
-            problemKey : t,
+            problemKey : problemKey,
             success(){
                 problemName.value = store.state.problem.problemKey + ". " + store.state.problem.problemName
                 store.commit("updatePullingInfo", false);
@@ -120,6 +131,7 @@ import "../../assets/font/font.css"
             switchLayout,
             layout,
             problemName,
+            solutionKey
          }
     }
  }
