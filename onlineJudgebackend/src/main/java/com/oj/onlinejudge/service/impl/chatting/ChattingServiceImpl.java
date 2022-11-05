@@ -67,7 +67,6 @@ public class ChattingServiceImpl implements ChattingService {
 
         IPage<Chatting> chattingIPage = new Page<>(page, chatEntriesPerPage);
         QueryWrapper<Chatting> chattingWrapper = new QueryWrapper<>();
-
         JSONObject ret = new JSONObject();
 
         if (mutual) {
