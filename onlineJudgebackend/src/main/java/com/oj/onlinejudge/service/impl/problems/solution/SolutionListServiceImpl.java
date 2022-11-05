@@ -36,6 +36,7 @@ public class SolutionListServiceImpl extends GenericOjFilter implements Solution
         JSONObject solution = new JSONObject();
 
         solution.put("solutionKey", s.getSolutionkey());
+        solution.put("problemKey", s.getProblemkey());
         solution.put("userKey", s.getUserkey());
         solution.put("userName", s.getUsername());
         solution.put("problemName", problemMapper.selectById(s.getProblemkey()).getProblemname());
@@ -47,6 +48,37 @@ public class SolutionListServiceImpl extends GenericOjFilter implements Solution
         return solution;
     }
 
+    @Override
+    public boolean updateSolution(Integer solutionKey, String language, String problemKey, String userKey, String content) {
+
+        QueryWrapper<User> userWrapper = new QueryWrapper<>();
+        userWrapper.eq("id", Integer.parseInt(userKey));
+        List<User> Users = userMapper.selectList(userWrapper);
+
+        System.out.println("?????");
+        System.out.println(solutionMapper.updateById(new Solution(
+                solutionKey,
+                Integer.parseInt(problemKey),
+                Integer.parseInt(userKey),
+                Users.get(0).getUsername(),
+                new Date(System.currentTimeMillis()),
+                "",
+                "",
+                content,
+                language)
+        ));
+        return solutionMapper.updateById(new Solution(
+                solutionKey,
+                Integer.parseInt(problemKey),
+                Integer.parseInt(userKey),
+                Users.get(0).getUsername(),
+                new Date(System.currentTimeMillis()),
+                "",
+                "",
+                content,
+                language)
+        ) != 0;
+    }
     @Override
     public boolean addSolution(String language, String problemKey, String userKey, String content) {
 
@@ -65,6 +97,11 @@ public class SolutionListServiceImpl extends GenericOjFilter implements Solution
                 content,
                 language)
         ) != 0;
+    }
+
+    @Override
+    public boolean deleteSolution(String solutionKey) {
+        return solutionMapper.deleteById(Integer.parseInt(solutionKey)) != 0;
     }
 
     @Override

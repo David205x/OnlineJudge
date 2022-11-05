@@ -52,7 +52,7 @@
               <th scope="col" style="text-align: center;">题目标签</th>
             </tr>
             </thead>
-            <tbody>
+            <tbody style="font-weight: bold">
             <tr v-for ="problemOverview in problemOverviews" :key = "problemOverview.problemKey">
               <th scope="row">{{problemOverview.problemKey}}</th>
               <td @click="todetails(problemOverview.problemKey)">{{problemOverview.problemName}}</td>

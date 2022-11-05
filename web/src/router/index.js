@@ -45,7 +45,7 @@ const routes = [
     }
   },
   {
-    path: "/problem/details/problemId=:id?/",
+    path: "/problem/details/problemId=:id?/solutionKey=:solutionKey?/",
     name: "problem_details",
     component: ProblemDetailView,
     meta: {
@@ -101,7 +101,7 @@ const routes = [
     }
   },
   {
-    path: "/problem/problem_solution/",
+    path: "/problem/problem_solution/problemKey=:problemKey?/solutionKey=:solutionKey?/",
     name: "problem_solution",
     component: ProblemSolutionView,
     meta:{

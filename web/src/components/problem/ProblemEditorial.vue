@@ -87,9 +87,9 @@ import { useStore } from "vuex";
 
           store.dispatch("showProblemSolutionDetails", {
             problemKey : t,
-            solutionKey : item. solutionKey,
+            solutionKey : item.solutionKey,
             success(){
-              router.push({name: "problem_solution"});
+              router.push({name: "problem_solution", params:{solutionKey : item.solutionKey, problemKey : t}});
             }
           })
         }
