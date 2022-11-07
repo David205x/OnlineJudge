@@ -4,7 +4,10 @@
           <div class="col-4" v-for="(item, index) in store.state.solution.eachCard" :key="index">
             <div class="card" style="width: 18rem; max-height:500px">
               <div class="card-header">题目贡献者：{{ item.userName }}</div>
-              <img src="../../assets/1.jpeg" class="card-img-middle" style="width: 18rem; height: 300px" >
+              <img v-if="item.language == 'cpp'" src="../../assets/c++.jpg" class="card-img-middle" style="width: 18rem; height: 300px" >
+              <img v-if="item.language == 'c'" src="../../assets/c.jpg" class="card-img-middle" style="width: 18rem; height: 300px" >
+              <img v-if="item.language == 'java'" src="../../assets/java.jpeg" class="card-img-middle" style="width: 18rem; height: 300px" >
+              <img v-if="item.language == 'python'" src="../../assets/python.jpeg" class="card-img-middle" style="width: 18rem; height: 300px" >
               <div class="card-body" >
                 <h5 class="card-title">{{store.state.problem.problemName}}</h5>
                 <p class="card-text-2" style=" white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">
@@ -84,7 +87,7 @@ import { useStore } from "vuex";
             console.log(md.value);
         }
         const solution = (item) =>{
-
+          console.log(item)
           store.dispatch("showProblemSolutionDetails", {
             problemKey : t,
             solutionKey : item.solutionKey,
