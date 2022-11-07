@@ -129,7 +129,7 @@ export default{
       if(beforeSolutionKey[0].split("=")[1].split("/")[0] == ''){
         console.log("111")
       $.ajax({
-        url: "http://127.0.0.1:3000/problem/details/" + store.state.problem.problemKey + "/addsolution/",
+        url: "http://127.0.0.1:3000/problem/details/" + store.state.problem.problemKey + "/addsolution",
         type: 'post',
         data: {
           userKey : store.state.user.id,
