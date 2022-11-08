@@ -4,6 +4,10 @@ DROP TABLE IF EXISTS `problem`;
 DROP TABLE IF EXISTS `user`;
 DROP TABLE IF EXISTS `test_sample`;
 DROP TABLE IF EXISTS `submission`;
+DROP TABLE IF EXISTS `solution`;
+DROP TABLE IF EXISTS `chating`;
+DROP TABLE IF EXISTS `friends`;
+
 
 
 CREATE TABLE `problem` (
@@ -57,6 +61,40 @@ CREATE TABLE `submission` (
 						 'Python',
 						 'C++')			NOT NULL				COMMENT '提交使用语言',
 	
-	PRIMARY KEY (`submissionKey`),
-	CONSTRAINT `submission_fk_1` FOREIGN KEY (`userKey`) 	REFERENCES `user`(`id`)
+	PRIMARY KEY (`submissionKey`)
+);
+
+CREATE TABLE `solution` (
+	`solutionKey`		INT				NOT NULL AUTO_INCREMENT COMMENT '题解编号',
+	`problemKey`		INT				NOT NULL				COMMENT '对应题号',
+	`userKey`			INT				NOT NULL				COMMENT '贡献者编号',
+	`userName`			VARCHAR(32)		NOT NULL				COMMENT '用户名',
+	`time`				DATE			NOT NULL				COMMENT '提交时间',
+	`title`				VARCHAR(64)		NOT NULL				COMMENT '题解标题',
+	`overview`			VARCHAR(64)		NOT NULL				COMMENT '题解概要',
+	`content`			VARCHAR(2048)	NOT NULL				COMMENT '正文',
+	`language`			VARCHAR(64)		NOT NULL				COMMENT '题解语言',
+
+	PRIMARY KEY (`solutionKey`)
+);
+
+CREATE TABLE `chatting` (
+	`chatKey`			INT				NOT NULL AUTO_INCREMENT ,
+	`senderKey`			INT				NOT NULL,
+	`senderName`		VARCHAR(32)		NOT NULL,				
+	`receiverKey`		INT				NOT NULL,				
+	`receiverName`		VARCHAR(32)		NOT NULL,
+	`content`			VARCHAR(1024)	NOT NULL,
+	`time`				TIMESTAMP		NOT NULL,
+	`state`				VARCHAR(16)		NOT NULL,
+
+	PRIMARY KEY (`chatKey`)
+);
+
+CREATE Table friends(
+ 	`userKey` 			INT				NOT NULL,
+	`userName`			VARCHAR(32) 	NOT NULL,
+ 	`friends` 			VARCHAR(1024) 	NOT NULL,
+ 
+ 	PRIMARY KEY ( `userKey` ) 
 );

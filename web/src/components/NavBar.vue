@@ -16,7 +16,12 @@
                         <a class="nav-link" href="#">界面2</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">界面3</a>
+                        <router-link :class="route_name == 'chatting_list' ? 'nav-link active' : 'nav-link'"
+                                     :to="{name: 'chatting_list'}" @click="updateRead">
+                            聊天
+                            <a class="badge bg-danger" v-if="$store.state.chatting.unread">new</a>
+                        </router-link>
+                                     
                     </li>
                     
                 </ul>
@@ -25,8 +30,8 @@
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             {{ $store.state.user.username }}
                         </a>
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="#">功能1</a></li>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown"  data-bs-offset="-50vw,20">
+                        <li><a class="dropdown-item"  @click="visitMyPage">个人主页</a></li>
                         <li><a class="dropdown-item" href="#">功能2</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="#" @click="logout">退出</a></li>
@@ -61,17 +66,51 @@ export default {
         
         let route_name = computed(() => route.name)
         const logout = () => {
-            store.dispatch("logout");
-            store.commit("updatePullingInfo", false);
+            store.dispatch("submitFriends", {
+                userKey : store.state.user.id,
+                userName : store.state.user.username,
+                friends : store.state.user.friends,
+                success(){
+                    store.dispatch("updateHis",{
+                        userkey : store.state.user.id,
+                        ChattingInfo : store.state.chatting.allContent,
+                        success(){
+                            store.dispatch("logout");
+                            store.commit("updatePullingInfo", false);
+                            router.push({name: "user_account_login"});
+                        }
+                    })
+                }
+            })
+            
+        }
+        const visitMyPage = () =>{
+            store.commit("updateVisit", {
+                userKey : -1
+            })  
+            router.push({name: "profile_overview"});
+            setTimeout(() =>{
+                location.reload()
+            }, 0)
+        }
+
+        const updateRead = () =>{
+
+            store.commit("updateUnread", false)
         }
         return {
             route_name,
             logout,
+            store,
+            visitMyPage,
+            updateRead
         }
     }
 }
 </script>
 
 <style scoped>
-
+dropdown-item{
+    width: 3vw;
+}
 </style>
