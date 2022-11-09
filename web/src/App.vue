@@ -24,7 +24,8 @@ export default {
         let socketUrl = null;
         setTimeout(() =>{
             let list = document.getElementById("list")
-            list.scrollTop =  list.scrollHeight
+            if(list != null)
+                list.scrollTop =  list.scrollHeight
         }, 200)
         const refreshFriends = () =>{
             //之后获取好友的信息

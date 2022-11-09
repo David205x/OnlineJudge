@@ -94,6 +94,8 @@ export default{
       success(){
         // language_selected.value = store.state.solution.language;
         // md_problem = ref(store.state.solution.content);
+        md_problem.value = store.state.solution.content
+        language_selected.value = store.state.solution.language
       }
     })
 
@@ -105,6 +107,7 @@ export default{
       content: "",
     });
     store.dispatch("showProblem", {
+      problemKey: beforeProblemKey[0].split("=")[1].split("/")[0],
       success(){
         store.commit("updatePullingInfo", false);
       },

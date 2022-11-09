@@ -3,7 +3,7 @@
         <div class="proName" style="margin-left: 1vw">
             <p class="fw-light" style="font-size: 45px">{{problemName}}</p>
         </div>
-        <ul class="nav nav-tabs" v-if="solutionKey != '' ? f = 3 : f = f">
+        <ul class="nav nav-tabs">
             <li class="nav-item" @click="onChange(1)">
                 <button  :class="f == 1 ? 'nav-link active' : 'nav-link'" >题目</button>       
             </li>
@@ -64,6 +64,8 @@ import ProblemResultView from "@/components/problem/ProblemResultView";
 import ProblemEditorialEditor from "@/components/problem/ProblemEditorialEditor";
 import 'md-editor-v3/lib/style.css';
 import "../../assets/font/font.css"
+import router from "@/router"
+
  export default{
     components: {
       ProblemDetailVerticalTemplate,
@@ -75,9 +77,12 @@ import "../../assets/font/font.css"
     },
     setup(){  
         const store = useStore();
-        let f = ref(1);
+        
         let layout = ref(-1);
         let problemName = ref("");
+        let beforeTabId = window.location.href.match("tabId=.*/");
+        let TabId = beforeTabId[0].split("=")[1].split("/")[0]
+        let f = ref(TabId == '' ? 1 : TabId);
         let beforeProblemKey = window.location.href.match("problemId=.*/");
         let problemKey = beforeProblemKey[0].split("=")[1].split("/")[0]
         let beforeSolutionKey = window.location.href.match("solutionKey=.*/");
@@ -117,9 +122,10 @@ import "../../assets/font/font.css"
         })
         const onChange = (data) =>{
             f.value = data;
-            if(f.value == 1){
-                location.reload()
-            }
+            router.push({name: "problem_details", params:{ id : problemKey, solutionKey : solutionKey.value, tabId : f.value}});
+            setTimeout(() => {
+                router.go(0)
+            }, 200)
         }
         const switchLayout = () => {
             layout.value = -layout.value;

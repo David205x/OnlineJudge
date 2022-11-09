@@ -264,7 +264,7 @@ export default {
             success(resp){
               console.log(resp)
               setTimeout(() =>{
-                router.push({name: "problem_details", params:{ id : item.problemKey, solutionKey : item.solutionKey}});
+                router.push({name: "problem_details", params:{ id : item.problemKey, solutionKey : item.solutionKey, tabId : 3}});
 
               }, 100)
             }
