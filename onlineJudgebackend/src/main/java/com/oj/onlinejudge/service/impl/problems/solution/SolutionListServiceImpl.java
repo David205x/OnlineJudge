@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 @Service
@@ -42,6 +43,7 @@ public class SolutionListServiceImpl extends GenericOjFilter implements Solution
         solution.put("problemName", problemMapper.selectById(s.getProblemkey()).getProblemname());
         solution.put("language", s.getLanguage());
         solution.put("date", s.getTime());
+        solution.put("title",s.getTitle());
         String contentOverview =  s.getContent().length() > 16 ? s.getContent().substring(0, 16) + "..." : s.getContent();
         solution.put("contentOverview", contentOverview);
 
@@ -80,7 +82,7 @@ public class SolutionListServiceImpl extends GenericOjFilter implements Solution
         ) != 0;
     }
     @Override
-    public boolean addSolution(String language, String problemKey, String userKey, String content) {
+    public boolean addSolution(String language, String problemKey, String userKey, String title, String content) {
 
         QueryWrapper<User> userWrapper = new QueryWrapper<>();
         userWrapper.eq("id", Integer.parseInt(userKey));
@@ -92,7 +94,7 @@ public class SolutionListServiceImpl extends GenericOjFilter implements Solution
                 Integer.parseInt(userKey),
                 Users.get(0).getUsername(),
                 new Date(System.currentTimeMillis()),
-                "",
+                title,
                 "",
                 content,
                 language)
@@ -102,6 +104,19 @@ public class SolutionListServiceImpl extends GenericOjFilter implements Solution
     @Override
     public boolean deleteSolution(String solutionKey) {
         return solutionMapper.deleteById(Integer.parseInt(solutionKey)) != 0;
+    }
+
+    @Override
+    public JSONObject randomSolutionGetter() {
+        JSONObject ret = new JSONObject();
+        Solution randomSolution = solutionMapper.selectById(
+                new Random().nextInt(
+                        Math.toIntExact(solutionMapper.selectCount(null))
+                ) + 1);
+        ret.put("solution", randomSolution);
+        ret.put("problemName",problemMapper.selectById(randomSolution.getProblemkey()).getProblemname());
+        return ret;
+
     }
 
     @Override

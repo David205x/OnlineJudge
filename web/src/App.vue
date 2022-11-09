@@ -155,7 +155,7 @@ export default {
                     store.commit("updateSocket", socket);
                     setTimeout(() =>{
                         store.commit("updatePullingInfo", false);
-                    }, 50)
+                    }, 500)
                     
                     
                 },

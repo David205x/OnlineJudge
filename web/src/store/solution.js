@@ -4,9 +4,11 @@ export default{
     state:{
         eachCard:[],
         userName:"",
+        userKey:"",
         date:"",
         content:"",
         language:"",
+        solutionKey:""
     },
     getters: {},
     mutations:{
@@ -14,6 +16,7 @@ export default{
     },
     actions:{
         showProblemSolution(context, data) {
+            console.log("showProblemSolution")
             $.ajax({
                 url: "http://127.0.0.1:3000/problem/details/" + data.problemKey +  "/solutionlist/",
                 type: 'post',
@@ -23,7 +26,6 @@ export default{
                 data:{
                     probKey: data.problemKey,
                     page : 1
-
                 },
                 success(resp) {
                     console.log(resp)
@@ -43,11 +45,13 @@ export default{
                 },
                 success(resp) {
                     console.log(resp)
+                    context.state.solutionKey = resp.solutionKey
+                    context.state.title = resp.title
                     context.state.content = resp.content
                     context.state.userName = resp.userName
                     context.state.date = resp.date
                     context.state.language = resp.language
-
+                    context.state.userKey = resp.userKey
                     data.success()
                 },
                 error(resp) {

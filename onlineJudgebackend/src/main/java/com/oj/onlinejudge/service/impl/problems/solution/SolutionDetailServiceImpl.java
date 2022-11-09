@@ -38,12 +38,14 @@ public class SolutionDetailServiceImpl implements SolutionDetailService {
 
         JSONObject ret = new JSONObject();
 
-        ret.put("submissionKey", s.getSolutionkey());
+        ret.put("solutionKey", s.getSolutionkey());
         ret.put("userKey", s.getUserkey());
         ret.put("userName", s.getUsername());
         ret.put("date", s.getTime());
         ret.put("language", s.getLanguage());
+        ret.put("title", s.getTitle());
         ret.put("content", s.getContent());
+
 
         return ret;
     }

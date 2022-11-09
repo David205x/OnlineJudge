@@ -1,15 +1,20 @@
 package com.oj.onlinejudge.service.impl.problems;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.Query;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.hgf.helper.mybatisplus.join.JoinLambdaQueryWrapper;
 import com.oj.onlinejudge.mapper.ProblemMapper;
 import com.oj.onlinejudge.mapper.SubmissionMapper;
 import com.oj.onlinejudge.pojo.Problem;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.oj.onlinejudge.pojo.Submission;
+import com.oj.onlinejudge.service.Logger;
 import com.oj.onlinejudge.service.impl.GenericOjFilter;
 import com.oj.onlinejudge.service.problems.ProblemListService;
 import com.alibaba.fastjson.JSONObject;
+import jnr.ffi.annotations.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -260,6 +265,47 @@ public class ProblemListServiceImpl extends GenericOjFilter implements ProblemLi
 
         attemptedKeys.removeAll(acceptedKeys);
         return intState == 1 ? acceptedKeys : attemptedKeys;
+    }
+
+    private class Pair{
+        public Integer problemKey;
+        public Integer count;
+        public Pair(Integer problemKey, Integer count){
+            this.problemKey = problemKey;
+            this.count = count;
+        }
+        @Override
+        public String toString() {
+            return problemKey.toString() + "," + count.toString();
+        }
+    }
+    @Override
+    public JSONObject getProblemListBySubmission(Boolean isAscending) {
+
+        List<Problem> problemList = problemMapper.selectList(null);
+        ArrayList<Pair> pairList = new ArrayList<>();
+        JSONObject ret = new JSONObject();
+        ArrayList<JSONObject> problemJsonList = new ArrayList<>();
+
+        for(Problem p : problemList) {
+            QueryWrapper<Submission> submissionWrapper = new QueryWrapper<>();
+            submissionWrapper.eq("problemKey", p.getProblemkey());
+            pairList.add(new Pair(p.getProblemkey(), Math.toIntExact(submissionMapper.selectCount(submissionWrapper))));
+        }
+        Collections.sort(pairList, new Comparator<Pair>() {
+            @Override
+            public int compare(Pair o1, Pair o2) {
+                return isAscending ? o1.count - o2.count : o2.count - o1.count;
+            }
+        });
+
+        for(int i = 0 ; i < Math.min(pairList.size(), 5); i++){
+            QueryWrapper<Problem> problemWrapper = new QueryWrapper<>();
+            problemWrapper.eq("problemKey", pairList.get(i).problemKey);
+            problemJsonList.add(problemInfoExtractor(problemMapper.selectOne(problemWrapper)));
+        }
+        ret.put("problemList",problemJsonList);
+        return ret;
     }
 
 }

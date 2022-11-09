@@ -56,6 +56,8 @@ export default{
                         })
                         data.success(resp)
 
+                    }else {
+                        console.log(resp)
                     }
                 },
                 error(resp) {

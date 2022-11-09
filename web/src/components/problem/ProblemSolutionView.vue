@@ -1,36 +1,36 @@
 <template>
-  <ContentField>
-    <span class="fs-3" style="font-weight: bold; color: deepskyblue">
-      题解贡献者：{{$store.state.solution.userName}}
-    </span>
-    <br>
-    <span class="fs-3" style="font-weight: bold; color: deepskyblue">
-      贡献时间：{{$store.state.solution.date}}
-    </span>
-    <br>
-    <br>
-    <div class="fs-4" style="font-weight: bold; color: deepskyblue">
-      题目详情如下：
-    </div>
-
-    <div>
-      <md-editor
-          v-model = $store.state.problem.problemDescription
-          previewOnly = true>
-      </md-editor>
-    </div>
-    <br>
-    <span class="fs-4" style="font-weight: bold; color: deepskyblue">
-      题解如下：
-    </span>
-    <div style="height: auto;">
-      <md-editor
-          v-model = $store.state.solution.content
-          previewOnly = true>
-      </md-editor>
-    </div>
-  </ContentField>
-
+    <ContentField>
+        <div class="row align-items-start">
+<!--        题目详情-->
+            <div class="col-6">
+                <p class="font-monospace" style="font-size: 45px">{{$store.state.problem.problemKey}}.{{$store.state.problem.problemName}}</p>
+                <md-editor style="margin-top: -1vh"
+                    v-model = $store.state.problem.problemDescription
+                    previewOnly = true>
+                </md-editor>
+            </div>
+<!--        题解详情-->
+            <div class="col-6" style="margin: 3vh -1vw 0 1vw">
+                <p class="fw fw-bold" style="font-size: 30px">{{$store.state.solution.solutionKey}}.{{$store.state.solution.title}}</p>
+                <ul class="list-group" style="width: 50%">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        题解贡献者: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{$store.state.solution.userName}}
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        发布时间: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{$store.state.solution.date}}
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        参考语言: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{$store.state.solution.language}}
+                    </li>
+                </ul>
+                <p></p>
+                <md-editor
+                    v-model = $store.state.solution.content
+                    previewOnly = true>
+                </md-editor>
+            </div>
+        </div>
+    </ContentField>
 </template>
 
 
@@ -38,6 +38,7 @@
 import ContentField from "@/components/ContentField.vue";
 import { useStore } from "vuex";
 import MdEditor from 'md-editor-v3'
+import "../../assets/font/font.css"
 
 export default{
   components: {
@@ -80,6 +81,7 @@ export default{
     }else {
       store.commit("updatePullingInfo", false);
     }
+    console.log(store.state.solution)
 
     return {
       logged,
@@ -91,5 +93,8 @@ export default{
 </script>
 
 <style scoped>
-
+.col-6{
+    height: 80vh;
+    overflow-y: scroll;
+}
 </style>
