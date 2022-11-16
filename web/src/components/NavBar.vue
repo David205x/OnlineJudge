@@ -18,7 +18,7 @@
           </li>
           <li class="nav-item">
             <router-link :class="route_name == 'chatting_list' ? 'nav-link active' : 'nav-link'"
-                         :to="{name: 'chatting_list'}">聊天
+                         :to="{name: 'chatting_list'}" @click="Iread">聊天
                           <a class="badge bg-danger" v-if="$store.state.chatting.unread">new</a>
             </router-link>
 
@@ -94,15 +94,16 @@ export default {
       setTimeout(() =>{
         location.reload()
       }, 0)
-
-
-
+    }
+    const Iread = () =>{
+      store.commit("updateUnread", false)
     }
     return {
       route_name,
       logout,
       store,
       visitMyPage,
+      Iread
     }
   }
 }

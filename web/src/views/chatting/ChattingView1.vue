@@ -33,15 +33,6 @@
                   </div>
                   <p class="fw-light lh-sm" style="font-size: 15px; margin-top: 2vh">{{item.chattingList[item.chattingList.length - 1].content}}</p>
                 &nbsp;
-<<<<<<< Updated upstream
-                <!-- friends[index].userName 对方用户名
-                     item.unreadNum 未读消息数
-                     item.chattingList[item.chattingList.length - 1].content 最后一条消息  -->
-                <span>{{friends[index].userName}}</span>
-                <span style="border-radius: 100%" v-if="item.unreadNum != 0 && item.chattingList[item.chattingList.length - 1].senderkey != $store.state.user.id">{{item.unreadNum}}</span>
-                <span v-if="item.chattingList[item.chattingList.length - 1]">{{item.chattingList[item.chattingList.length - 1].content}}</span>
-=======
->>>>>>> Stashed changes
               </div>
             </div>
             </div>

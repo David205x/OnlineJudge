@@ -24,7 +24,8 @@ export default {
         let socketUrl = null;
         setTimeout(() =>{
             let list = document.getElementById("list")
-            list.scrollTop =  list.scrollHeight
+            if(list != null)
+                list.scrollTop =  list.scrollHeight
         }, 200)
         const refreshFriends = () =>{
             //之后获取好友的信息
@@ -70,7 +71,6 @@ export default {
             
             socket.onopen = () => {
                 socket.onmessage = msg => {
-                    //console.log(msg.data)
                     let data = JSON.parse(msg.data)
                     //检测该用户是否已经在自己的列表中
                     store.commit("isMyFriend", {
@@ -80,17 +80,19 @@ export default {
                                 //console.log("new friends")
                                 store.commit("addFriend", {
                                     userName : data.sendername,
-                                    userKey :  data.senderkey
+                                    userKey :  data.senderkey,
+                                    selected : store.state.chatting.selected
                                 })
-                                store.commit("addEmptyContent")
+                                store.commit("addEmptyContent", store.state.chatting.selected)
                             }
                             store.commit("appendContent", {
                                 data : msg.data,
                                 url : window.location.href,
                                 friends : store.state.user.friends,
+                                userKey : store.state.user.id,
                                 success(){
-                                    // console.log("success")
-                                    // console.log(store.state.chatting.allContent)
+                                    console.log("success")
+                                    console.log(store.state.chatting.allContent)
                                     setTimeout(() =>{
                                         let list = document.getElementById("list")
                                         list.scrollTop =  list.scrollHeight
@@ -99,7 +101,8 @@ export default {
                                     //   ChattingInfo : [store.state.chatting.content],
                                     // })
                                 }
-                            });   
+                            });  
+                             
                         }
                     })
                 }   
@@ -111,7 +114,6 @@ export default {
         }
         const exit = (socket) =>{
             window.addEventListener('beforeunload', () =>{
-                
                 store.state.chatting.socket.send(JSON.stringify({
                     event: "sessionEnd",
                     senderKey : store.state.user.id,
@@ -139,15 +141,15 @@ export default {
                 socket.close();         
             })
         }
+        
         if(jwt_token){
             store.commit("updateToken", jwt_token);
-            store.dispatch("getInfo", {       
+            store.dispatch("getInfo", {      
+               
                 success(){
-                    socketUrl = `ws://127.0.0.1:3000/websocket/${store.state.user.token}/`;
+                    socketUrl = `ws://localhost:3000/websocket/${jwt_token}/`;
                     //第一次无论进入那个页面都生成对应socket
                     socket = new WebSocket(socketUrl);
-
-                   
                     refreshFriends()
                     otherOp()
                     //页面关闭或者刷新，就更新所有数据
@@ -155,9 +157,7 @@ export default {
                     store.commit("updateSocket", socket);
                     setTimeout(() =>{
                         store.commit("updatePullingInfo", false);
-                    }, 500)
-                    
-                    
+                    }, 400)             
                 },
                 error() {
                     store.commit("updatePullingInfo", true);

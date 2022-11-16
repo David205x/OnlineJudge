@@ -75,7 +75,7 @@
       </div>
       <div id="Vace" >
             <VAceEditor
-            @init="editorInit"
+            @init="InitFail"
             :lang="(language_selected == 'cpp' || language_selected == 'c') ? 'c_cpp' : language_selected"
             theme="textmate"
             style="height: 600px; margin-top: 1vh"
@@ -153,7 +153,7 @@ export default{
     });
     
     nextTick(()=>{
-      document.getElementById("Vace").addEventListener('mousewheel', function(){
+      document.getElementById("Vace1").addEventListener('mousewheel', function(){
           if (event.ctrlKey === true || event.metaKey) {
               event.preventDefault();
               if(FS.value <= 13) FS.value = 13;

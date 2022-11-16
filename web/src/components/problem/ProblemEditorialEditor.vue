@@ -94,6 +94,66 @@ export default{
         //   md_problem = ref(store.state.solution.content);
         // }, 1000)
 
+// <<<<<<< HEAD
+//     let beforeSolutionKey = window.location.href.match("solutionKey=.*/");
+
+//     store.dispatch("showProblemSolutionDetails", {
+//       problemKey :  beforeProblemKey[0].split("=")[1].split("/")[0],
+//       solutionKey : beforeSolutionKey[0].split("=")[1].split("/")[0],
+//       success(){
+//         // language_selected.value = store.state.solution.language;
+//         // md_problem = ref(store.state.solution.content);
+//         md_problem.value = store.state.solution.content
+//         language_selected.value = store.state.solution.language
+//       }
+//     })
+
+//     // setTimeout(() =>{
+//     //   language_selected = ref(store.state.solution.language);
+//     //   md_problem = ref(store.state.solution.content);
+//     // }, 1000)
+//     const code = reactive({
+//       content: "",
+//     });
+//     store.dispatch("showProblem", {
+//       problemKey: beforeProblemKey[0].split("=")[1].split("/")[0],
+//       success(){
+//         store.commit("updatePullingInfo", false);
+//       },
+//       error() {
+//         store.commit("updatePullingInfo", false);
+//       }
+//     })
+//     const spinnerChangeCog = (data) =>{
+//       spinner_cog.value = data;
+//     }
+//     const compiledMarkdown = () => {
+//       return marked.parse(store.state.problem.problemDescription);
+//     }
+//     const refresh = () =>{
+//       code.content = ""
+//     }
+//     const submit = () =>{
+//       console.log(md_problem.value)
+//       console.log(language_selected.value)
+//       console.log(store.state.user)
+//       console.log(store.state.problem.problemKey)
+//       if(beforeSolutionKey[0].split("=")[1].split("/")[0] == ''){
+//         console.log("111")
+//       $.ajax({
+//         url: "http://127.0.0.1:3000/problem/details/" + store.state.problem.problemKey + "/addsolution/",
+//         type: 'post',
+//         data: {
+//           userKey : store.state.user.id,
+//           content : md_problem.value,
+//           language: language_selected.value,
+//         },
+//         headers: {
+//           Authorization: "Bearer " + store.state.user.token,
+//         },
+//         success(resp){
+//           console.log(resp)
+// =======
         const spinnerChangeCog = (data) =>{
             spinner_cog.value = data;
         }

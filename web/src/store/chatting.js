@@ -1,3 +1,4 @@
+
 import $ from "jquery";
 export default {
     state: {
@@ -12,7 +13,8 @@ export default {
     getters: {},
     mutations: {
         chattingLogout(state){
-            state.socket.close()
+            if(state.socket != null)
+                state.socket.close()
             state.socket = null,
             state.receiverId = "",
             state.receiverName = "",
@@ -57,17 +59,13 @@ export default {
                 cmp.time += '0'   
             }
             cmp.time += data.getSeconds()  
-            console.log("state.allContent.length")
-            console.log(state.allContent.length)
             for(let j = 0; j < state.allContent.length; j++){
-                console.log("state.allContent[j].chattingList.length")
-                    console.log(state.allContent[j].chattingList.length)
                 if(state.allContent[j].chattingList.length == 0){
                     
                     if(content.friends[j].userKey == cmp.receiverkey
                     || content.friends[j].userKey == cmp.senderkey){
                         if(j == state.selected){
-                            if(cmp.state == "unread")
+                            if(cmp.state == "unread" && content.userKey == cmp.receiverkey)
                                 cmp.state = "read"
                             state.content.push(cmp);
                             state.allContent[j].chattingList = state.content
@@ -94,8 +92,7 @@ export default {
                         || state.allContent[j].chattingList[i].receiverkey == cmp.senderkey
                         && state.allContent[j].chattingList[i].senderkey == cmp.receiverkey){
                         if(j == state.selected){
-                            console.log("condi1")
-                            if(cmp.state == "unread")
+                            if(cmp.state == "unread" && content.userKey == cmp.receiverkey)
                                 cmp.state = "read"
                             state.content.push(cmp);
                             state.allContent[j].chattingList = state.content
@@ -103,7 +100,6 @@ export default {
                             content.success()
                         } 
                         else { 
-                            console.log("condi2")
                             state.allContent[j].chattingList.push(cmp)
                             if(cmp.state == "unread"){
                                 if(content.url != "http://localhost:8080/chatting/chattingroom/"){
@@ -119,7 +115,7 @@ export default {
             }
            
         },
-        addEmptyContent(state){
+        addEmptyContent(state, selected){
             let chattingList = []
             let newAllContent =  state.allContent         
             let newContent = {
@@ -135,10 +131,18 @@ export default {
                 state.allContent.push(newContent)
                 return
             }
-            for(let i = newAllContent.length; i >= 1; i--){
-                newAllContent[i] = newAllContent[i - 1]
+            if(selected == -1){
+                for(let i = newAllContent.length; i >= 1; i--){
+                    newAllContent[i] = newAllContent[i - 1]
+                }
+                newAllContent[0] = newContent
+            }else {
+                for(let i = newAllContent.length; i >= 2; i--){
+                    newAllContent[i] = newAllContent[i - 1]
+                }
+                newAllContent[1] = newContent
             }
-            newAllContent[0] = newContent
+                
             if(newAllContent.length > 10) newAllContent = newAllContent.slice(0, 10)
             state.allContent = newAllContent
         },

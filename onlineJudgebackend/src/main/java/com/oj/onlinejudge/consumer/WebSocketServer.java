@@ -1,6 +1,5 @@
 package com.oj.onlinejudge.consumer;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.oj.onlinejudge.consumer.util.JwtAuthentication;
 import com.oj.onlinejudge.mapper.ChattingMapper;

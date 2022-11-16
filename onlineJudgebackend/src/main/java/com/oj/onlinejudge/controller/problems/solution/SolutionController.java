@@ -24,8 +24,8 @@ public class SolutionController {
         return solutionListService.randomSolutionGetter();
     }
 
-    @PostMapping("problem/details/{userKey}/ones/solutionlist/")
-    private JSONObject solutionListForOnes(@PathVariable String userKey, @RequestParam Integer page) {
+    @PostMapping("problem/details/ones/solutionlist/")
+    private JSONObject solutionListForOnes(@RequestParam String userKey, @RequestParam Integer page) {
         return solutionListService.solutionListGetterForOnes(userKey, page);
     }
     @PostMapping("problem/details/{problemId}/solutionlist")

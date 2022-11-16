@@ -65,11 +65,12 @@ export default{
             }
             state.friends[0] = friend
         },
-        addFriend(state, friend){       //维护好友队列，从其他用户主页进入聊天时执行
+        addFriend(state, data){       //维护好友队列，从其他用户主页进入聊天时执行
+            
+            let friend = data
             let newFriend = []
             let update = {}
             let f = false;
-            
             if(state.friends.length == 0){
                 state.friends.push(friend)
                 return
@@ -82,11 +83,21 @@ export default{
                     update = state.friends[i];
                 }
             }
-            for(let i = newFriend.length; i >= 1; i--){
-                newFriend[i] = newFriend[i - 1]
+            if(data.selected == -1){
+                for(let i = newFriend.length; i >= 1; i--){
+                    newFriend[i] = newFriend[i - 1]
+                }
+                if(f) newFriend[0] = update
+                else newFriend[0] = friend  
+            }else {
+                for(let i = newFriend.length; i >= 2; i--){
+                    newFriend[i] = newFriend[i - 1]
+                }
+                if(f) newFriend[1] = update
+                else newFriend[1] = friend  
             }
-            if(f) newFriend[0] = update
-            else newFriend[0] = friend  
+            
+            
             state.friends = newFriend
             if(state.friends.length > 10) state.friends = state.friends.slice(0, 10)
         },

@@ -222,7 +222,8 @@ export default {
 
             store.commit("addFriend", {
               userName : is_visit.value == -1 ? store.state.user.username : visitUsername.value,
-              userKey : is_visit.value == -1 ? store.state.user.id : is_visit.value 
+              userKey : is_visit.value == -1 ? store.state.user.id : is_visit.value, 
+              selected : store.state.chatting.selected
             })
             store.commit("addEmptyContent")
           }
@@ -342,7 +343,7 @@ export default {
         })
       }else{
         $.ajax({
-          url: "http://127.0.0.1:3000/problem/details/" + store.state.user.id + "/ones/solutionlist/",
+          url: "http://127.0.0.1:3000/problem/details/ones/solutionlist/",
           type: 'post',
           headers: {
             Authorization: "Bearer " + store.state.user.token,

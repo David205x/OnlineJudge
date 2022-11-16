@@ -3,7 +3,7 @@
         <div class="proName" style="margin-left: 1vw" >
             <p class="fw-light" style="font-size: 45px">{{problemName}}</p>
         </div>
-        <ul class="nav nav-tabs" >
+        <ul class="nav nav-tabs">
             <li class="nav-item" @click="onChange(1)">
                 <button  :class="f == 1 ? 'nav-link active' : 'nav-link'" >题目</button>       
             </li>
