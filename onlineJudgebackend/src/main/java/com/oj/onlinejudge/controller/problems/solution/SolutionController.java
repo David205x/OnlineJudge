@@ -19,8 +19,13 @@ public class SolutionController {
     @Autowired
     private SolutionDetailService solutionDetailService;
 
-    @PostMapping("problem/details/{userKey}/ones/solutionlist/")
-    private JSONObject solutionListForOnes(@PathVariable String userKey, @RequestParam Integer page) {
+    @PostMapping("problem/details/randomsolution/")
+    private JSONObject randomSolution() {
+        return solutionListService.randomSolutionGetter();
+    }
+
+    @PostMapping("problem/details/ones/solutionlist/")
+    private JSONObject solutionListForOnes(@RequestParam String userKey, @RequestParam Integer page) {
         return solutionListService.solutionListGetterForOnes(userKey, page);
     }
     @PostMapping("problem/details/{problemId}/solutionlist")
@@ -33,8 +38,8 @@ public class SolutionController {
         return solutionListService.updateSolution(solutionKey, language, problemId, userKey, content);
     }
     @PostMapping("problem/details/{problemId}/addsolution")
-    private boolean addSolution(@PathVariable String problemId, @RequestParam String language, @RequestParam String userKey, @RequestParam String content) {
-        return solutionListService.addSolution(language, problemId, userKey, content);
+    private boolean addSolution(@PathVariable String problemId, @RequestParam String language, @RequestParam String userKey, @RequestParam String title, @RequestParam String content) {
+        return solutionListService.addSolution(language, problemId, userKey, title, content);
     }
 
     @PostMapping("problem/details/deletesolution")

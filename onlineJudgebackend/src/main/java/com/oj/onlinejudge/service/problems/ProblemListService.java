@@ -19,4 +19,5 @@ public interface ProblemListService {
     public Set<Integer> getProblemListByName(String name);
     public Set<Integer> getProblemListByTags(String tags, Boolean isUnion);
     public Set<Integer> getProblemListByState(String userKey, String problemState);
+    public JSONObject getProblemListBySubmission(Boolean isAscending);
 }

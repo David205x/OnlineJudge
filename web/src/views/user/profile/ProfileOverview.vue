@@ -2,6 +2,7 @@
   <ContentField>
     <div class="container" v-if="$store.state.user.pulling_info == false">
         <div class="row"> <!--   这他妈为啥是row  -->
+<!--      他人主页左栏-->
           <div class="col-2" v-if="is_visit != -1">
               <div class="row">
                   <img :src="visitPhoto" class="rounded float-start" :alt="visitPhoto">  
@@ -13,6 +14,7 @@
                   <button type="button" class="btn btn-secondary" @click="chat" v-if="$store.state.user.id != is_visit">Chat</button>
               </div>
           </div>
+<!--      自己主页左栏-->
           <div class="col-2" v-if="is_visit == -1">
             <div class="row">
               <img src="../../../assets/logo.png" class="rounded float-start" alt="../../../assets/logo.png">
@@ -24,7 +26,9 @@
             </div>
           </div>
           <div class="col-1"></div>
+<!--      右栏-->
           <div class="col" style="font-size: 15px">
+<!--          导航栏-->
               <nav>
                   <div class="nav nav-tabs" id="nav-tab" role="tablist">
                       <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">信息概览</button>
@@ -39,7 +43,9 @@
                   </div>
               </nav>
               <br>
+<!--          导航栏内容-->
               <div class="tab-content" id="nav-tabContent">
+<!--              概览-->
                   <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
                     <content-field v-if="is_visit == -1" style="font-size: 10px">
                         <calendar-heatmap
@@ -62,6 +68,7 @@
                         />
                     </content-field>
                   </div>
+<!--              做题情况-->
                   <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
                       <div class="dropdown" style="margin: 2vh 0vh 0vh 2vh">
                           <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -113,6 +120,7 @@
                         </tbody>
                       </table>
                   </div>
+<!--              题解贡献-->
                   <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
                     <nav aria-label="...">
                       <ul class="pagination" style="float: right;">
@@ -214,7 +222,8 @@ export default {
 
             store.commit("addFriend", {
               userName : is_visit.value == -1 ? store.state.user.username : visitUsername.value,
-              userKey : is_visit.value == -1 ? store.state.user.id : is_visit.value 
+              userKey : is_visit.value == -1 ? store.state.user.id : is_visit.value, 
+              selected : store.state.chatting.selected
             })
             store.commit("addEmptyContent")
           }
@@ -334,7 +343,7 @@ export default {
         })
       }else{
         $.ajax({
-          url: "http://127.0.0.1:3000/problem/details/" + store.state.user.id + "/ones/solutionlist/",
+          url: "http://127.0.0.1:3000/problem/details/ones/solutionlist/",
           type: 'post',
           headers: {
             Authorization: "Bearer " + store.state.user.token,

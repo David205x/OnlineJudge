@@ -2,7 +2,6 @@ package com.oj.onlinejudge.service.checker.utils.queues;
 
 import com.oj.onlinejudge.service.Logger;
 import com.oj.onlinejudge.service.impl.user.submission.GetSubmissionServiceImpl;
-import net.minidev.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;

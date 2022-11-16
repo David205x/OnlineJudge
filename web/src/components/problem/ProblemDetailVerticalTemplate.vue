@@ -73,7 +73,7 @@
 
         </div>
       </div>
-      <div id="Vace1">
+      <div id="Vace" >
             <VAceEditor
             @init="InitFail"
             :lang="(language_selected == 'cpp' || language_selected == 'c') ? 'c_cpp' : language_selected"
@@ -103,8 +103,8 @@
           </span>
       </div>
       <div class="mb-3">
-        <label for="validationTextarea" class="form-label">输入</label>
-        <textarea class="form-control" id="validationTextarea" v-model="debugInfo"></textarea>
+        <label for="validationTextarea1" class="form-label">输入</label>
+        <textarea class="form-control" id="validationTextarea1" v-model="debugInfo"></textarea>
       </div>
       <div class="mb-3">
         <label for="validationTextarea" class="form-label">输出</label>

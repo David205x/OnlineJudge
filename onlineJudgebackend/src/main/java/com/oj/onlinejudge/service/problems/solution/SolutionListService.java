@@ -8,7 +8,9 @@ import java.util.Set;
 public interface SolutionListService {
 
     public boolean updateSolution(Integer solutionKey, String language, String problemKey, String userKey, String content);
-    public boolean addSolution(String language, String problemKey, String userKey, String content);
+    public boolean addSolution(String language, String problemKey, String userKey, String title, String content);
+
+    public JSONObject randomSolutionGetter();
     public JSONObject solutionListGetterForOnes(String userKey, Integer page);
     public JSONObject solutionListGetter(String problemKey, Integer page);
     public Set<Integer> getFullSolutionList();

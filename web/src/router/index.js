@@ -1,16 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import UserLoginView from '@/views/user/account/UserLoginView'
 import UserRegisterView from '@/views/user/account/UserRegisterView'
+import HomePageView from '@/views/index/HomePageView'
 import PageIndexView from '@/views/index/PageIndexView'
-import ProblemDetailView from '@/views/problem/ProblemDetailView'
-import ProblemEditorialEditor from "@/components/problem/ProblemEditorialEditor.vue";
-import Page_twoView from "@/views/Page_two/Page_twoView"
 import store from '@/store/index'
 import ProfileOverview from "@/views/user/profile/ProfileOverview";
 import ProblemResultView from "@/components/problem/ProblemResultView";
 import ProblemResultView2 from "@/components/problem/ProblemResultView2";
 import ChattingView from "@/views/chatting/ChattingView";
 import ProblemSolutionView from "@/components/problem/ProblemSolutionView";
+import NotFoundView from "@/views/NotFoundView";
+import ProblemDetailView from "@/views/problem/ProblemDetailView";
+import ProblemEditorialEditor from "@/components/problem/ProblemEditorialEditor";
+import Page_twoView from "@/views/Page_two/Page_twoView";
 const routes = [
   {
     path: "/",
@@ -23,9 +25,17 @@ const routes = [
   {
     path: "/index/",
     name: "main_page",
+    component: HomePageView,
+    meta: {
+      requestAuth: false
+    }
+  },
+  {
+    path: "/home/",
+    name: "home_page",
     component: PageIndexView,
     meta: {
-        requestAuth: false
+      requestAuth: false
     }
   },
   {
@@ -108,6 +118,18 @@ const routes = [
       requestAuth: false
     }
   },
+  {
+    path: "/NotFoundView",
+    name: "404_page",
+    component: NotFoundView,
+    meta: {
+      requestAuth: false
+    }
+  },
+  {
+    path: "/:pathMatch(.*)",
+    redirect: "/NotFoundView"
+  }
 ]
 
 const router = createRouter({

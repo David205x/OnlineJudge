@@ -10,7 +10,6 @@ import com.oj.onlinejudge.utils.FilePathUtil;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 

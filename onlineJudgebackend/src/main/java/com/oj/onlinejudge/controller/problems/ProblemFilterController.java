@@ -34,6 +34,9 @@ public class ProblemFilterController {
                 searchProblem.get("problemState"),
                 Integer.parseInt(searchProblem.get("pageNum")));
     }
-
+    @PostMapping("/problems/brandnewproblem/")
+    public JSONObject getBrandNewProblem(@RequestParam Map<String, String> searchProblem){
+        return problemListService.getProblemListBySubmission(Boolean.parseBoolean(searchProblem.get("isAscending")));
+    }
 
 }

@@ -190,9 +190,9 @@ export default{
           Authorization: "Bearer " + store.state.user.token,
         },
         data:{
-          userName: "",
-          result: "",
-          lang: "",
+          userName: searchUsername.value,
+          result: searchResult.value,
+          lang: searchLang.value,
           page: JSON.stringify(page),
         },
         success(resp) {

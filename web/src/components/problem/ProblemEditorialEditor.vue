@@ -1,8 +1,8 @@
 <template>
-    <ContentField>
-      <span class="fs-2">
-        欢迎Wxx贡献自己的解题方案<br>
-      </span>
+    <ContentField v-if="!$store.state.user.pulling_info">
+      <div class="col-6">
+        <input type="text" class="form-control" placeholder="题解标题" v-model=solution_title>
+      </div>
       <br>
 
 
@@ -53,7 +53,7 @@
      </ContentField>
  </template>
    
- <script>
+<script>
 import ContentField from "@/components/ContentField.vue";
 import { useStore } from "vuex";
 import { ref, reactive } from "vue"
@@ -63,131 +63,208 @@ import 'font-awesome/css/font-awesome.min.css';
 import 'md-editor-v3/lib/style.css';
 import MdEditor from 'md-editor-v3'
 import $ from 'jquery'
+import router from "@/router";
 ace.config.set(
     "basePath",
     "https://cdn.jsdelivr.net/npm/ace-builds@" + require('ace-builds').version + "/src-noconflict/")
 export default{
-  name: "ProblemEditorialEditor",
-  components: {
-    ContentField,
-    MdEditor,
-  },
+    name: "ProblemEditorialEditor",
+    components: {
+        ContentField,
+        MdEditor,
+    },
 
-  setup(){
+    setup(){
+        const store = useStore();
+        const code = reactive({
+            content: "",
+        });
 
-    let spinner_cog = ref(0);
-    let submission_status = ref('?');
+        let spinner_cog = ref(0);
+        let submission_status = ref('?');
+        let solution_content = ref('');
+        let language_selected = ref(store.state.solution.language);
+        let solution_title = ref(store.state.solution.title);
+        let md_problem = ref(store.state.solution.content);
+        let beforeProblemKey = window.location.href.match("problemId=.*/");
+        let beforeSolutionKey = window.location.href.match("solutionKey=.*/");
 
-    let solution_content = ref('');
-    const store = useStore();
-    let language_selected = ref(store.state.solution.language);
-    // language_selected.value =
-    let md_problem = ref('');
-    md_problem.value = store.state.solution.content;
-    let beforeProblemKey = window.location.href.match("problemId=.*/");
+        // setTimeout(() =>{
+        //   language_selected = ref(store.state.solution.language);
+        //   md_problem = ref(store.state.solution.content);
+        // }, 1000)
 
-    let beforeSolutionKey = window.location.href.match("solutionKey=.*/");
+// <<<<<<< HEAD
+//     let beforeSolutionKey = window.location.href.match("solutionKey=.*/");
 
-    store.dispatch("showProblemSolutionDetails", {
-      problemKey :  beforeProblemKey[0].split("=")[1].split("/")[0],
-      solutionKey : beforeSolutionKey[0].split("=")[1].split("/")[0],
-      success(){
-        // language_selected.value = store.state.solution.language;
-        // md_problem = ref(store.state.solution.content);
-        md_problem.value = store.state.solution.content
-        language_selected.value = store.state.solution.language
-      }
-    })
+//     store.dispatch("showProblemSolutionDetails", {
+//       problemKey :  beforeProblemKey[0].split("=")[1].split("/")[0],
+//       solutionKey : beforeSolutionKey[0].split("=")[1].split("/")[0],
+//       success(){
+//         // language_selected.value = store.state.solution.language;
+//         // md_problem = ref(store.state.solution.content);
+//         md_problem.value = store.state.solution.content
+//         language_selected.value = store.state.solution.language
+//       }
+//     })
 
-    // setTimeout(() =>{
-    //   language_selected = ref(store.state.solution.language);
-    //   md_problem = ref(store.state.solution.content);
-    // }, 1000)
-    const code = reactive({
-      content: "",
-    });
-    store.dispatch("showProblem", {
-      problemKey: beforeProblemKey[0].split("=")[1].split("/")[0],
-      success(){
-        store.commit("updatePullingInfo", false);
-      },
-      error() {
-        store.commit("updatePullingInfo", false);
-      }
-    })
-    const spinnerChangeCog = (data) =>{
-      spinner_cog.value = data;
-    }
-    const compiledMarkdown = () => {
-      return marked.parse(store.state.problem.problemDescription);
-    }
-    const refresh = () =>{
-      code.content = ""
-    }
-    const submit = () =>{
-      console.log(md_problem.value)
-      console.log(language_selected.value)
-      console.log(store.state.user)
-      console.log(store.state.problem.problemKey)
-      if(beforeSolutionKey[0].split("=")[1].split("/")[0] == ''){
-        console.log("111")
-      $.ajax({
-        url: "http://127.0.0.1:3000/problem/details/" + store.state.problem.problemKey + "/addsolution/",
-        type: 'post',
-        data: {
-          userKey : store.state.user.id,
-          content : md_problem.value,
-          language: language_selected.value,
-        },
-        headers: {
-          Authorization: "Bearer " + store.state.user.token,
-        },
-        success(resp){
-          console.log(resp)
+//     // setTimeout(() =>{
+//     //   language_selected = ref(store.state.solution.language);
+//     //   md_problem = ref(store.state.solution.content);
+//     // }, 1000)
+//     const code = reactive({
+//       content: "",
+//     });
+//     store.dispatch("showProblem", {
+//       problemKey: beforeProblemKey[0].split("=")[1].split("/")[0],
+//       success(){
+//         store.commit("updatePullingInfo", false);
+//       },
+//       error() {
+//         store.commit("updatePullingInfo", false);
+//       }
+//     })
+//     const spinnerChangeCog = (data) =>{
+//       spinner_cog.value = data;
+//     }
+//     const compiledMarkdown = () => {
+//       return marked.parse(store.state.problem.problemDescription);
+//     }
+//     const refresh = () =>{
+//       code.content = ""
+//     }
+//     const submit = () =>{
+//       console.log(md_problem.value)
+//       console.log(language_selected.value)
+//       console.log(store.state.user)
+//       console.log(store.state.problem.problemKey)
+//       if(beforeSolutionKey[0].split("=")[1].split("/")[0] == ''){
+//         console.log("111")
+//       $.ajax({
+//         url: "http://127.0.0.1:3000/problem/details/" + store.state.problem.problemKey + "/addsolution/",
+//         type: 'post',
+//         data: {
+//           userKey : store.state.user.id,
+//           content : md_problem.value,
+//           language: language_selected.value,
+//         },
+//         headers: {
+//           Authorization: "Bearer " + store.state.user.token,
+//         },
+//         success(resp){
+//           console.log(resp)
+// =======
+        const spinnerChangeCog = (data) =>{
+            spinner_cog.value = data;
         }
-      })
-      }
-      else{
-        console.log("222")
-        store.dispatch("updateProblemSolutionDetails", {
-          problemKey :  beforeProblemKey[0].split("=")[1].split("/")[0],
-          solutionKey : beforeSolutionKey[0].split("=")[1].split("/")[0],
-          language: language_selected.value,
-          userKey: store.state.user.id,
-          content: md_problem.value,
-          success(){
+        const compiledMarkdown = () => {
+            return marked.parse(store.state.problem.problemDescription);
+        }
+        const refresh = () =>{
+            code.content = ""
+        }
+        const submit = () =>{
             console.log(md_problem.value)
             console.log(language_selected.value)
-            language_selected = ref(store.state.solution.language);
-            md_problem = ref(store.state.solution.content);
-          }
+            console.log(store.state.user)
+            console.log(store.state.problem.problemKey)
+            if(beforeSolutionKey[0].split("=")[1].split("/")[0] == ''){
+                console.log("111")
+                $.ajax({
+                    url: "http://127.0.0.1:3000/problem/details/" + store.state.problem.problemKey + "/addsolution",
+                    type: 'post',
+                    data: {
+                        userKey : store.state.user.id,
+                        title : solution_title.value,
+                        content : md_problem.value,
+                        language: language_selected.value,
+                    },
+                    headers: {
+                        Authorization: "Bearer " + store.state.user.token,
+                    },
+                    success(resp){
+
+                        console.log(resp)
+                        location.reload()
+                    }
+                })
+            }
+            else{
+                console.log("222")
+                store.dispatch("updateProblemSolutionDetails", {
+                    problemKey :  beforeProblemKey[0].split("=")[1].split("/")[0],
+                    solutionKey : beforeSolutionKey[0].split("=")[1].split("/")[0],
+                    language: language_selected.value,
+                    userKey: store.state.user.id,
+                    content: md_problem.value,
+                    success(){
+                        console.log(md_problem.value)
+                        console.log(language_selected.value)
+                        language_selected = ref(store.state.solution.language);
+                        md_problem = ref(store.state.solution.content);
+                        location.reload()
+                    }
+                })
+            }
+
+
+        }
+        const permissionCheck = () =>{
+            console.log("problem: ","-",store.state.problem.problemKey,
+                "\nsolution: ","-",store.state.solution.solutionKey,
+                "\nuser: ","-",store.state.solution.userKey)
+            if(store.state.user.id != store.state.solution.userKey){
+                console.log("111 ",store.state.solution.solutionKey);
+                router.push({name:"problem_solution",params:{
+                        problemKey : store.state.problem.problemKey,
+                        solutionKey : store.state.solution.solutionKey,
+                        tabId : 3
+                    }})
+            }
+        }
+
+        store.dispatch("showProblemSolutionDetails", {
+            problemKey :  beforeProblemKey[0].split("=")[1].split("/")[0],
+            solutionKey : beforeSolutionKey[0].split("=")[1].split("/")[0],
+            success(){
+                language_selected.value = store.state.solution.language;
+                md_problem.value = store.state.solution.content;
+                solution_title.value = store.state.solution.title;
+                permissionCheck();
+            }
         })
-      }
-
-    }
-
-    return {
-      spinner_cog,
-      compiledMarkdown,
-      spinnerChangeCog,
-      code,
-      submission_status,
-      refresh,
-      md_problem,
-      language_selected,
-      submit,
-      solution_content
-    }
-  },
-  computed:{
+        store.dispatch("showProblem", {
+            success(){
+                store.commit("updatePullingInfo", false);
+            },
+            error() {
+                store.commit("updatePullingInfo", false);
+            }
+        })
 
 
-  },
+        return {
+          spinner_cog,
+          compiledMarkdown,
+          spinnerChangeCog,
+          solution_title,
+          code,
+          submission_status,
+          refresh,
+          md_problem,
+          language_selected,
+          submit,
+          solution_content
+        }
+    },
+    computed:{
+
+    },
 }
  
- </script> 
+</script>
 
 
- <style scoped>
+<style scoped>
 
  </style>

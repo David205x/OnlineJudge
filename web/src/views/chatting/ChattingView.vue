@@ -1,113 +1,177 @@
 <template>
-  <ContentField>
-    <div class="row">
-      <div class="col-3">
-        <SearcH>
+    <ContentField v-if="!$store.state.user.pulling_info">
+        <div class="row">
+<!--        联系人列表-->
+            <div class="col-3" style="margin: -2vh 0vw -1vh -1vw">
+                <p class="fw fw-bold" style="font-size: 30px; margin: 2vh 5vh -1vh 2vw">私信</p>
+                <ContentField>
+                    <div v-if="!$store.state.user.pulling_info">
+<!--                    好友列表-->
+                        <div class="list-group contact" style="overflow: auto; height: 70vh; margin: -1vh -0.5vw 0vh -0.5vw">
+<!--                        好友-->
+                            <div
+                                v-for="(item, index) in store.state.user.friends"
+                                :key="index"
+                                :class="index == store.state.chatting.selected ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'"
+                                @click="redSession(item, index)"
+                                style="height: 17vh; margin-bottom: 1.5vh ">
+<!--                            上部-->
+                                <div class = "row align-items-start">
+<!--                                头像-->
+                                    <div class = "col-4">
+                                        <img src="../../assets/testp1.jpg" class="img-thumbnail"
+                                             style="width:50px; height:50px;
+                                                    border-radius: 100px; webkit-border-radius: 100px; moz-border-radius: 100px;
+                                                    margin-left: -0.5vw">
+                                        &nbsp;
+                                    </div>
+<!--                                用户名-->
+                                    <div class="col-4">
+                                        <p style="margin: 1.1vh 0 0 -2vw ; font-size: 20px">{{item.userName}}</p>
+                                    </div>
+<!--                                时间-->
+                                    <div class="col-4" v-if="$store.state.chatting.allContent != undefined
+                                         && $store.state.chatting.allContent.length > index
+                                        && $store.state.chatting.allContent[index] != undefined
+                                        && $store.state.chatting.allContent[index].chattingList != undefined
+                                        && $store.state.chatting.allContent[index].chattingList.length > 0">
+                                        <p style="margin: 2vh 0 0 0; font-size: 7px; color: gray; width: 125%">
+                                            {{stringFormat("date",store.state.chatting.allContent[index].chattingList[store.state.chatting.allContent[index].chattingList.length-1].time)}}
+                                        </p>
+                                    </div>
+                                </div>
+                                <p style="margin: -0.3vh -1vw -0.5vh -1vw; color: gainsboro; text-align: center">................................................................</p>
+<!--                            下部-->
+                                <div class = "row align-items-start" style="margin: 1vh 0 0 1vw">
+<!--                                消息预览-->
+                                    <div class="col-10" v-if="$store.state.chatting.allContent != undefined
+                                         && $store.state.chatting.allContent.length > index
+                                        && $store.state.chatting.allContent[index] != undefined
+                                        && $store.state.chatting.allContent[index].chattingList != undefined
+                                        && $store.state.chatting.allContent[index].chattingList.length > 0">
+                                        <p class="fw" style="margin: 0 -1vw 0  -2vw; font-size: 17px">
+                                            {{stringFormat("slice",store.state.chatting.allContent[index].chattingList[store.state.chatting.allContent[index].chattingList.length-1].content,10)}}
+                                        </p>
+                                    </div>
+<!--                                未读数-->
+                                    <div class="col-2">
+                                        <span class="badge rounded-pill bg-danger" style="color: white"
+                                              v-if="$store.state.chatting.allContent != undefined
+                                              && $store.state.chatting.allContent.length > index
+                                              && $store.state.chatting.allContent[index] != undefined
+                                              && $store.state.chatting.allContent[index].chattingList != undefined
+                                              && $store.state.chatting.allContent[index].chattingList.length > 0
+                                              && $store.state.chatting.allContent[index].unreadNum != 0
+                                              && $store.state.chatting.allContent[index].chattingList[store.state.chatting.allContent[index].chattingList.length - 1].senderkey != $store.state.user.id"
+                                        >{{store.state.chatting.allContent[index].unreadNum}}</span>
+                                    </div>
 
-        </SearcH>
-        <ContentField>
-          <div v-if="!$store.state.user.pulling_info">
-            <div class="list-group" style="overflow: auto;height: 55vh">
-              <div
-                  v-for="(item, index) in store.state.user.friends"
-                  :key="index"
-                  :class="index == store.state.chatting.selected ? 'list-group-item list-group-item-action active' : 'list-group-item list-group-item-action'"
-                  @click="redSession(item, index)"
-              >
-              <div>
-                <img src="../../assets/testp1.jpg" class="img-thumbnail" style="width:50px; height:50px; border-radius: 100px; webkit-border-radius: 100px; moz-border-radius: 100px;">
-                &nbsp;
-                <!-- friends[index].userName 对方用户名
-                     item.unreadNum 未读消息数
-                     item.chattingList[item.chattingList.length - 1].content 最后一条消息  -->
-                <span>{{item.userName}}</span>
-    
-                <div v-if="$store.state.chatting.allContent.length > index && $store.state.chatting.allContent[index] != undefined && $store.state.chatting.allContent[index].chattingList.length > 0">
+                                </div>
+<!--                              <p class="fw-light lh-sm" style="font-size: 15px; margin-top: 2vh"-->
+<!--                                 v-if="$store.state.chatting.allContent.length > index-->
+<!--                                    && $store.state.chatting.allContent[index] != undefined-->
+<!--                                    && $store.state.chatting.allContent[index].chattingList.length > 0-->
+<!--                                    && $store.state.chatting.allContent[index].chattingList[store.state.chatting.allContent[index].chattingList.length - 1].content"-->
+<!--                              >{{item.chattingList[item.chattingList.length - 1].content}}-->
+<!--                              </p>-->
+                              <!-- friends[index].userName 对方用户名
+                                   item.unreadNum 未读消息数
+                                   item.chattingList[item.chattingList.length - 1].content 最后一条消息  -->
 
-                  <span style="border-radius: 100%" 
-                          v-if="$store.state.chatting.allContent[index].unreadNum != 0 
-                          && $store.state.chatting.allContent[index].chattingList[store.state.chatting.allContent[index].chattingList.length - 1].senderkey != $store.state.user.id"
-                          >{{store.state.chatting.allContent[index].unreadNum}}
-                  </span>
-                  <span v-if="$store.state.chatting.allContent[index].chattingList
-                          [store.state.chatting.allContent[index].chattingList.length - 1].content"
-                          >{{
-                            store.state.chatting.allContent[index].chattingList
-                            [store.state.chatting.allContent[index].chattingList.length - 1]
-                            .content
-                          }}
-                  </span>
-                </div>
-              </div>
-            </div>
-            </div>
-          </div>
-        </ContentField>
-      </div>
-        <div class="col-9">
-          <div class="message">
-            <header class="header">
-              <div class="friendname">{{store.state.chatting.receiverName}}</div>
-            </header>
-            <div class="message-wrapper" ref="list" id="list">
-              <div class="container">  
-                <div v-for="(item,i) in store.state.chatting.content" class="message-item" :key="i"  id="list">
-                  <div class="row">
-                    <div class="col"></div>
-                    <div class="col">
-                      <div class="time"><span>{{ time(item.time) }}</span></div>
+                              <!--                <div v-if="$store.state.chatting.allContent.length > index-->
+                              <!--                            && $store.state.chatting.allContent[index] != undefined-->
+                              <!--                            && $store.state.chatting.allContent[index].chattingList.length > 0"-->
+
+                              <!--                  <span style="border-radius: 100%"-->
+                              <!--                          v-if="$store.state.chatting.allContent[index].unreadNum != 0-->
+                              <!--                          && $store.state.chatting.allContent[index].chattingList[store.state.chatting.allContent[index].chattingList.length - 1].senderkey != $store.state.user.id"-->
+                              <!--                          >{{store.state.chatting.allContent[index].unreadNum}}-->
+                              <!--                  </span>-->
+                              <!--                  <span v-if="$store.state.chatting.allContent[index].chattingList-->
+                              <!--                          [store.state.chatting.allContent[index].chattingList.length - 1].content"-->
+                              <!--                          >{{-->
+                              <!--                            store.state.chatting.allContent[index].chattingList-->
+                              <!--                            [store.state.chatting.allContent[index].chattingList.length - 1]-->
+                              <!--                            .content-->
+                              <!--                          }}-->
+                              <!--                  </span>-->
+                            </div>
+                        </div>
                     </div>
-                    <div class="col"></div>
-                  </div>
-                  <div  v-if="store.state.user.id == item.receiverkey">
-                    <div class="row">
-                      <div class="col" style="text-align: left">
-                        <img src="../../assets/testp1.jpg" class="img-thumbnail" style="width:50px; height:50px; border-radius: 100px; webkit-border-radius: 100px; moz-border-radius: 100px;">
-                        {{item.content}}
-                      </div>
-                      <div class="col"></div>
-                      <div class="col"></div>
-                    </div> 
-                  </div>
-                  <div v-else>
-                    <div class="row">
-                      <div class="col"></div>
-                      <div class="col"></div>
-                      <div class="col" style="text-align: right">
-                        {{item.content}}
-                        <img src="../../assets/testp1.jpg" class="img-thumbnail" style="width:50px; height:50px; border-radius: 100px; webkit-border-radius: 100px; moz-border-radius: 100px;">
-                      </div>
-                    </div>  
-                  </div>
-                </div>
-              </div>
+                </ContentField>
             </div>
-          </div>
-        <div>
-          <textarea class="form-control" id="validationTextarea" ref="text" v-model="content" @keyup="onKeyup"/>
-          <div class="send" >
-            <button class="btn btn-primary" @click="send">发送(enter)</button>
-          </div>
+<!--        聊天内容-->
+            <div class="col-9">
+<!--            聊天信息-->
+                <div class="message">
+                    <header class="header">
+                        <div class="fw-bold" style="font-size: 25px; margin: -1vh 0 0 -1vw">{{store.state.chatting.receiverName}}</div>
+                    </header>
+                    <div class="message-wrapper" id="list" >
+                        <div class="container">
+                            <div v-for="(item,i) in store.state.chatting.content" class="message-item" :key="i">
+                                <div class="row">
+                                    <div class="col"></div>
+                                    <div class="col">
+                                        <div class="time"><span>{{ time(item.time) }}</span></div>
+                                    </div>
+                                    <div class="col"></div>
+                                </div>
+                                <div  v-if="store.state.user.id == item.receiverkey">
+                                    <div class="row">
+                                        <div class="col-1">
+                                            <img src="../../assets/testp1.jpg" class="img-thumbnail" style="width:50px; height:50px; border-radius: 100px; webkit-border-radius: 100px; moz-border-radius: 100px;">
+                                        </div>
+                                        <div class="col-5" style="text-align: left; margin: 1.5vh 0 0 -0.5vw">
+                                            {{item.content}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div v-else>
+                                    <div class="row">
+                                        <div class="col-6"></div>
+                                        <div class="col-5" style="text-align: right; margin: 1.5vh -0.5vw 0 0">
+                                            {{item.content}}
+                                        </div>
+                                        <div class="col-1">
+                                            <img src="../../assets/testp1.jpg" class="img-thumbnail" style="width:50px; height:50px; border-radius: 100px; webkit-border-radius: 100px; moz-border-radius: 100px;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+<!--            文本输入-->
+                <div class="row">
+                    <div class="col-10">
+                        <textarea class="form-control" id="validationTextarea" ref="text" v-model="content" @keyup="onKeyup"
+                                  style="margin-bottom:-1vh; height: 200% "/>
+                    </div>
+                    <div class="col-2">
+                        <div class="send" >
+                            <button class="btn btn-primary" @click="send" style="width: 100%">
+                                <i class="fa fa-paper-plane"></i>&nbsp;&nbsp;发送
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        </div>
-    </div>
-  </ContentField>
+    </ContentField>
 </template>
 
 <script>
 import ContentField from "@/components/ContentField.vue";
-import SearcH from "@/views/chatting/components/SearcH.vue";
 import { useStore } from 'vuex'
 import { nextTick, onUnmounted, onMounted } from 'vue'
 // import $ from 'jquery'
 import { ref } from 'vue'
 
 
-
 export default {
   components: {
     ContentField,
-    SearcH,
   },
   setup(){
     const store = useStore();
@@ -136,7 +200,6 @@ export default {
     //   })
     // });
     onMounted(() =>{
-      store.commit("updateUnread", false)
       store.commit("updateSelected", -1)
       console.log(store.state.chatting.allContent)
     })
@@ -247,7 +310,10 @@ export default {
     }
   },
   methods:{
-    
+    stringFormat(type,rawText,length) {
+        if(type === "date") return rawText.slice(0,10);
+        if(type === "slice") return rawText.length <= length ?  rawText : (rawText.slice(0,length) + "...");
+    }
   }
 }
 </script>
@@ -261,8 +327,6 @@ export default {
   padding: 28px 0 0 30px;
   box-sizing: border-box;
   border-bottom: 1px solid #e7e7e7;}
-.friendname{
-  font-size: 18px}
 
 .message-wrapper{
   min-height: 390px;
@@ -318,177 +382,15 @@ span{
   margin:0 15px;}
 .content{
   background-color: #b2e281}
+.list-group.contact{
+
+}
 before{
   right: -12px;
   vertical-align: middle;
   border-right-color: transparent;
-  border-left-color: #b2e281;}
-  /*.text {
-  position: relative;
-  height: 25%;
-  background: #fff;
-
-  /deep/ .btn-wrapper-simple {
-    height: 100%;
-    line-height: 20px;
-  }
-
-  /deep/ .child-ul-wrapper {
-    max-height: 150px;
-    overflow: scroll;
-  }
-
-  /deep/ .nav-name-right {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 200px;
-  }
-
-  /deep/ .el-drawer__header {
-    margin-bottom: 0px;
-  }
-
-  .emoji {
-    position: relative;
-    width: 100%;
-    height: 40px;
-    line-height: 40px;
-    font-size: 12px;
-    padding: 0 30px;
-    box-sizing: border-box;
-    color: #7c7c7c;
-
-    .icon-look {
-      cursor: pointer;
-
-      &:hover {
-        color: #1aad19;
-      }
-    }
-
-    .elround {
-      font-size: 20px;
-      font-weight: 600;
-      padding-right: 10px;
-    }
-
-    input.pic {
-      position: absolute;
-      height: 3vh;
-      display: inline-block;
-      width: 20px;
-      border-radius: 10px;
-      opacity: 0;
-      left: 59px;
-    }
-
-    .emojiBox {
-      position: absolute;
-      display: flex;
-      flex-wrap: wrap;
-      top: -210px;
-      left: -100px;
-      width: 300px;
-      height: 200px;
-      padding: 5px;
-      background-color: #fff;
-      border: 1px solid #d1d1d1;
-      border-radius: 2px;
-      box-shadow: 0 1px 2px 1px #d1d1d1;
-
-      &.showbox-enter-active, &.showbox-leave-active {
-        transition: all 0.5s;
-      }
-
-      &.showbox-enter, &.showbox-leave-active {
-        opacity: 0;
-      }
-    }
-
-    .emojiBox1 {
-      position: absolute;
-      display: flex;
-      flex-wrap: wrap;
-      top: -210px;
-      left: -100px;
-      width: 300px;
-      height: 200px;
-      padding: 5px;
-      border-radius: 2px;
-
-      &.showbox-enter-active, &.showbox-leave-active {
-        transition: all 0.5s;
-      }
-
-      &.showbox-enter, &.showbox-leave-active {
-        opacity: 0;
-      }
-    }
-  }
-
-  textarea {
-    box-sizing: border-box;
-    padding: 0 30px;
-    height: 110px;
-    width: 100%;
-    border: none;
-    outline: none;
-    font-family: 'Micrsofot Yahei';
-    resize: none;
-  }
-
-  .send {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 75px;
-    height: 28px;
-    line-height: 28px;
-    box-sizing: border-box;
-    text-align: center;
-    border: 1px solid #e5e5e5;
-    border-radius: 3px;
-    background: #f5f5f5;
-    font-size: 14px;
-    color: #7c7c7c;
-
-    &:hover {
-      background: rgb(18, 150, 17);
-      color: #fff;
-    }
-  }
-
-  .warn {
-    position: absolute;
-    bottom: 50px;
-    right: 10px;
-    width: 110px;
-    height: 30px;
-    line-height: 30px;
-    font-size: 12px;
-    text-align: center;
-    border: 1px solid #bdbdbd;
-    border-radius: 4px;
-    box-shadow: 0 1px 5px 1px #bdbdbd;
-
-    &.appear-enter-active, &.appear-leave-active {
-      transition: all 1s;
-    }
-
-    &.appear-enter, &.appear-leave-active {
-      opacity: 0;
-    }
-
-    &:before {
-      content: ' ';
-      position: absolute;
-      top: 100%;
-      right: 20px;
-      border: 7px solid transparent;
-      border-top-color: #fff;
-      filter: drop-shadow(1px 3px 2px #bdbdbd);
-    }
-  }
-}*/
+  border-left-color: #b2e281;
+}
+  
 </style>
 
